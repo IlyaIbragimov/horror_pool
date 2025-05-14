@@ -23,7 +23,7 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public GenreDTO addGenre(GenreDTO genreDTO) {
         Genre genreCheck = this.genreRepository.findByName(genreDTO.getName());
-        if (genreCheck != null) throw new APIException("Genre" + genreCheck.getName() + " already exists");
+        if (genreCheck != null) throw new APIException("Genre " + genreCheck.getName() + " already exists");
         Genre addedGenre = this.modelMapper.map(genreDTO, Genre.class);
         this.genreRepository.save(addedGenre);
         return this.modelMapper.map(addedGenre, GenreDTO.class);
