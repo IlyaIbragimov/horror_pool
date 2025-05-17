@@ -2,6 +2,7 @@ package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.exception.APIException;
+import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.service.GenreService;
@@ -36,5 +37,23 @@ public class GenreServiceImpl implements GenreService {
         List<Genre> genres = this.genreRepository.findAll();
         if (genres.isEmpty()) throw new APIException("No genres found");
         return genres.stream().map(genre -> this.modelMapper.map(genre, GenreDTO.class)).toList();
+    }
+
+
+    @Override
+    public GenreDTO editGenre(GenreDTO genreDTO, Long genreId) {
+        Genre existingGenreWithSameName = this.genreRepository.findByName(genreDTO.getName());
+        if (existingGenreWithSameName != null && !existingGenreWithSameName.getGenreId().equals(genreId))
+            throw new APIException("Genre with the name " + existingGenreWithSameName.getName() + " already exists");
+
+        Genre genreToUpdate = this.genreRepository.findById(genreId)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre", "genreId", genreId));
+
+        genreToUpdate.setName(genreDTO.getName());
+        genreToUpdate.setDescription(genreDTO.getDescription());
+
+        this.genreRepository.save(genreToUpdate);
+
+        return this.modelMapper.map(genreToUpdate, GenreDTO.class);
     }
 }

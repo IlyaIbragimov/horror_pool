@@ -25,6 +25,12 @@ public class GenreController {
         return new ResponseEntity<GenreDTO>(result, HttpStatus.CREATED);
     }
 
+    @PutMapping("/admin/genre/update/{genreId}")
+    public ResponseEntity<GenreDTO> editGenre(@Valid @RequestBody GenreDTO genreDTO, @PathVariable Long genreId) {
+        GenreDTO result = this.genreService.editGenre(genreDTO, genreId);
+        return new ResponseEntity<GenreDTO>(result, HttpStatus.OK);
+    }
+
     @GetMapping("/genre/all")
     public ResponseEntity<List<GenreDTO>> getAllGenres() {
         List<GenreDTO> result = this.genreService.getAllGenres();

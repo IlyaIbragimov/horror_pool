@@ -10,4 +10,6 @@ public interface GenreService {
     GenreDTO addGenre(@Valid GenreDTO genreDTO);
 
     List<GenreDTO> getAllGenres();
+
+    GenreDTO editGenre(@Valid GenreDTO genreDTO, Long genreId);
 }
