@@ -12,4 +12,6 @@ public interface GenreService {
     List<GenreDTO> getAllGenres();
 
     GenreDTO editGenre(@Valid GenreDTO genreDTO, Long genreId);
+
+    GenreDTO deleteGenre(Long genreId);
 }

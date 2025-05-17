@@ -56,4 +56,14 @@ public class GenreServiceImpl implements GenreService {
 
         return this.modelMapper.map(genreToUpdate, GenreDTO.class);
     }
+
+    @Override
+    public GenreDTO deleteGenre(Long genreId) {
+        Genre genreToDelete = this.genreRepository.findById(genreId)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre", "genreId", genreId));
+
+        this.genreRepository.delete(genreToDelete);
+
+        return this.modelMapper.map(genreToDelete, GenreDTO.class);
+    }
 }

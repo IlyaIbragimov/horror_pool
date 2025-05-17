@@ -37,4 +37,10 @@ public class GenreController {
         return new ResponseEntity<List<GenreDTO>>(result, HttpStatus.OK);
     }
 
+    @DeleteMapping("/admin/genre/delete/{genreId}")
+    public ResponseEntity<GenreDTO> deleteGenre(@PathVariable Long genreId) {
+        GenreDTO result = this.genreService.deleteGenre(genreId);
+        return new ResponseEntity<GenreDTO>(result, HttpStatus.OK);
+    }
+
 }
