@@ -5,10 +5,9 @@ import com.social.horror_pool.service.GenreService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/horrorpool")
@@ -20,10 +19,16 @@ public class GenreController {
         this.genreService = genreService;
     }
 
-    @PostMapping("/genre/admin/add")
+    @PostMapping("/admin/genre/add")
     public ResponseEntity<GenreDTO> addGenre(@Valid @RequestBody GenreDTO genreDTO) {
         GenreDTO result = this.genreService.addGenre(genreDTO);
         return new ResponseEntity<GenreDTO>(result, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/genre/all")
+    public ResponseEntity<List<GenreDTO>> getAllGenres() {
+        List<GenreDTO> result = this.genreService.getAllGenres();
+        return new ResponseEntity<List<GenreDTO>>(result, HttpStatus.OK);
     }
 
 }

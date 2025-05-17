@@ -8,6 +8,8 @@ import com.social.horror_pool.service.GenreService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class GenreServiceImpl implements GenreService {
 
@@ -27,5 +29,12 @@ public class GenreServiceImpl implements GenreService {
         Genre addedGenre = this.modelMapper.map(genreDTO, Genre.class);
         this.genreRepository.save(addedGenre);
         return this.modelMapper.map(addedGenre, GenreDTO.class);
+    }
+
+    @Override
+    public List<GenreDTO> getAllGenres() {
+        List<Genre> genres = this.genreRepository.findAll();
+        if (genres.isEmpty()) throw new APIException("No genres found");
+        return genres.stream().map(genre -> this.modelMapper.map(genre, GenreDTO.class)).toList();
     }
 }
