@@ -22,6 +22,9 @@ public class Genre {
 
     private String name;
 
+    @Column(length = 1000)
+    private String description;
+
     @ManyToMany(mappedBy = "genres")
     private List<Movie> movies = new ArrayList<>();
 }
