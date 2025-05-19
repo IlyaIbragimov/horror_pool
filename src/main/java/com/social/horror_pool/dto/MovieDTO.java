@@ -1,6 +1,8 @@
 package com.social.horror_pool.dto;
 
 import com.social.horror_pool.model.Genre;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,13 +18,13 @@ import java.util.List;
 public class MovieDTO {
 
     private Long movieId;
-
+    @NotBlank(message = "Movie title cannot be empty")
     private String title;
     private String originalTitle;
+    @Size(max = 1000, message = "Description cannot be longer than 1000 characters")
     private String description;
     private String overview;
     private LocalDate releaseDate;
-
     private String posterPath;
     private String backdropPath;
 
@@ -34,5 +36,5 @@ public class MovieDTO {
     private Boolean adult;
     private Boolean video;
 
-    private List<Genre> genres = new ArrayList<>();
+    private List<GenreDTO> genres = new ArrayList<>();
 }
