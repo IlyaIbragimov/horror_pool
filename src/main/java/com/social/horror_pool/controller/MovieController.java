@@ -5,10 +5,9 @@ import com.social.horror_pool.service.MovieService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/horrorpool")
@@ -24,5 +23,11 @@ public class MovieController {
     public ResponseEntity<MovieDTO> addMovie(@Valid @RequestBody MovieDTO movieDTO){
         MovieDTO result = this.movieService.addMovie(movieDTO);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/movie/all")
+    public ResponseEntity<List<MovieDTO>> getAllMovies(){
+        List<MovieDTO> result = this.movieService.getAllMovies();
+        return new ResponseEntity<List<MovieDTO>>(result, HttpStatus.OK);
     }
 }

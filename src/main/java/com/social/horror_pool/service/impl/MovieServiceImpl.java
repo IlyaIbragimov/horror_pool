@@ -8,6 +8,8 @@ import com.social.horror_pool.service.MovieService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class MovieServiceImpl implements MovieService {
 
@@ -27,5 +29,13 @@ public class MovieServiceImpl implements MovieService {
         Movie addedMovie = this.modelMapper.map(movieDTO, Movie.class);
         this.movieRepository.save(addedMovie);
         return this.modelMapper.map(addedMovie, MovieDTO.class);
+    }
+
+    @Override
+    public List<MovieDTO> getAllMovies() {
+        List<Movie> allMovies = this.movieRepository.findAll();
+        if (allMovies.isEmpty()) throw new APIException("No movies available");
+        return allMovies.stream()
+                .map(movie -> this.modelMapper.map(movie, MovieDTO.class)).toList();
     }
 }

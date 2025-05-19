@@ -1,6 +1,5 @@
 package com.social.horror_pool.dto;
 
-import com.social.horror_pool.model.Genre;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
