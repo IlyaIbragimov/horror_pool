@@ -36,4 +36,6 @@ public class MovieController {
         MovieDTO result = this.movieService.editMovie(movieDTO,movieId);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
+
+
 }

@@ -46,7 +46,8 @@ public class MovieServiceImpl implements MovieService {
     public MovieDTO editMovie(MovieDTO movieDTO, Long movieId) {
 
         Movie movieExistingWithSameTitle = this.movieRepository.findByTitle(movieDTO.getTitle());
-        if (movieExistingWithSameTitle != null && movieExistingWithSameTitle.getReleaseDate().equals(movieDTO.getReleaseDate()))
+        if (movieExistingWithSameTitle != null && movieExistingWithSameTitle.getReleaseDate().equals(movieDTO.getReleaseDate())
+                && !movieExistingWithSameTitle.getMovieId().equals(movieId))
             throw new APIException("The movie " + movieDTO.getTitle() + " " + "(" + movieDTO.getReleaseDate() + ")" + " already exists.");
 
         Movie movieToEdit = this.movieRepository.findById(movieId)
@@ -69,9 +70,11 @@ public class MovieServiceImpl implements MovieService {
         if (!movieDTO.getGenres().isEmpty()) {
             List<Genre> genresEdited = movieDTO.getGenres().stream()
                     .map(genreDTO -> this.modelMapper.map(genreDTO, Genre.class)).toList();
-            movieToEdit.setGenres(genresEdited);
-        }
-        
+            movieToEdit.getGenres().clear();
+            movieToEdit.getGenres().addAll(genresEdited);
+            };
+
+
         this.movieRepository.save(movieToEdit);
 
         return this.modelMapper.map(movieToEdit, MovieDTO.class);
