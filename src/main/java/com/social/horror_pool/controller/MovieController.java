@@ -30,4 +30,10 @@ public class MovieController {
         List<MovieDTO> result = this.movieService.getAllMovies();
         return new ResponseEntity<List<MovieDTO>>(result, HttpStatus.OK);
     }
+
+    @PutMapping("/admin/movie/{movieId}/edit")
+    public ResponseEntity<MovieDTO> editMovie(@Valid @RequestBody MovieDTO movieDTO, @PathVariable Long movieId){
+        MovieDTO result = this.movieService.editMovie(movieDTO,movieId);
+        return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
+    }
 }

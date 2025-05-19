@@ -9,4 +9,6 @@ public interface MovieService {
     MovieDTO addMovie(@Valid MovieDTO movieDTO);
 
     List<MovieDTO> getAllMovies();
+
+    MovieDTO editMovie(@Valid MovieDTO movieDTO, Long movieId);
 }
