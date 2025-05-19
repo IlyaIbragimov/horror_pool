@@ -45,13 +45,13 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public MovieDTO editMovie(MovieDTO movieDTO, Long movieId) {
 
+        Movie movieToEdit = this.movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
+
         Movie movieExistingWithSameTitle = this.movieRepository.findByTitle(movieDTO.getTitle());
         if (movieExistingWithSameTitle != null && movieExistingWithSameTitle.getReleaseDate().equals(movieDTO.getReleaseDate())
                 && !movieExistingWithSameTitle.getMovieId().equals(movieId))
             throw new APIException("The movie " + movieDTO.getTitle() + " " + "(" + movieDTO.getReleaseDate() + ")" + " already exists.");
-
-        Movie movieToEdit = this.movieRepository.findById(movieId)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
 
         movieToEdit.setTitle(movieDTO.getTitle());
         movieToEdit.setOriginalTitle(movieDTO.getOriginalTitle());

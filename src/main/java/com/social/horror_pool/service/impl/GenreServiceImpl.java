@@ -47,12 +47,13 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public GenreDTO editGenre(GenreDTO genreDTO, Long genreId) {
-        Genre existingGenreWithSameName = this.genreRepository.findByName(genreDTO.getName());
-        if (existingGenreWithSameName != null && !existingGenreWithSameName.getGenreId().equals(genreId))
-            throw new APIException("Genre with the name " + existingGenreWithSameName.getName() + " already exists");
 
         Genre genreToUpdate = this.genreRepository.findById(genreId)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre", "genreId", genreId));
+
+        Genre existingGenreWithSameName = this.genreRepository.findByName(genreDTO.getName());
+        if (existingGenreWithSameName != null && !existingGenreWithSameName.getGenreId().equals(genreId))
+            throw new APIException("Genre with the name " + existingGenreWithSameName.getName() + " already exists");
 
         genreToUpdate.setName(genreDTO.getName());
         genreToUpdate.setDescription(genreDTO.getDescription());
