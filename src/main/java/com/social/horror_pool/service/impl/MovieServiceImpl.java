@@ -5,6 +5,7 @@ import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.model.Movie;
+import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieService;
 import org.modelmapper.ModelMapper;
@@ -19,9 +20,12 @@ public class MovieServiceImpl implements MovieService {
 
     private final ModelMapper modelMapper;
 
-    public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper) {
+    private final GenreRepository genreRepository;
+
+    public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper, GenreRepository genreRepository) {
         this.modelMapper = modelMapper;
         this.movieRepository = movieRepository;
+        this.genreRepository = genreRepository;
     }
 
     @Override
@@ -80,6 +84,20 @@ public class MovieServiceImpl implements MovieService {
         return this.modelMapper.map(movieToEdit, MovieDTO.class);
     }
 
+    @Override
+    public MovieDTO deleteMovie(Long movieId) {
+        Movie movieToDelete = this.movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
+
+        for (Genre genre : movieToDelete.getGenres()) {
+            genre.getMovies().remove(movieToDelete);
+            this.genreRepository.save(genre);
+        }
+
+        movieToDelete.getGenres().clear();
+        this.movieRepository.delete(movieToDelete);
+        return this.modelMapper.map(movieToDelete, MovieDTO.class);
+    }
 
 
 }

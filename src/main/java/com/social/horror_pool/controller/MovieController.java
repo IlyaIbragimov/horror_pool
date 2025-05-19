@@ -37,5 +37,11 @@ public class MovieController {
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
 
+    @DeleteMapping("/admin/movie/{movieId}/delete")
+    public ResponseEntity<MovieDTO> deleteMovie(@PathVariable Long movieId){
+        MovieDTO result = this.movieService.deleteMovie(movieId);
+        return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
+    }
+
 
 }

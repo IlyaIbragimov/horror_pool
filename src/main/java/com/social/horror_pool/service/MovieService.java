@@ -11,4 +11,6 @@ public interface MovieService {
     List<MovieDTO> getAllMovies();
 
     MovieDTO editMovie(@Valid MovieDTO movieDTO, Long movieId);
+
+    MovieDTO deleteMovie(Long movieId);
 }
