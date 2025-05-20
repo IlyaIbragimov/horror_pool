@@ -13,6 +13,8 @@ public class Watchlist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long watchlistId;
 
+    private String title;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
