@@ -14,6 +14,6 @@ public class WatchlistController {
         this.watchlistService = watchlistService;
     }
 
-    
+
 
 }
