@@ -11,7 +11,7 @@ import java.util.List;
 public interface GenreService {
     GenreDTO addGenre(@Valid GenreDTO genreDTO);
 
-    GenreAllResponse getAllGenres(Integer pageNumber, Integer pageSize, String sort, String order);
+    GenreAllResponse getAllGenres(Integer pageNumber, Integer pageSize, String order);
 
     GenreDTO editGenre(@Valid GenreDTO genreDTO, Long genreId);
 

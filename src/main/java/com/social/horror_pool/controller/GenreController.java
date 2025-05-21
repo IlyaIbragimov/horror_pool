@@ -35,12 +35,11 @@ public class GenreController {
 
     @GetMapping("/genre/all")
     public ResponseEntity<GenreAllResponse> getAllGenres(
-            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
-            @RequestParam(name = "sort", defaultValue = AppConstants.SORT_BY_NAME_GENRES, required = false) String sort,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ) {
-        GenreAllResponse result = this.genreService.getAllGenres(pageNumber, pageSize, sort, order);
+        GenreAllResponse result = this.genreService.getAllGenres(pageNumber, pageSize, order);
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
     }
 

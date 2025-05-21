@@ -43,9 +43,10 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public GenreAllResponse getAllGenres(Integer pageNumber, Integer pageSize, String sort, String order) {
+    public GenreAllResponse getAllGenres(Integer pageNumber, Integer pageSize, String order) {
 
-        Sort sortByAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sort).ascending() : Sort.by(sort).descending();
+        Sort sortByAndOrder = order.equalsIgnoreCase("asc")
+                ? Sort.by("name").ascending() : Sort.by("name").descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
