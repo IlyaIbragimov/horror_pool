@@ -41,9 +41,9 @@ public class GenreController {
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/genre/search/{keyword}")
+    @GetMapping("/genre/search")
     public ResponseEntity<GenreAllResponse> getGenresByKeyword(
-            @PathVariable String keyword,
+            @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order

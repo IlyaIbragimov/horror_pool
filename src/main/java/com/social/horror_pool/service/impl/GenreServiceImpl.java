@@ -98,12 +98,12 @@ public class GenreServiceImpl implements GenreService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
-        Page<Genre> page = this.genreRepository.findByNameLikeIgnoreCase( keyword + '%', pageable);
+        Page<Genre> page = this.genreRepository.findByNameLikeIgnoreCase( '%' + keyword + '%', pageable);
 
         return generateGenrePageResponse(page, pageNumber, pageSize);
 
     }
-    
+
     private GenreAllResponse generateGenrePageResponse(Page<Genre> page, Integer pageNumber, Integer pageSize) {
         List<Genre> genresSorted = page.getContent();
 
