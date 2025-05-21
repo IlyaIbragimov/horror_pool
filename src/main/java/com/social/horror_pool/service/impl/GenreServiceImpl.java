@@ -54,8 +54,6 @@ public class GenreServiceImpl implements GenreService {
 
         List<Genre> genresSorted = page.getContent();
 
-        if (genresSorted.isEmpty()) throw new APIException("No genres found");
-
         List<GenreDTO> genreDTOS = genresSorted.stream()
                 .map(genre -> this.modelMapper.map(genre,GenreDTO.class)).toList();
 
