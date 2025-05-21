@@ -16,4 +16,6 @@ public interface GenreService {
     GenreDTO editGenre(@Valid GenreDTO genreDTO, Long genreId);
 
     GenreDTO deleteGenre(Long genreId);
+
+    GenreAllResponse getGenresByKeyword(Integer pageNumber, Integer pageSize, String order, String keyword);
 }

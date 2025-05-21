@@ -5,13 +5,9 @@ import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.service.GenreService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/horrorpool")
@@ -36,13 +32,23 @@ public class GenreController {
     }
 
     @GetMapping("/genre/all")
-    @Validated
     public ResponseEntity<GenreAllResponse> getAllGenres(
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false) @Min(0) Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false) @Min(1) Integer pageSize,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ) {
         GenreAllResponse result = this.genreService.getAllGenres(pageNumber, pageSize, order);
+        return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/genre/search/{keyword}")
+    public ResponseEntity<GenreAllResponse> getGenresByKeyword(
+            @PathVariable String keyword,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ) {
+        GenreAllResponse result = this.genreService.getGenresByKeyword(pageNumber, pageSize, order, keyword);
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
     }
 

@@ -52,20 +52,7 @@ public class GenreServiceImpl implements GenreService {
 
         Page<Genre> page = this.genreRepository.findAll(pageable);
 
-        List<Genre> genresSorted = page.getContent();
-
-        List<GenreDTO> genreDTOS = genresSorted.stream()
-                .map(genre -> this.modelMapper.map(genre,GenreDTO.class)).toList();
-
-        GenreAllResponse response = new GenreAllResponse();
-        response.setGenres(genreDTOS);
-        response.setPageNumber(pageNumber);
-        response.setPageSize(pageSize);
-        response.setTotalPages(page.getTotalPages());
-        response.setLastPage(page.isLast());
-        response.setTotalElements(page.getTotalElements());
-
-        return response;
+        return generateGenrePageResponse(page, pageNumber, pageSize);
     }
 
 
@@ -102,5 +89,35 @@ public class GenreServiceImpl implements GenreService {
         this.genreRepository.delete(genreToDelete);
 
         return this.modelMapper.map(genreToDelete, GenreDTO.class);
+    }
+
+    @Override
+    public GenreAllResponse getGenresByKeyword(Integer pageNumber, Integer pageSize, String order, String keyword) {
+        Sort sortByAndOrder = order.equalsIgnoreCase("asc")
+                ? Sort.by("name").ascending() : Sort.by("name").descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Genre> page = this.genreRepository.findByNameLikeIgnoreCase( keyword + '%', pageable);
+
+        return generateGenrePageResponse(page, pageNumber, pageSize);
+
+    }
+    
+    private GenreAllResponse generateGenrePageResponse(Page<Genre> page, Integer pageNumber, Integer pageSize) {
+        List<Genre> genresSorted = page.getContent();
+
+        List<GenreDTO> genreDTOS = genresSorted.stream()
+                .map(genre -> this.modelMapper.map(genre,GenreDTO.class)).toList();
+
+        GenreAllResponse response = new GenreAllResponse();
+        response.setGenres(genreDTOS);
+        response.setPageNumber(pageNumber);
+        response.setPageSize(pageSize);
+        response.setTotalPages(page.getTotalPages());
+        response.setLastPage(page.isLast());
+        response.setTotalElements(page.getTotalElements());
+
+        return response;
     }
 }
