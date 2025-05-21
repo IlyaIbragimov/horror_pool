@@ -2,7 +2,9 @@ package com.social.horror_pool.configuration;
 
 public class AppConstants {
 
-    private final String PAGE_NUMBER = "0";
-    private final String PAGE_SIZE = "1";
-    private final String SORT_ORDER = "asc";
+    public static final String PAGE_NUMBER = "0";
+    public static final String PAGE_SIZE = "5";
+    public static final String ORDER_TYPE = "asc";
+
+    public static final String SORT_BY_NAME_GENRES = "name";
 }

@@ -2,6 +2,8 @@ package com.social.horror_pool.service;
 
 
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.payload.GenreAllResponse;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.List;
 public interface GenreService {
     GenreDTO addGenre(@Valid GenreDTO genreDTO);
 
-    List<GenreDTO> getAllGenres();
+    GenreAllResponse getAllGenres(Integer pageNumber, Integer pageSize, String sort, String order);
 
     GenreDTO editGenre(@Valid GenreDTO genreDTO, Long genreId);
 

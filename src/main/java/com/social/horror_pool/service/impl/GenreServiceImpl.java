@@ -5,10 +5,15 @@ import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.model.Movie;
+import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.GenreService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,10 +43,30 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public List<GenreDTO> getAllGenres() {
-        List<Genre> genres = this.genreRepository.findAll();
-        if (genres.isEmpty()) throw new APIException("No genres found");
-        return genres.stream().map(genre -> this.modelMapper.map(genre, GenreDTO.class)).toList();
+    public GenreAllResponse getAllGenres(Integer pageNumber, Integer pageSize, String sort, String order) {
+
+        Sort sortByAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sort).ascending() : Sort.by(sort).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Genre> page = this.genreRepository.findAll(pageable);
+
+        List<Genre> genresSorted = page.getContent();
+
+        if (genresSorted.isEmpty()) throw new APIException("No genres found");
+
+        List<GenreDTO> genreDTOS = genresSorted.stream()
+                .map(genre -> this.modelMapper.map(genre,GenreDTO.class)).toList();
+
+        GenreAllResponse response = new GenreAllResponse();
+        response.setGenres(genreDTOS);
+        response.setPageNumber(pageNumber);
+        response.setPageSize(pageSize);
+        response.setTotalPages(page.getTotalPages());
+        response.setLastPage(page.isLast());
+        response.setTotalElements(page.getTotalElements());
+
+        return response;
     }
 
 

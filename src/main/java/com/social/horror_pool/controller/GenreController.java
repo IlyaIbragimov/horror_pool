@@ -1,6 +1,8 @@
 package com.social.horror_pool.controller;
 
+import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.service.GenreService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -32,9 +34,14 @@ public class GenreController {
     }
 
     @GetMapping("/genre/all")
-    public ResponseEntity<List<GenreDTO>> getAllGenres() {
-        List<GenreDTO> result = this.genreService.getAllGenres();
-        return new ResponseEntity<List<GenreDTO>>(result, HttpStatus.OK);
+    public ResponseEntity<GenreAllResponse> getAllGenres(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sort", defaultValue = AppConstants.SORT_BY_NAME_GENRES, required = false) String sort,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ) {
+        GenreAllResponse result = this.genreService.getAllGenres(pageNumber, pageSize, sort, order);
+        return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/genre/delete/{genreId}")
