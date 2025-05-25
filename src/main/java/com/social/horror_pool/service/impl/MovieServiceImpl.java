@@ -84,21 +84,6 @@ public class MovieServiceImpl implements MovieService {
         movieToEdit.setAdult(movieDTO.getAdult());
         movieToEdit.setVideo(movieDTO.getVideo());
 
-//        if (!movieDTO.getGenres().isEmpty()) {
-
-//            movieDTO.getGenres().forEach(genre -> {
-////                if (this.genreRepository.findById(genre.getGenreId()).isEmpty())
-////                    throw new ResourceNotFoundException("Genre", "genreId", genre.getGenreId());
-////
-////            });
-////
-////
-////            List<Genre> genresEdited = movieDTO.getGenres().stream()
-////                    .map(genreDTO -> this.modelMapper.map(genreDTO, Genre.class)).toList();
-////            movieToEdit.getGenres().clear();
-////            movieToEdit.getGenres().addAll(genresEdited);
-////            };
-
         if (!movieDTO.getGenres().isEmpty()) {
 
             List<Long> genresId = movieDTO.getGenres().stream()
@@ -114,13 +99,13 @@ public class MovieServiceImpl implements MovieService {
             }
 
             List<Genre> genresToAdd = genresId.stream()
-                    .map(genreMapByGenresIds :: get)
+                    .map(genreMapByGenresIds::get)
                     .toList();
 
             movieToEdit.getGenres().clear();
             movieToEdit.getGenres().addAll(genresToAdd);
         }
-        
+
         this.movieRepository.save(movieToEdit);
 
         return this.modelMapper.map(movieToEdit, MovieDTO.class);
@@ -139,6 +124,19 @@ public class MovieServiceImpl implements MovieService {
         movieToDelete.getGenres().clear();
         this.movieRepository.delete(movieToDelete);
         return this.modelMapper.map(movieToDelete, MovieDTO.class);
+    }
+
+    @Override
+    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword) {
+
+        Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
+
+        Page<Movie> page = this.movieRepository.findByTitleLikeIgnoreCase('%' + keyword + '%', pageable);
+
+        return generateMovieAllResponse(page, pageNumber, pageSize);
+
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){

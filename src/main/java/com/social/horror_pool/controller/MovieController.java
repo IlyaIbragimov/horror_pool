@@ -33,10 +33,22 @@ public class MovieController {
     public ResponseEntity<MovieAllResponse> getAllMovies(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
-            @RequestParam (name = "sort", defaultValue = AppConstants.SORT_TYPE_MOVIE_DEFAULT, required = false) String sortBy,
+            @RequestParam (name = "sort", defaultValue = AppConstants.SORT_TYPE_MOVIE_DEFAULT, required = false) String sort,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
-        MovieAllResponse result = this.movieService.getAllMovies(pageNumber, pageSize, sortBy, order);
+        MovieAllResponse result = this.movieService.getAllMovies(pageNumber, pageSize, sort, order);
+        return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/movie/search")
+    public ResponseEntity<MovieAllResponse> searchMoviesByKeyword(
+            @RequestParam(name = "keyword") String keyword,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam (name = "sort", defaultValue = AppConstants.SORT_TYPE_MOVIE_DEFAULT, required = false) String sort,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ) {
+        MovieAllResponse result = this.movieService.getMoviesByKeyword(pageNumber, pageSize, sort, order, keyword);
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
 

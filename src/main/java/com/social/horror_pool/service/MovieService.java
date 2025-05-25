@@ -14,4 +14,6 @@ public interface MovieService {
     MovieDTO editMovie(@Valid MovieDTO movieDTO, Long movieId);
 
     MovieDTO deleteMovie(Long movieId);
+
+    MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sort, String order, String keyword);
 }
