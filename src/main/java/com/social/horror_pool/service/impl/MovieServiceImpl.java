@@ -1,17 +1,25 @@
 package com.social.horror_pool.service.impl;
 
+import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.model.Movie;
+import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class MovieServiceImpl implements MovieService {
@@ -39,11 +47,16 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public List<MovieDTO> getAllMovies() {
-        List<Movie> allMovies = this.movieRepository.findAll();
-        if (allMovies.isEmpty()) throw new APIException("No movies available");
-        return allMovies.stream()
-                .map(movie -> this.modelMapper.map(movie, MovieDTO.class)).toList();
+    public MovieAllResponse getAllMovies(Integer pageNumber, Integer pageSize, String sortBy, String order) {
+
+        Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
+
+        Page<Movie> page = this.movieRepository.findAll(pageable);
+
+        return generateMovieAllResponse(page, pageNumber, pageSize);
+
     }
 
     @Override
@@ -71,14 +84,43 @@ public class MovieServiceImpl implements MovieService {
         movieToEdit.setAdult(movieDTO.getAdult());
         movieToEdit.setVideo(movieDTO.getVideo());
 
+//        if (!movieDTO.getGenres().isEmpty()) {
+
+//            movieDTO.getGenres().forEach(genre -> {
+////                if (this.genreRepository.findById(genre.getGenreId()).isEmpty())
+////                    throw new ResourceNotFoundException("Genre", "genreId", genre.getGenreId());
+////
+////            });
+////
+////
+////            List<Genre> genresEdited = movieDTO.getGenres().stream()
+////                    .map(genreDTO -> this.modelMapper.map(genreDTO, Genre.class)).toList();
+////            movieToEdit.getGenres().clear();
+////            movieToEdit.getGenres().addAll(genresEdited);
+////            };
+
         if (!movieDTO.getGenres().isEmpty()) {
-            List<Genre> genresEdited = movieDTO.getGenres().stream()
-                    .map(genreDTO -> this.modelMapper.map(genreDTO, Genre.class)).toList();
+
+            List<Long> genresId = movieDTO.getGenres().stream()
+                    .map(GenreDTO::getGenreId).toList();
+
+            Map<Long, Genre> genreMapByGenresIds = this.genreRepository.findAllById(genresId).stream()
+                    .collect(Collectors.toMap(Genre::getGenreId, genre -> genre));
+
+            for (Long genreId : genresId) {
+                if (!genreMapByGenresIds.containsKey(genreId)) {
+                    throw new ResourceNotFoundException("Genre", "genreId", genreId);
+                }
+            }
+
+            List<Genre> genresToAdd = genresId.stream()
+                    .map(genreMapByGenresIds :: get)
+                    .toList();
+
             movieToEdit.getGenres().clear();
-            movieToEdit.getGenres().addAll(genresEdited);
-            };
-
-
+            movieToEdit.getGenres().addAll(genresToAdd);
+        }
+        
         this.movieRepository.save(movieToEdit);
 
         return this.modelMapper.map(movieToEdit, MovieDTO.class);
@@ -97,6 +139,25 @@ public class MovieServiceImpl implements MovieService {
         movieToDelete.getGenres().clear();
         this.movieRepository.delete(movieToDelete);
         return this.modelMapper.map(movieToDelete, MovieDTO.class);
+    }
+
+    private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
+
+        List<Movie> moviesSorted = page.getContent();
+
+        List<MovieDTO> movieDTOS = moviesSorted.stream()
+                .map(movie -> this.modelMapper.map(movie, MovieDTO.class)).toList();
+
+        MovieAllResponse response = new MovieAllResponse();
+        response.setMovies(movieDTOS);
+        response.setPageNumber(pageNumber);
+        response.setPageSize(pageSize);
+        response.setTotalPages(page.getTotalPages());
+        response.setTotalElements(page.getTotalElements());
+        response.setLastPage(page.isLast());
+        return response;
+
+
     }
 
 
