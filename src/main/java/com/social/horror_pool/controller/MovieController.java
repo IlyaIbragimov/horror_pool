@@ -4,6 +4,7 @@ import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.service.MovieService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,9 +44,15 @@ public class MovieController {
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
             @RequestParam (name = "sort", defaultValue = AppConstants.SORT_TYPE_MOVIE_DEFAULT, required = false) String sort,
-            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
-    ) {
-        MovieAllResponse result = this.movieService.getMoviesByKeyword(pageNumber, pageSize, sort, order, keyword);
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order,
+            @RequestParam(name = "year", required = false) Integer year,
+            @RequestParam(name = "language", required = false) String language,
+            @RequestParam(name = "adult", required = false) Boolean adult,
+            @RequestParam(name = "voteAverage", required = false) Double voteAverage,
+            @RequestParam(name = "popularity", required = false) Double popularity
+
+            ) {
+        MovieAllResponse result = this.movieService.getMoviesByKeyword(pageNumber, pageSize, sort, order, keyword,  year, language,  adult, voteAverage, popularity);
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
 

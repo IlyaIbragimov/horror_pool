@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,6 +79,7 @@ public class MovieServiceImpl implements MovieService {
         movieToEdit.setDescription(movieDTO.getDescription());
         movieToEdit.setOverview(movieDTO.getOverview());
         movieToEdit.setReleaseDate(movieDTO.getReleaseDate());
+        movieToEdit.setReleaseYear(movieDTO.getReleaseYear());
         movieToEdit.setPosterPath(movieDTO.getPosterPath());
         movieToEdit.setBackdropPath(movieDTO.getBackdropPath());
         movieToEdit.setVoteAverage(movieDTO.getVoteAverage());
@@ -130,7 +132,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword) {
+    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword, Integer year, String language, Boolean adult, Double voteAverage, Double popularity) {
 
         if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
 
@@ -138,7 +140,11 @@ public class MovieServiceImpl implements MovieService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
 
-        Page<Movie> page = this.movieRepository.findByTitleLikeIgnoreCase('%' + keyword + '%', pageable);
+        Specification<Movie> filters = filterMovies(year,language,adult,voteAverage,popularity, keyword);
+
+        Page<Movie> page = this.movieRepository.findAll(filters, pageable);
+
+        //Page<Movie> page = this.movieRepository.findByTitleLikeIgnoreCase('%' + keyword + '%', pageable);
 
         return generateMovieAllResponse(page, pageNumber, pageSize);
 
@@ -160,6 +166,44 @@ public class MovieServiceImpl implements MovieService {
         response.setLastPage(page.isLast());
         return response;
 
+
+    }
+
+    private Specification<Movie> filterMovies(Integer year, String language, Boolean adult, Double voteAverage, Double popularity, String keyword) {
+
+        Specification<Movie> filters = Specification.where(null);
+
+        if (year != null) {
+           filters = filters.and((root, query, criteriaBuilder) ->
+                   criteriaBuilder.equal(root.get("releaseYear"), year));
+        }
+
+        if (language != null && !language.isBlank()) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("originalLanguage"), language));
+        }
+
+        if (adult != null) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("adult"), adult));
+        }
+
+        if (voteAverage != null) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("voteAverage"), voteAverage));
+        }
+
+        if (popularity != null) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.greaterThanOrEqualTo(root.get("popularity"), popularity));
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        return filters;
 
     }
 

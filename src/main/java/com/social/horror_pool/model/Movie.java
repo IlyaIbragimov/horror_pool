@@ -24,6 +24,7 @@ public class Movie {
     private String description;
     private String overview;
     private LocalDate releaseDate;
+    private Integer releaseYear;
 
     private String posterPath;
     private String backdropPath;
