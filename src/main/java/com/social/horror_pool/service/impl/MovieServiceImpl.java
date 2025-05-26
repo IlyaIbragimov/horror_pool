@@ -2,6 +2,7 @@ package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.dto.MovieDTO;
+import com.social.horror_pool.enums.MovieSortField;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
@@ -48,6 +49,8 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public MovieAllResponse getAllMovies(Integer pageNumber, Integer pageSize, String sortBy, String order) {
+
+        if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
 
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
@@ -128,6 +131,8 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword) {
+
+        if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
 
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 

@@ -2,16 +2,13 @@ package com.social.horror_pool.controller;
 
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.MovieDTO;
-import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.service.MovieService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/horrorpool")
