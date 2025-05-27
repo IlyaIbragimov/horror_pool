@@ -31,6 +31,10 @@ public class  User {
 
     private String password;
 
+    private boolean enabled;
+
+    private boolean locked;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Watchlist> watchlist = new ArrayList<>();
 
