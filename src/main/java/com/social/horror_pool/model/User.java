@@ -2,6 +2,8 @@ package com.social.horror_pool.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -46,5 +48,11 @@ public class  User {
     )
     private Set<Role> roles = new HashSet<>();
 
-
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.enabled = true;
+        this.locked = false;
+    }
 }
