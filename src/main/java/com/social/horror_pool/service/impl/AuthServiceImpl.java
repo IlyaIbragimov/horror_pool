@@ -8,8 +8,9 @@ import com.social.horror_pool.payload.MessageResponse;
 import com.social.horror_pool.repository.RoleRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.service.AuthService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,10 +49,27 @@ public class AuthServiceImpl implements AuthService {
         User user = new User(username, email, this.passwordEncoder.encode(password));
 
         Role role = this.roleRepository.findByRoleName(RoleName.ROLE_USER)
-                        .orElseThrow(() -> new APIException("Error: Role not found"));
+                        .orElseThrow(() -> new APIException("Error: Role " + RoleName.ROLE_USER + " not found"));
 
         user.setRoles(Set.of(role));
         userRepository.save(user);
         return new MessageResponse("User successfully created");
+    }
+
+    @Override
+    public MessageResponse signInUser(String username, String password) {
+        try {
+            Authentication authentication = this.authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            return new MessageResponse("User successfully logged in");
+
+        } catch (BadCredentialsException e) {
+            return new MessageResponse("Invalid username or password");
+        } catch (DisabledException e) {
+            return new MessageResponse("Your account is disabled");
+        } catch (LockedException e) {
+            return new MessageResponse("Your account is locked");
+        }
     }
 }

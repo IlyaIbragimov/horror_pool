@@ -1,6 +1,7 @@
 package com.social.horror_pool.controller;
 
 import com.social.horror_pool.payload.MessageResponse;
+import com.social.horror_pool.payload.SignInRequest;
 import com.social.horror_pool.payload.SignUpRequest;
 import com.social.horror_pool.service.AuthService;
 import jakarta.validation.Valid;
@@ -20,6 +21,14 @@ public class AuthController {
 
     public AuthController( AuthService authService) {
         this.authService = authService;
+    }
+
+
+
+    @PostMapping("/signin")
+    public ResponseEntity<MessageResponse> signInUser(@Valid @RequestBody SignInRequest signInRequest) {
+        MessageResponse response = this.authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/signup")

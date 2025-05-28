@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream().
-                map(userRole -> new SimpleGrantedAuthority(userRole.getRoleName().toString()))
+                map(userRole -> new SimpleGrantedAuthority(userRole.getRoleName().name()))
                 .collect(Collectors.toSet());
     }
 
@@ -40,7 +40,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return this.user.isLocked();
+        return !this.user.isLocked();
     }
 
     @Override
