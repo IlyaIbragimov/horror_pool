@@ -7,6 +7,7 @@ import com.social.horror_pool.model.User;
 import com.social.horror_pool.payload.MessageResponse;
 import com.social.horror_pool.repository.RoleRepository;
 import com.social.horror_pool.repository.UserRepository;
+import com.social.horror_pool.security.jwt.JwtTokenProvider;
 import com.social.horror_pool.service.AuthService;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -27,11 +28,14 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -59,10 +63,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public MessageResponse signInUser(String username, String password) {
         try {
-            Authentication authentication = this.authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            Authentication authentication = this.authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return new MessageResponse("User successfully logged in");
+
+            String token = this.jwtTokenProvider.generateTokenFromUsername(username);
+
+            return new MessageResponse("User successfully logged in with token " + token);
 
         } catch (BadCredentialsException e) {
             return new MessageResponse("Invalid username or password");
