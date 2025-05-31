@@ -1,6 +1,7 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.payload.MessageResponse;
+import com.social.horror_pool.payload.UserInfoResponse;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -12,4 +13,8 @@ public interface AuthService {
     ResponseEntity<?> signInUser(@NotBlank String username, @NotBlank String password);
 
     ResponseEntity<?> signOutUser();
+
+    UserInfoResponse fetchCurrentUserInfo();
+
+    String getCurrentUsername();
 }

@@ -5,6 +5,7 @@ import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Role;
 import com.social.horror_pool.model.User;
 import com.social.horror_pool.payload.MessageResponse;
+import com.social.horror_pool.payload.UserInfoResponse;
 import com.social.horror_pool.repository.RoleRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.security.CustomUserDetails;
@@ -16,11 +17,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -98,4 +100,26 @@ public class AuthServiceImpl implements AuthService {
         ResponseCookie responseCookie = this.jwtTokenProvider.generateCleanCookie();
         return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString()).body(new MessageResponse("User successfully logged out"));
     }
+
+    @Override
+    public UserInfoResponse fetchCurrentUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Set<String> roles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+
+        return new UserInfoResponse(customUserDetails.getUser().getUserId(), customUserDetails.getUsername(), roles);
+    }
+
+    @Override
+    public String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null) {
+            return authentication.getName();
+        }
+        return "";
+    }
+
 }

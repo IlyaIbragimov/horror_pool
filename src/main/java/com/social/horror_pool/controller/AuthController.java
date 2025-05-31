@@ -3,14 +3,13 @@ package com.social.horror_pool.controller;
 import com.social.horror_pool.payload.MessageResponse;
 import com.social.horror_pool.payload.SignInRequest;
 import com.social.horror_pool.payload.SignUpRequest;
+import com.social.horror_pool.payload.UserInfoResponse;
 import com.social.horror_pool.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/horrorpool")
@@ -38,5 +37,14 @@ public class AuthController {
     @PostMapping("/public/signout")
     public ResponseEntity<?> signOutUser() {
         return this.authService.signOutUser();
+    }
+    @GetMapping("/username")
+    public String getCurrentUsername() {
+        return this.authService.getCurrentUsername();
+    }
+    @GetMapping("/user")
+    public ResponseEntity<UserInfoResponse> fetchCurrentUserInfo() {
+        UserInfoResponse response = this.authService.fetchCurrentUserInfo();
+        return new ResponseEntity<UserInfoResponse>(response, HttpStatus.OK);
     }
 }
