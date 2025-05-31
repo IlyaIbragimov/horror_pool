@@ -9,5 +9,7 @@ import org.springframework.http.ResponseEntity;
 public interface AuthService {
     MessageResponse signUpNewUser(@NotBlank @Size(min = 5, max = 20) String username, @NotBlank @Email @Size(max = 50) String email, @NotBlank @Size(min = 8, max = 20) String password, String confirmPassword);
 
-    MessageResponse signInUser(@NotBlank String username, @NotBlank String password);
+    ResponseEntity<?> signInUser(@NotBlank String username, @NotBlank String password);
+
+    ResponseEntity<?> signOutUser();
 }

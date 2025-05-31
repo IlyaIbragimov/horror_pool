@@ -7,8 +7,13 @@ import com.social.horror_pool.model.User;
 import com.social.horror_pool.payload.MessageResponse;
 import com.social.horror_pool.repository.RoleRepository;
 import com.social.horror_pool.repository.UserRepository;
+import com.social.horror_pool.security.CustomUserDetails;
 import com.social.horror_pool.security.jwt.JwtTokenProvider;
 import com.social.horror_pool.service.AuthService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,23 +66,36 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public MessageResponse signInUser(String username, String password) {
+    public ResponseEntity<?> signInUser(String username, String password) {
+
+        if (!userRepository.existsByUsername(username)) {
+            return new ResponseEntity<>(new MessageResponse("Username not found"), HttpStatus.NOT_FOUND);
+        }
+
         try {
             Authentication authentication = this.authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            String token = this.jwtTokenProvider.generateTokenFromUsername(username);
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-            return new MessageResponse("User successfully logged in with token " + token);
+            ResponseCookie responseCookie = this.jwtTokenProvider.generateCookie(customUserDetails);
+
+            return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString()).body(new MessageResponse("User successfully logged in"));
 
         } catch (BadCredentialsException e) {
-            return new MessageResponse("Invalid username or password");
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid username or password"));
         } catch (DisabledException e) {
-            return new MessageResponse("Your account is disabled");
+            return ResponseEntity.badRequest().body(new MessageResponse("Your account is disabled"));
         } catch (LockedException e) {
-            return new MessageResponse("Your account is locked");
+            return ResponseEntity.badRequest().body(new MessageResponse("Your account is locked"));
         }
+    }
+
+    @Override
+    public ResponseEntity<?> signOutUser() {
+        ResponseCookie responseCookie = this.jwtTokenProvider.generateCleanCookie();
+        return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString()).body(new MessageResponse("User successfully logged out"));
     }
 }

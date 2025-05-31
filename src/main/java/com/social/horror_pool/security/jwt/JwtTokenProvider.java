@@ -1,12 +1,16 @@
 package com.social.horror_pool.security.jwt;
 
+import com.social.horror_pool.security.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -22,6 +26,9 @@ public class JwtTokenProvider {
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
+    @Value("${spring.app.cookieName}")
+    private String cookieName;
+
     private Key key;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -29,12 +36,12 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void initKey() {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(this.jwtSecret));
     }
 
     public String generateTokenFromUsername(String username) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        Date expiryDate = new Date(now.getTime() + this.jwtExpirationMs);
 
         return Jwts.builder()
                 .subject(username)
@@ -55,7 +62,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith((SecretKey) key)
+                    .verifyWith((SecretKey) this.key)
                     .build()
                     .parseSignedClaims(token);
             return true;
@@ -69,5 +76,37 @@ public class JwtTokenProvider {
             log.error("Empty JWT token.");
         }
         return false;
+    }
+
+    // Cookie things
+
+    public ResponseCookie generateCookie(CustomUserDetails customUserDetails) {
+        String jwtToken = generateTokenFromUsername(customUserDetails.getUsername());
+        return ResponseCookie.from(this.cookieName, jwtToken)
+                .path("/")
+                .maxAge(24*60*60)
+                .httpOnly(true)
+                .secure(false)
+                .sameSite("Strict")
+                .build();
+    }
+
+    public ResponseCookie generateCleanCookie() {
+        return ResponseCookie.from(this.cookieName, null)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+    }
+
+    public String getJwtFromCookie(HttpServletRequest httpServletRequest) {
+        if (httpServletRequest.getCookies() != null) {
+            for (Cookie cookie : httpServletRequest.getCookies()) {
+                if (cookie.getName().equals(this.cookieName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }
