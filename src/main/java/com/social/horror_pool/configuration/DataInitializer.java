@@ -1,5 +1,6 @@
 package com.social.horror_pool.configuration;
 
+import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Role;
 import com.social.horror_pool.model.User;
 import com.social.horror_pool.repository.RoleRepository;
@@ -9,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -32,7 +35,11 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         if (this.userRepository.count() == 0) {
+            Role adminRole = this.roleRepository.findByRoleName(RoleName.ROLE_ADMIN)
+                    .orElseThrow(() -> new APIException("No admin role found"));
+
             User admin = new User("admin", "admin@example.com", passwordEncoder.encode("adminPassword"));
+            admin.setRoles(Set.of(adminRole));
             this.userRepository.save(admin);
         }
     }

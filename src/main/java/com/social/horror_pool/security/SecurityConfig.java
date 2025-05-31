@@ -51,7 +51,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/horrorpool/signup","/horrorpool/signin", "/horrorpool/signout").permitAll()
+                        .requestMatchers("/horrorpool/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/horrorpool/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

@@ -31,7 +31,7 @@ public class GenreController {
         return new ResponseEntity<GenreDTO>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/genre/all")
+    @GetMapping("/public/genre/all")
     public ResponseEntity<GenreAllResponse> getAllGenres(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
@@ -41,7 +41,7 @@ public class GenreController {
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/genre/search")
+    @GetMapping("/public/genre/search")
     public ResponseEntity<GenreAllResponse> getGenresByKeyword(
             @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,

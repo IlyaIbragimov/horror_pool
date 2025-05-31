@@ -27,7 +27,7 @@ public class MovieController {
         return new ResponseEntity<MovieDTO>(result, HttpStatus.CREATED);
     }
 
-    @GetMapping("/movie/all")
+    @GetMapping("/public/movie/all")
     public ResponseEntity<MovieAllResponse> getAllMovies(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
@@ -38,7 +38,7 @@ public class MovieController {
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
 
-    @GetMapping("/movie/search")
+    @GetMapping("/public/movie/search")
     public ResponseEntity<MovieAllResponse> searchMoviesByKeyword(
             @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
@@ -67,8 +67,4 @@ public class MovieController {
         MovieDTO result = this.movieService.deleteMovie(movieId);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
-
-
-
-
 }

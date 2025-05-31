@@ -25,17 +25,17 @@ public class AuthController {
 
 
 
-    @PostMapping("/signin")
+    @PostMapping("/public/signin")
     public ResponseEntity<?> signInUser(@Valid @RequestBody SignInRequest signInRequest) {
         return this.authService.signInUser(signInRequest.getUsername(), signInRequest.getPassword());
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/public/signup")
     public ResponseEntity<MessageResponse> signUpNewUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         MessageResponse response = this.authService.signUpNewUser(signUpRequest.getUsername(), signUpRequest.getEmail(), signUpRequest.getPassword(), signUpRequest.getConfirmPassword());
         return new ResponseEntity<MessageResponse>(response, HttpStatus.CREATED);
     }
-    @PostMapping("/signout")
+    @PostMapping("/public/signout")
     public ResponseEntity<?> signOutUser() {
         return this.authService.signOutUser();
     }
