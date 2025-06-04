@@ -14,6 +14,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class WatchlistServiceImpl implements WatchlistService {
 
@@ -38,16 +42,28 @@ public class WatchlistServiceImpl implements WatchlistService {
     @Override
     public WatchlistDTO createWatchlist(String title) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new APIException("Please sign in to create a watchlist"));
+        User user = getCurrentUser();
 
         Watchlist watchlist = new Watchlist();
 
         watchlist.setTitle(title);
         watchlist.setUser(user);
-        watchlistRepository.save(watchlist);
-        return modelMapper.map(watchlist, WatchlistDTO.class);
+        this.watchlistRepository.save(watchlist);
+        return this.modelMapper.map(watchlist, WatchlistDTO.class);
 
+    }
+
+    @Override
+    public List<WatchlistDTO> getAllWatchlists() {
+        User user = getCurrentUser();
+        List<Watchlist> watchlists = this.watchlistRepository.findAllByUser(user);
+        return watchlists.stream()
+                .map(watchlist -> this.modelMapper.map(watchlist, WatchlistDTO.class)).toList();
+    }
+
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new APIException("Please sign in to create a watchlist"));
     }
 }
