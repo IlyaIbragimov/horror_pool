@@ -15,7 +15,7 @@ public class WatchlistItemDTO {
 
     private MovieDTO movieDTO;
 
-    private List<WatchlistItemDTO> watchlistItemDTOList;
+    private Long watchlistId;
 
     private boolean watched;
 

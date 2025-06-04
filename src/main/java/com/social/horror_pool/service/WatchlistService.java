@@ -15,4 +15,6 @@ public interface WatchlistService {
     WatchlistDTO updateWatchlist(Long watchlistId, @NotBlank @Size(min = 3, max = 30, message = "Watchlist title must be 3-30 characters long" ) String title);
 
     WatchlistDTO deleteWatchlist(Long watchlistId);
+
+    WatchlistDTO addMovieToWatchlist(Long watchlistId, Long movieID);
 }
