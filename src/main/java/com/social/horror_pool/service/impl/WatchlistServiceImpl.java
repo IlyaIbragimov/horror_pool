@@ -6,6 +6,7 @@ import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.model.User;
 import com.social.horror_pool.model.Watchlist;
+import com.social.horror_pool.model.WatchlistItem;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
@@ -92,6 +93,24 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.watchlistRepository.save(watchlist);
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
 
+    }
+
+    @Override
+    public WatchlistDTO deleteWatchlist(Long watchlistId) {
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        List<WatchlistItem> watchlistItems = watchlist.getWatchlistItems();
+
+        watchlist.getWatchlistItems().clear();
+
+        for ( WatchlistItem watchlistItem : watchlistItems) {
+            this.watchlistItemRepository.delete(watchlistItem);
+        }
+
+        this.watchlistRepository.delete(watchlist);
+        return this.modelMapper.map(watchlist, WatchlistDTO.class);
     }
 
     private User getCurrentUser() {

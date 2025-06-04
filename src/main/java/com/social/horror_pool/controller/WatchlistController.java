@@ -47,4 +47,10 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{watchlistId}/delete")
+    public ResponseEntity<WatchlistDTO> deleteWatchlist(@PathVariable Long watchlistId){
+        WatchlistDTO response = this.watchlistService.deleteWatchlist(watchlistId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
