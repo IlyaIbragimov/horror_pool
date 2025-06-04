@@ -5,6 +5,7 @@ import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.model.Watchlist;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.service.WatchlistService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class WatchlistController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<WatchlistDTO> createWatchlist(@RequestBody WatchlistDTO watchlistDTO){
+    public ResponseEntity<WatchlistDTO> createWatchlist(@Valid @RequestBody WatchlistDTO watchlistDTO){
         WatchlistDTO response = this.watchlistService.createWatchlist(watchlistDTO.getTitle());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -39,11 +40,11 @@ public class WatchlistController {
 
     @PutMapping("/{watchlistId}/update")
     public ResponseEntity<WatchlistDTO> renameWatchlist(
-            @RequestBody WatchlistDTO watchlistDTO,
+           @Valid @RequestBody WatchlistDTO watchlistDTO,
             @PathVariable Long watchlistId
     ){
         WatchlistDTO response = this.watchlistService.updateWatchlist(watchlistId ,watchlistDTO.getTitle());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
+
 }
