@@ -161,6 +161,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
+    @Transactional
     public WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId) {
 
         User user = getCurrentUser();
@@ -175,12 +176,17 @@ public class WatchlistServiceImpl implements WatchlistService {
         WatchlistItem watchlistItemToRemove = this.watchlistItemRepository.findById(watchlistItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("WatchlistItem", "id", watchlistItemId));
 
+        if (!watchlistItemToRemove.getWatchlist().equals(watchlist)) {
+            throw new APIException("This movie does not belong to the specified watchlist.");
+        }
+
         watchlist.getWatchlistItems().remove(watchlistItemToRemove);
+
+        this.watchlistItemRepository.delete(watchlistItemToRemove);
 
         this.watchlistRepository.save(watchlist);
 
         WatchlistDTO response = this.modelMapper.map(watchlist, WatchlistDTO.class);
-
         List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
                 .map(item -> {
                     WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
