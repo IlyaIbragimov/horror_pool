@@ -1,7 +1,9 @@
 package com.social.horror_pool.controller;
 
+import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.model.Watchlist;
+import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.service.WatchlistService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/horrorpool")
+@RequestMapping("/horrorpool/user/watchlist")
 public class WatchlistController {
 
     private final WatchlistService watchlistService;
@@ -19,17 +21,23 @@ public class WatchlistController {
         this.watchlistService = watchlistService;
     }
 
-    @PostMapping("/user/watchlist/create")
+    @PostMapping("/create")
     public ResponseEntity<WatchlistDTO> createWatchlist(@RequestBody WatchlistDTO watchlistDTO){
         WatchlistDTO response = this.watchlistService.createWatchlist(watchlistDTO.getTitle());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/user/watchlist/all")
-    public ResponseEntity<List<WatchlistDTO>> getAllWatchlists(){
-        List<WatchlistDTO> response = this.watchlistService.getAllWatchlists();
+    @GetMapping("/all")
+    public ResponseEntity<WatchlistAllResponse> getAllWatchlists(
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ){
+        WatchlistAllResponse response = this.watchlistService.getAllWatchlists(pageNumber, pageSize, order);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+
 
 
 
