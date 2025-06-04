@@ -43,7 +43,7 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private List<Genre> genres = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "movies")
-    private List<Watchlist> watchlists = new ArrayList<>();
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WatchlistItem> watchlistItems = new ArrayList<>();
 
 }

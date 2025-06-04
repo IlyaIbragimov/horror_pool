@@ -1,12 +1,18 @@
 package com.social.horror_pool.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Watchlist {
 
     @Id
@@ -19,11 +25,7 @@ public class Watchlist {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany
-    @JoinTable(name = "watchlist_movie",
-            joinColumns = @JoinColumn(name = "watchlist_id"),
-            inverseJoinColumns = @JoinColumn(name = "movie_id"))
-    private List<Movie> movies = new ArrayList<>();
-
+    @OneToMany(mappedBy = "watchlist", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WatchlistItem> watchlistItems;
 
 }

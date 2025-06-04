@@ -20,7 +20,7 @@ import java.util.Set;
         @UniqueConstraint(columnNames = "username"),
         @UniqueConstraint(columnNames = "email")})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class  User {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
