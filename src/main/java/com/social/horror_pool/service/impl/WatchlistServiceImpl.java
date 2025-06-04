@@ -2,6 +2,7 @@ package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.exception.APIException;
+import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.model.User;
 import com.social.horror_pool.model.Watchlist;
@@ -47,8 +48,15 @@ public class WatchlistServiceImpl implements WatchlistService {
 
     @Override
     public WatchlistDTO createWatchlist(String title) {
-
         User user = getCurrentUser();
+
+        List<Watchlist> usersWatchlist = user.getWatchlist();
+
+        if (!usersWatchlist.isEmpty()) {
+            for (Watchlist watchlist : usersWatchlist) {
+                if (watchlist.getTitle().equals(title)) throw new APIException("You already have a watchlist with this title");
+            }
+        }
 
         Watchlist watchlist = new Watchlist();
 
@@ -71,6 +79,18 @@ public class WatchlistServiceImpl implements WatchlistService {
         Page<Watchlist> page = this.watchlistRepository.findAllByUser(user, pageable);
 
         return generateWatchlistAllResponse(page,pageNumber,pageSize);
+
+    }
+
+    @Override
+    public WatchlistDTO updateWatchlist(Long watchlistId, String title) {
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        watchlist.setTitle(title);
+        this.watchlistRepository.save(watchlist);
+        return this.modelMapper.map(watchlist, WatchlistDTO.class);
 
     }
 

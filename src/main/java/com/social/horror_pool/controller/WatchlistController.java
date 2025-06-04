@@ -37,9 +37,13 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
-
-
-
-
+    @PutMapping("/{watchlistId}/update")
+    public ResponseEntity<WatchlistDTO> renameWatchlist(
+            @RequestBody WatchlistDTO watchlistDTO,
+            @PathVariable Long watchlistId
+    ){
+        WatchlistDTO response = this.watchlistService.updateWatchlist(watchlistId ,watchlistDTO.getTitle());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
 }
