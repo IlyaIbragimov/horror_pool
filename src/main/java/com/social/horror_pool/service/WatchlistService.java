@@ -17,4 +17,6 @@ public interface WatchlistService {
     WatchlistDTO deleteWatchlist(Long watchlistId);
 
     WatchlistDTO addMovieToWatchlist(Long watchlistId, Long movieID);
+
+    WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId);
 }

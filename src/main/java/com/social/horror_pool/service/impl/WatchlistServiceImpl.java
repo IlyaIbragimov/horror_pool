@@ -160,11 +160,45 @@ public class WatchlistServiceImpl implements WatchlistService {
         return response;
     }
 
+    @Override
+    public WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId) {
+
+        User user = getCurrentUser();
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        if (!watchlist.getUser().equals(user)) {
+            throw new APIException("You do not have permission to modify this watchlist.");
+        }
+
+        WatchlistItem watchlistItemToRemove = this.watchlistItemRepository.findById(watchlistItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("WatchlistItem", "id", watchlistItemId));
+
+        watchlist.getWatchlistItems().remove(watchlistItemToRemove);
+
+        this.watchlistRepository.save(watchlist);
+
+        WatchlistDTO response = this.modelMapper.map(watchlist, WatchlistDTO.class);
+
+        List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
+                .map(item -> {
+                    WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
+                    watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
+                    return watchlistItemDTO;
+                }).toList();
+
+        response.setWatchlistItemDTOS(watchlistItemDTOS);
+        return response;
+
+    }
+
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByUsername(auth.getName())
                 .orElseThrow(() -> new APIException("Please, register sign in to create a watchlist"));
     }
+
 
     private WatchlistAllResponse generateWatchlistAllResponse(Page<Watchlist> page, Integer pageNumber, Integer pageSize) {
         List<Watchlist> watchlists = page.getContent();

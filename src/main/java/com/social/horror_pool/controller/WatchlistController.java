@@ -62,4 +62,13 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{watchlistId}/remove/{watchlistItemId}")
+    public ResponseEntity<WatchlistDTO> removeMovieFromWatchlist(
+            @PathVariable Long watchlistId,
+            @PathVariable Long watchlistItemId
+    ) {
+        WatchlistDTO response = this.watchlistService.removeMovieFromWatchlist(watchlistId, watchlistItemId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
