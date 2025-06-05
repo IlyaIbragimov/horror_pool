@@ -119,7 +119,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
     @Override
     @Transactional
-    public WatchlistDTO addMovieToWatchlist(Long watchlistId, Long movieID) {
+    public WatchlistDTO addMovieToWatchlist(Long watchlistId, Long movieId) {
         User user = getCurrentUser();
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
@@ -129,11 +129,11 @@ public class WatchlistServiceImpl implements WatchlistService {
             throw new APIException("You do not have permission to modify this watchlist.");
         }
 
-        Movie movie = this.movieRepository.findById(movieID)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieID));
+        Movie movie = this.movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieId));
 
         boolean alreadyInWatchlist = watchlist.getWatchlistItems().stream()
-                .anyMatch(item -> item.getMovie().getMovieId().equals(movieID));
+                .anyMatch(item -> item.getMovie().getMovieId().equals(movieId));
         if (alreadyInWatchlist) {
             throw new APIException("Movie is already in the watchlist.");
         }
@@ -147,19 +147,10 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         this.watchlistRepository.save(watchlist);
 
-
-        WatchlistDTO response = this.modelMapper.map(watchlist, WatchlistDTO.class);
-
-        List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
-                        .map(item -> {
-                            WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
-                            watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
-                            return watchlistItemDTO;
-                        }).toList();
-
-        response.setWatchlistItemDTOS(watchlistItemDTOS);
-        return response;
+        return getWatchlistDTO(watchlist);
     }
+
+
 
     @Override
     @Transactional
@@ -184,19 +175,8 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.getWatchlistItems().remove(watchlistItemToRemove);
 
         this.watchlistItemRepository.delete(watchlistItemToRemove);
-
         this.watchlistRepository.save(watchlist);
-
-        WatchlistDTO response = this.modelMapper.map(watchlist, WatchlistDTO.class);
-        List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
-                .map(item -> {
-                    WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
-                    watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
-                    return watchlistItemDTO;
-                }).toList();
-
-        response.setWatchlistItemDTOS(watchlistItemDTOS);
-        return response;
+        return getWatchlistDTO(watchlist);
 
     }
 
@@ -214,11 +194,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         List<WatchlistItem> watchlistItems = watchlist.getWatchlistItems();
 
         Stream<WatchlistItem> watchlistItemStream = watchlistItems.stream();
-
-        if (watched == null) {
-            watchlistItemStream = watchlistItems.stream();
-        }
-
+        
         if (Boolean.TRUE.equals(watched)) {
             watchlistItemStream = watchlistItemStream.filter(WatchlistItem::isWatched);
         }
@@ -298,21 +274,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
 
         List<WatchlistDTO> watchlistDTOS = watchlists.stream()
-                .map(watchlist -> {
-                    WatchlistDTO watchlistDTO = this.modelMapper.map(watchlist, WatchlistDTO.class);
-
-                    List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
-                            .map(item -> {
-                                WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
-                                watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
-                                return watchlistItemDTO;
-                            }).toList();
-
-                    watchlistDTO.setWatchlistItemDTOS(watchlistItemDTOS);
-
-                    return watchlistDTO;
-                }).toList();
-
+                .map(this::getWatchlistDTO).toList();
 
         WatchlistAllResponse watchlistAllResponse = new WatchlistAllResponse();
         watchlistAllResponse.setPageNumber(pageNumber);
@@ -323,5 +285,20 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlistAllResponse.setTotalElements(page.getTotalElements());
         return watchlistAllResponse;
 
+    }
+
+    private WatchlistDTO getWatchlistDTO(Watchlist watchlist) {
+
+        WatchlistDTO watchlistDTO = this.modelMapper.map(watchlist, WatchlistDTO.class);
+
+        List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
+                .map(item -> {
+                    WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
+                    watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
+                    return watchlistItemDTO;
+                }).toList();
+
+        watchlistDTO.setWatchlistItemDTOS(watchlistItemDTOS);
+        return watchlistDTO;
     }
 }

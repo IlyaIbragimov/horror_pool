@@ -53,12 +53,12 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/{watchlistId}/add/{movieID}")
+    @PostMapping("/{watchlistId}/add/{movieId}")
     public ResponseEntity<WatchlistDTO> addMovieToWatchlist(
             @PathVariable Long watchlistId,
-            @PathVariable Long movieID
+            @PathVariable Long movieId
     ) {
-        WatchlistDTO response = this.watchlistService.addMovieToWatchlist(watchlistId, movieID);
+        WatchlistDTO response = this.watchlistService.addMovieToWatchlist(watchlistId, movieId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
