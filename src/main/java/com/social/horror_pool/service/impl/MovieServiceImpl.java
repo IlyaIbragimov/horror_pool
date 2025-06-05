@@ -11,6 +11,7 @@ import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,6 +65,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public MovieDTO editMovie(MovieDTO movieDTO, Long movieId) {
 
         Movie movieToEdit = this.movieRepository.findById(movieId)
@@ -117,6 +119,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public MovieDTO deleteMovie(Long movieId) {
         Movie movieToDelete = this.movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
@@ -143,8 +146,6 @@ public class MovieServiceImpl implements MovieService {
         Specification<Movie> filters = filterMovies(year,language,adult,voteAverage,popularity, keyword);
 
         Page<Movie> page = this.movieRepository.findAll(filters, pageable);
-
-        //Page<Movie> page = this.movieRepository.findByTitleLikeIgnoreCase('%' + keyword + '%', pageable);
 
         return generateMovieAllResponse(page, pageNumber, pageSize);
 

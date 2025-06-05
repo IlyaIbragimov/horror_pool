@@ -2,15 +2,14 @@ package com.social.horror_pool.controller;
 
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.WatchlistDTO;
-import com.social.horror_pool.model.Watchlist;
 import com.social.horror_pool.payload.WatchlistAllResponse;
+import com.social.horror_pool.payload.WatchlistByIdResponse;
 import com.social.horror_pool.service.WatchlistService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/horrorpool/user/watchlist")
@@ -68,6 +67,18 @@ public class WatchlistController {
             @PathVariable Long watchlistItemId
     ) {
         WatchlistDTO response = this.watchlistService.removeMovieFromWatchlist(watchlistId, watchlistItemId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{watchlistId}")
+    public ResponseEntity<WatchlistByIdResponse> getWatchlistById(
+            @PathVariable Long watchlistId,
+            @RequestParam(name = "watched", required = false) Boolean watched,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ){
+        WatchlistByIdResponse response = this.watchlistService.getWatchlistById(watchlistId, watched, pageNumber, pageSize, order);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

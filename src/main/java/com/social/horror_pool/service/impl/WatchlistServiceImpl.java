@@ -10,6 +10,7 @@ import com.social.horror_pool.model.User;
 import com.social.horror_pool.model.Watchlist;
 import com.social.horror_pool.model.WatchlistItem;
 import com.social.horror_pool.payload.WatchlistAllResponse;
+import com.social.horror_pool.payload.WatchlistByIdResponse;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.repository.WatchlistItemRepository;
@@ -17,28 +18,27 @@ import com.social.horror_pool.repository.WatchlistRepository;
 import com.social.horror_pool.service.WatchlistService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class WatchlistServiceImpl implements WatchlistService {
 
     private final WatchlistRepository watchlistRepository;
 
-    private WatchlistItemRepository watchlistItemRepository;
+    private final WatchlistItemRepository watchlistItemRepository;
 
     private final UserRepository userRepository;
 
-    private MovieRepository movieRepository;
+    private final MovieRepository movieRepository;
 
     private final ModelMapper modelMapper;
 
@@ -196,6 +196,67 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         response.setWatchlistItemDTOS(watchlistItemDTOS);
         return response;
+
+    }
+
+    @Override
+    public WatchlistByIdResponse getWatchlistById(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order) {
+        User user = getCurrentUser();
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        if (!watchlist.getUser().equals(user)) {
+            throw new APIException("You do not have permission to view this watchlist.");
+        }
+
+        List<WatchlistItem> watchlistItems = watchlist.getWatchlistItems();
+
+        Stream<WatchlistItem> watchlistItemStream = watchlistItems.stream();
+
+        if (watched == null) {
+            watchlistItemStream = watchlistItems.stream();
+        }
+
+        if (Boolean.TRUE.equals(watched)) {
+            watchlistItemStream = watchlistItemStream.filter(WatchlistItem::isWatched);
+        }
+
+        if (Boolean.FALSE.equals(watched)) {
+            watchlistItemStream = watchlistItemStream.filter(watchlistItem -> !watchlistItem.isWatched());
+        }
+
+        Comparator<WatchlistItem> comparator = Comparator.comparing(watchlistItem -> watchlistItem.getMovie().getTitle().toLowerCase());
+
+        if (!order.equals("asc")) {
+            comparator = comparator.reversed();
+        }
+
+        watchlistItemStream = watchlistItemStream.sorted(comparator);
+
+        watchlistItems = watchlistItemStream.toList();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<WatchlistItem> page = new PageImpl<>(watchlistItems, pageable, watchlistItems.size());
+
+        List<WatchlistItemDTO> watchlistItemDTOS = page.getContent().stream()
+                .map(item -> {
+                    WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
+                    watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
+                    return watchlistItemDTO;
+                }).toList();
+
+        WatchlistByIdResponse watchlistByIdResponse = new WatchlistByIdResponse();
+        watchlistByIdResponse.setTitle(watchlist.getTitle());
+        watchlistByIdResponse.setItems(watchlistItemDTOS);
+        watchlistByIdResponse.setPageNumber(page.getNumber());
+        watchlistByIdResponse.setPageSize(page.getSize());
+        watchlistByIdResponse.setTotalElements(page.getTotalElements());
+        watchlistByIdResponse.setTotalPages(page.getTotalPages());
+        watchlistByIdResponse.setLastPage(page.isLast());
+
+        return watchlistByIdResponse;
 
     }
 
