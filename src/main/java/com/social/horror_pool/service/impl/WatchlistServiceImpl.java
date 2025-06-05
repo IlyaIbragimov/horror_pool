@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -257,6 +258,31 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlistByIdResponse.setLastPage(page.isLast());
 
         return watchlistByIdResponse;
+
+    }
+
+    @Override
+    public WatchlistItemDTO toggleWatchlistItemAsWatched(Long watchlistId, Long watchlistItemId) {
+
+        User user = getCurrentUser();
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        if (!watchlist.getUser().equals(user)) {
+            throw new APIException("You do not have permission to view this watchlist.");
+        }
+
+        WatchlistItem watchlistItem = this.watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(watchlistId, watchlistItemId)
+                        .orElseThrow(() -> new APIException("Movie was not found in the watchlist"));
+
+
+        watchlistItem.setWatched(!watchlistItem.isWatched());
+        this.watchlistItemRepository.save(watchlistItem);
+
+        WatchlistItemDTO response = this.modelMapper.map(watchlistItem, WatchlistItemDTO.class);
+        response.setMovieDTO(this.modelMapper.map(watchlistItem.getMovie(), MovieDTO.class));
+        return response;
 
     }
 

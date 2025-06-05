@@ -1,6 +1,7 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.WatchlistDTO;
+import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.payload.WatchlistByIdResponse;
 import jakarta.validation.constraints.NotBlank;
@@ -22,4 +23,6 @@ public interface WatchlistService {
     WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId);
 
     WatchlistByIdResponse getWatchlistById(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order);
+
+    WatchlistItemDTO toggleWatchlistItemAsWatched(Long watchlistId, Long watchlistItemId);
 }

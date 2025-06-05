@@ -2,6 +2,7 @@ package com.social.horror_pool.controller;
 
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.WatchlistDTO;
+import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.payload.WatchlistByIdResponse;
 import com.social.horror_pool.service.WatchlistService;
@@ -79,6 +80,15 @@ public class WatchlistController {
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
         WatchlistByIdResponse response = this.watchlistService.getWatchlistById(watchlistId, watched, pageNumber, pageSize, order);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/{watchlistId}/toggle/{watchlistItemId}")
+    public ResponseEntity<WatchlistItemDTO> toggleWatchlistItem(
+            @PathVariable Long watchlistId,
+            @PathVariable Long watchlistItemId
+    ) {
+        WatchlistItemDTO response = this.watchlistService.toggleWatchlistItemAsWatched(watchlistId, watchlistItemId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
