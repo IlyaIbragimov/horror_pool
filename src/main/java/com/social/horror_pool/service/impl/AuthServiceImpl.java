@@ -109,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
 
         Set<String> roles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
-        return new UserInfoResponse(customUserDetails.getUser().getUserId(), customUserDetails.getUsername(), roles);
+        return new UserInfoResponse(customUserDetails.getUser().getUserId(), customUserDetails.getUsername(), roles, customUserDetails.isAccountNonLocked());
     }
 
     @Override

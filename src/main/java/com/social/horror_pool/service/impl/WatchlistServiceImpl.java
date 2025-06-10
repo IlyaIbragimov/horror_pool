@@ -194,7 +194,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         List<WatchlistItem> watchlistItems = watchlist.getWatchlistItems();
 
         Stream<WatchlistItem> watchlistItemStream = watchlistItems.stream();
-        
+
         if (Boolean.TRUE.equals(watched)) {
             watchlistItemStream = watchlistItemStream.filter(WatchlistItem::isWatched);
         }
