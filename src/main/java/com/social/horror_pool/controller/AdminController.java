@@ -24,4 +24,8 @@ public class AdminController {
         UserInfoResponse response = this.adminService.changeUserLockStatus(userId);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+
+
+
+
 }

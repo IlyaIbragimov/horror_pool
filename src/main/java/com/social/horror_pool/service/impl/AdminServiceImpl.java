@@ -35,7 +35,15 @@ public class AdminServiceImpl implements AdminService {
                 .map(role -> role.getRoleName().name()).collect(Collectors.toSet());
 
         this.logger.info("User locked: {}", userToModify.getUsername());
+        
+        UserInfoResponse response = new UserInfoResponse();
+        response.setUsername(userToModify.getUsername());
+        response.setRoles(roles);
+        response.setLocked(userToModify.isLocked());
+        response.setEmail(userToModify.getEmail());
+        response.setUserId(userId);
+        response.setEnabled(userToModify.isEnabled());
 
-        return new UserInfoResponse(userToModify.getUserId(), userToModify.getUsername(), roles, userToModify.isLocked());
+        return response;
     }
 }
