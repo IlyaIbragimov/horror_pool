@@ -31,18 +31,36 @@ public class AdminServiceImpl implements AdminService {
         userToModify.setLocked(!userToModify.isLocked());
         this.userRepository.save(userToModify);
 
-        Set<String> roles = userToModify.getRoles().stream()
+        this.logger.info("Admin toggled lock status for user: {}", userToModify.getUsername());
+
+        return getUserInfoResponse(userToModify);
+    }
+
+    @Override
+    public UserInfoResponse disableUser(Long userId) {
+
+        User userToModify = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        userToModify.setEnabled(!userToModify.isEnabled());
+        this.userRepository.save(userToModify);
+
+        this.logger.info("Admin toggled enable status for user: {}", userToModify.getUsername());
+
+        return getUserInfoResponse(userToModify);
+    }
+
+    private UserInfoResponse getUserInfoResponse(User user) {
+        Set<String> roles = user.getRoles().stream()
                 .map(role -> role.getRoleName().name()).collect(Collectors.toSet());
 
-        this.logger.info("User locked: {}", userToModify.getUsername());
-        
         UserInfoResponse response = new UserInfoResponse();
-        response.setUsername(userToModify.getUsername());
+        response.setUsername(user.getUsername());
         response.setRoles(roles);
-        response.setLocked(userToModify.isLocked());
-        response.setEmail(userToModify.getEmail());
-        response.setUserId(userId);
-        response.setEnabled(userToModify.isEnabled());
+        response.setLocked(user.isLocked());
+        response.setEmail(user.getEmail());
+        response.setUserId(user.getUserId());
+        response.setEnabled(user.isEnabled());
 
         return response;
     }

@@ -25,6 +25,12 @@ public class AdminController {
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
+    @PutMapping("/user/{userId}/disable")
+    public ResponseEntity<UserInfoResponse> disableUser(@PathVariable Long userId) {
+        UserInfoResponse response = this.adminService.disableUser(userId);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
 
 
 
