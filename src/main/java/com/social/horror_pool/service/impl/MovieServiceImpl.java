@@ -151,6 +151,16 @@ public class MovieServiceImpl implements MovieService {
 
     }
 
+    @Override
+    public MovieDTO getMovieById(Long movieId) {
+
+        Movie movie = this.movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
+
+        return this.modelMapper.map(movie, MovieDTO.class);
+
+    }
+
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
 
         List<Movie> moviesSorted = page.getContent();

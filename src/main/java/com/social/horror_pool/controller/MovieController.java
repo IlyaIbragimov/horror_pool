@@ -56,6 +56,21 @@ public class MovieController {
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
 
+    @GetMapping("/public/movie/{movieId}")
+    public ResponseEntity<MovieDTO> getMovieById(@PathVariable Long movieId){
+        MovieDTO response = this.movieService.getMovieById(movieId);
+        return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
+    }
+
+//    @PostMapping("/movie/{movieId/addComment}")
+//    public ResponseEntity<MovieDTO> addComment(
+//            @PathVariable Long movieId
+//    ) {
+//        MovieDTO response = this.
+//    }
+
+
+
     @PutMapping("/admin/movie/{movieId}/edit")
     public ResponseEntity<MovieDTO> editMovie(@Valid @RequestBody MovieDTO movieDTO, @PathVariable Long movieId){
         MovieDTO result = this.movieService.editMovie(movieDTO,movieId);

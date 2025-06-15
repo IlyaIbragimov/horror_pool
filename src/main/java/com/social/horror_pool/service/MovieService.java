@@ -18,4 +18,6 @@ public interface MovieService {
    // MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sort, String order, String keyword);
 
     MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sort, String order, String keyword, Integer year, String language, Boolean adult, Double voteAverage, Double popularity);
+
+    MovieDTO getMovieById(Long movieId);
 }
