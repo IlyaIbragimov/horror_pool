@@ -82,6 +82,31 @@ public class CommentServiceImpl implements CommentService {
         return returnMovieWithComments(movie);
     }
 
+    @Override
+    @Transactional
+    public MovieDTO deleteComment(Long movieId, Long commentId) {
+        User user = getCurrentUser();
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieId));
+
+        Comment comment = this.commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
+
+        if (!Objects.equals(comment.getUser().getUserId(), user.getUserId()) && user.getUserId() != 1L) {
+            throw new APIException("You are not authorized to delete this comment");
+        }
+
+        if (!Objects.equals(comment.getMovie().getMovieId(), movieId)) {
+            throw new APIException("Comment does not belong to the specified movie");
+        }
+
+        this.commentRepository.delete(comment);
+
+        return returnMovieWithComments(movie);
+
+    }
+
 
     private MovieDTO returnMovieWithComments(Movie movie) {
         List<CommentDTO> commentDTOS = this.commentRepository.findByMovie(movie).stream()

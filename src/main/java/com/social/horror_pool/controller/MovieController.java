@@ -85,11 +85,22 @@ public class MovieController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/movie/{movieId}/deleteComment/{commentId}")
+    public ResponseEntity<MovieDTO> deleteComment(
+            @PathVariable Long movieId,
+            @PathVariable Long commentId
+    ) {
+        MovieDTO response = this.commentService.deleteComment(movieId, commentId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PutMapping("/admin/movie/{movieId}/edit")
     public ResponseEntity<MovieDTO> editMovie(@Valid @RequestBody MovieDTO movieDTO, @PathVariable Long movieId){
         MovieDTO result = this.movieService.editMovie(movieDTO,movieId);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
+
+
 
     @DeleteMapping("/admin/movie/{movieId}/delete")
     public ResponseEntity<MovieDTO> deleteMovie(@PathVariable Long movieId){
