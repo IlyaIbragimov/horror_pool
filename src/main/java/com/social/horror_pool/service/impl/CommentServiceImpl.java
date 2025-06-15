@@ -71,6 +71,10 @@ public class CommentServiceImpl implements CommentService {
             throw new APIException("You are not authorized to edit this comment");
         }
 
+        if (!Objects.equals(comment.getMovie().getMovieId(), movieId)) {
+            throw new APIException("Comment does not belong to the specified movie");
+        }
+
         comment.setCommentContent(commentDTO.getCommentContent());
         comment.setDate(LocalDateTime.now());
         this.commentRepository.save(comment);

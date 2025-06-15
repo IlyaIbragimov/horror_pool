@@ -13,7 +13,7 @@ public class CommentDTO {
 
     private Long commentId;
 
-    @NotBlank
+    @NotBlank(message = "Comment content cannot be blank")
     private String commentContent;
 
     private String userName;
