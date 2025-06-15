@@ -2,6 +2,7 @@ package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.CommentDTO;
 import com.social.horror_pool.dto.MovieDTO;
+import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Comment;
 import com.social.horror_pool.model.Movie;
@@ -17,9 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -39,9 +40,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public MovieDTO addCommentToMovie(Long movieId, CommentDTO commentDTO) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User user = customUserDetails.getUser();
+        User user = getCurrentUser();
 
         Movie movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieId));
@@ -54,6 +53,33 @@ public class CommentServiceImpl implements CommentService {
         comment.setDate(LocalDateTime.now());
         this.commentRepository.save(comment);
 
+       return returnMovieWithComments(movie);
+    }
+
+    @Override
+    @Transactional
+    public MovieDTO editComment(Long movieId, Long commentId, CommentDTO commentDTO) {
+        User user = getCurrentUser();
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieId));
+
+        Comment comment = this.commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
+
+        if (!Objects.equals(comment.getUser().getUserId(), user.getUserId())) {
+            throw new APIException("You are not authorized to edit this comment");
+        }
+
+        comment.setCommentContent(commentDTO.getCommentContent());
+        comment.setDate(LocalDateTime.now());
+        this.commentRepository.save(comment);
+
+        return returnMovieWithComments(movie);
+    }
+
+
+    private MovieDTO returnMovieWithComments(Movie movie) {
         List<CommentDTO> commentDTOS = this.commentRepository.findByMovie(movie).stream()
                 .map(com -> {
                     CommentDTO dto = modelMapper.map(com, CommentDTO.class);
@@ -62,10 +88,15 @@ public class CommentServiceImpl implements CommentService {
                 }).toList();
 
         MovieDTO response = this.modelMapper.map(movie, MovieDTO.class);
-
         response.setComments(commentDTOS);
 
         return response;
+    }
+
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
+        return customUserDetails.getUser();
     }
 
 }

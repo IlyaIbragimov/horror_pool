@@ -75,7 +75,15 @@ public class MovieController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
+    @PutMapping("/movie/{movieId}/editComment/{commentId}")
+    public ResponseEntity<MovieDTO> editComment(
+            @PathVariable Long movieId,
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentDTO commentDTO
+    ) {
+        MovieDTO response = this.commentService.editComment(movieId, commentId, commentDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     @PutMapping("/admin/movie/{movieId}/edit")
     public ResponseEntity<MovieDTO> editMovie(@Valid @RequestBody MovieDTO movieDTO, @PathVariable Long movieId){
