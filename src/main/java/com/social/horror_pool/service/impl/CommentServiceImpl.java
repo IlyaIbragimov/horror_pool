@@ -27,13 +27,11 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final MovieRepository movieRepository;
-    private UserRepository userRepository;
     private final ModelMapper modelMapper;
 
     public CommentServiceImpl(CommentRepository commentRepository, MovieRepository movieRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.commentRepository = commentRepository;
         this.movieRepository = movieRepository;
-        this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
 
