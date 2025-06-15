@@ -37,4 +37,6 @@ public class MovieDTO {
     private Boolean video;
 
     private List<GenreDTO> genres = new ArrayList<>();
+
+    private List<CommentDTO> comments = new ArrayList<>();
 }

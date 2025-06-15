@@ -1,8 +1,10 @@
 package com.social.horror_pool.controller;
 
 import com.social.horror_pool.configuration.AppConstants;
+import com.social.horror_pool.dto.CommentDTO;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.payload.MovieAllResponse;
+import com.social.horror_pool.service.CommentService;
 import com.social.horror_pool.service.MovieService;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 public class MovieController {
 
     private final MovieService movieService;
+    private final CommentService commentService;
 
-    public MovieController(MovieService movieService) {
+    public MovieController(MovieService movieService, CommentService commentService) {
         this.movieService = movieService;
+        this.commentService = commentService;
     }
 
     @PostMapping("/admin/movie/add")
@@ -62,12 +66,14 @@ public class MovieController {
         return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
     }
 
-//    @PostMapping("/movie/{movieId/addComment}")
-//    public ResponseEntity<MovieDTO> addComment(
-//            @PathVariable Long movieId
-//    ) {
-//        MovieDTO response = this.
-//    }
+    @PostMapping("/movie/{movieId}/addComment")
+    public ResponseEntity<MovieDTO> addComment(
+            @PathVariable Long movieId,
+            @Valid @RequestBody CommentDTO commentDTO
+    ) {
+        MovieDTO response = this.commentService.addCommentToMovie(movieId, commentDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
 
 
