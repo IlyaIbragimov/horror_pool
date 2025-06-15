@@ -46,4 +46,7 @@ public class Movie {
     @OneToMany(mappedBy = "movie", orphanRemoval = true)
     private List<WatchlistItem> watchlistItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "movie")
+    private List<Comment> comments = new ArrayList<>();
+
 }
