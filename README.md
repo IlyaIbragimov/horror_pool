@@ -113,25 +113,18 @@ mvn test
 ---
 
 ## 📁 Folder Structure
-src
-└── main
-    └── java
-        └── com.social.horror_pool
-            ├── configuration        # AppConfig, constants, data init
-            ├── controller           # REST controllers
-            ├── dto                  # DTOs for request/response bodies
-            ├── enums                # Enum types
-            ├── exception            # Custom exceptions & handler
-            ├── model                # JPA entities
-            ├── payload              # Custom response/request objects
-            ├── repository           # Spring Data JPA repositories
-            ├── security             # Security config & JWT
-            │   └── jwt              # JWT utilities and config
-            ├── service              # Interfaces for business logic
-            │   └── impl             # Implementations of services
-            └── HorrorPoolApplication.java
-    └── resources
-        └── application.properties  # App config (DB, JWT, logging, etc.)
+- `configuration/` — App constants, config classes, role definitions, and data initialization
+- `controller/` — REST endpoints
+- `controller/dto/` — Data transfer objects for requests and responses
+- `enums/` — Enum definitions (e.g., sorting fields)
+- `exception/` — Custom exceptions and global handler
+- `model/` — JPA entities
+- `payload/` — Response/request payload wrappers
+- `repository/` — Spring Data JPA repositories
+- `security/` — JWT logic and Spring Security config
+- `security/jwt/` — JWT token and user details
+- `service/` — Interfaces for business logic
+- `service/impl/` — Service implementations
 
 ---
 
