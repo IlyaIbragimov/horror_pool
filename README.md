@@ -129,7 +129,7 @@ mvn test
 ---
 
 ## Contacts
-linkedIn : https://www.linkedin.com/in/ilya-ibragimov-a78628224/
-email: ilya.ibragimov@seznam.cz
-mobile number: +420777976293
+- linkedIn : https://www.linkedin.com/in/ilya-ibragimov-a78628224/
+- email: ilya.ibragimov@seznam.cz
+- mobile number: +420777976293
 GitHub: https://github.com/IlyaIbragimov
