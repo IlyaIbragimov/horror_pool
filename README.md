@@ -115,8 +115,8 @@ mvn test
 ## 📁 Folder Structure
 - `configuration/` — App constants, config classes, role definitions, and data initialization
 - `controller/` — REST endpoints
-- `controller/dto/` — Data transfer objects for requests and responses
-- `enums/` — Enum definitions (e.g., sorting fields)
+- `dto/` — Data transfer objects for requests and responses
+- `enums/` — Enum definitions
 - `exception/` — Custom exceptions and global handler
 - `model/` — JPA entities
 - `payload/` — Response/request payload wrappers
