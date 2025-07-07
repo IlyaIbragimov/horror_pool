@@ -77,6 +77,11 @@ POST /api/movie/{movieId}/addComment
 PUT /api/watchlist/{watchlistItemId}/toggleWatched
 ```
 
+## 📬 Postman Collection
+
+You can test the API using Postman with this collection:  
+👉 [Horror Pool API (Postman)]([https://www.postman.com/your-username/workspace/horror-pool/collection/xyz123](https://.postman.co/workspace/My-Workspace~e935251f-4aaf-46f8-82c5-92864dcaa3a4/collection/29685625-04ac2255-2da6-424f-857f-7e37a5769971?action=share&creator=29685625))
+
 ---
 
 ## 🛡️ Roles & Permissions
