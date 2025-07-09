@@ -6,6 +6,7 @@ import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.service.CommentService;
 import com.social.horror_pool.service.MovieService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,12 +26,20 @@ public class MovieController {
         this.commentService = commentService;
     }
 
+    @Operation(
+            summary = "Create a new movie in the database",
+            description = "Create a new movie in the database. Available only for administrator"
+    )
     @PostMapping("/admin/movie/add")
     public ResponseEntity<MovieDTO> addMovie(@Valid @RequestBody MovieDTO movieDTO){
         MovieDTO result = this.movieService.addMovie(movieDTO);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.CREATED);
     }
 
+    @Operation(
+            summary = "Return all the movies from the database",
+            description = "Return all the movies from the database. Available for everyone"
+    )
     @GetMapping("/public/movie/all")
     public ResponseEntity<MovieAllResponse> getAllMovies(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
@@ -41,7 +50,10 @@ public class MovieController {
         MovieAllResponse result = this.movieService.getAllMovies(pageNumber, pageSize, sort, order);
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
-
+    @Operation(
+            summary = "Search the movie",
+            description = "Return the movies depending on the input parameters. Available for everyone"
+    )
     @GetMapping("/public/movie/search")
     public ResponseEntity<MovieAllResponse> searchMoviesByKeyword(
             @RequestParam(name = "keyword") String keyword,
@@ -60,12 +72,19 @@ public class MovieController {
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Return the movie by it's id",
+            description = "Return the movie by it's id. Available for everyone"
+    )
     @GetMapping("/public/movie/{movieId}")
     public ResponseEntity<MovieDTO> getMovieById(@PathVariable Long movieId){
         MovieDTO response = this.movieService.getMovieById(movieId);
         return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
     }
-
+    @Operation(
+            summary = "Add a comment to the movie",
+            description = "Add a comment to the movie. Available for authenticated user"
+    )
     @PostMapping("/movie/{movieId}/addComment")
     public ResponseEntity<MovieDTO> addComment(
             @PathVariable Long movieId,
@@ -75,6 +94,10 @@ public class MovieController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Edit a comment to the movie",
+            description = "Edit a comment to the movie. Available for authenticated user who left the comment"
+    )
     @PutMapping("/movie/{movieId}/editComment/{commentId}")
     public ResponseEntity<MovieDTO> editComment(
             @PathVariable Long movieId,
@@ -85,6 +108,10 @@ public class MovieController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Delete a comment to the movie",
+            description = "Delete a comment to the movie. Available for authenticated user who left the comment and administrator"
+    )
     @DeleteMapping("/movie/{movieId}/deleteComment/{commentId}")
     public ResponseEntity<MovieDTO> deleteComment(
             @PathVariable Long movieId,
@@ -94,6 +121,10 @@ public class MovieController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Edit the existing movie",
+            description = "Edit the existing movie. Available only for administrator"
+    )
     @PutMapping("/admin/movie/{movieId}/edit")
     public ResponseEntity<MovieDTO> editMovie(@Valid @RequestBody MovieDTO movieDTO, @PathVariable Long movieId){
         MovieDTO result = this.movieService.editMovie(movieDTO,movieId);
@@ -101,7 +132,10 @@ public class MovieController {
     }
 
 
-
+    @Operation(
+            summary = "Delete the existing movie",
+            description = "Delete the existing movie. Available only for administrator"
+    )
     @DeleteMapping("/admin/movie/{movieId}/delete")
     public ResponseEntity<MovieDTO> deleteMovie(@PathVariable Long movieId){
         MovieDTO result = this.movieService.deleteMovie(movieId);
