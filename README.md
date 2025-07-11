@@ -83,6 +83,15 @@ You can test the API using Postman with this collection:
 👉 https://documenter.getpostman.com/view/29685625/2sB34cqNrU
 
 ---
+## 📘 API Documentation (Swagger)
+
+The application integrates [Swagger UI](https://swagger.io/tools/swagger-ui/) via Springdoc OpenAPI for easy API testing and exploration.
+
+🔗 Access the interactive docs at: http://localhost:8080/swagger-ui/index.html
+
+💡 Most endpoints require authentication via JWT stored in HTTP-only cookies. You may need to sign in first to access protected routes. (username: admin, password: adminPassword), use the http://localhost:8080/horrorpool/public/signin endpoint for this.
+
+---
 
 ## 🛡️ Roles & Permissions
 
