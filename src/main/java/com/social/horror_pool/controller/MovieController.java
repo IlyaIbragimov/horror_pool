@@ -7,13 +7,14 @@ import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.service.CommentService;
 import com.social.horror_pool.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+@Tag(name = "Movie", description = "Endpoints for managing movies")
 @RestController
 @RequestMapping("/horrorpool")
 public class MovieController {
