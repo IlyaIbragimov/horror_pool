@@ -2,6 +2,7 @@ package com.social.horror_pool.controller;
 
 import com.social.horror_pool.payload.UserInfoResponse;
 import com.social.horror_pool.service.AdminService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,12 +20,20 @@ public class AdminController {
         this.adminService = adminService;
     }
 
+    @Operation(
+            summary = "Lock/unlock the user",
+            description = "Lock/unlock the user. Available for administrator"
+    )
     @PutMapping("/user/{userId}/lock")
     public ResponseEntity<UserInfoResponse> changeUserLockStatus(@PathVariable Long userId) {
         UserInfoResponse response = this.adminService.changeUserLockStatus(userId);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Disable/enable the user",
+            description = "Disable/enable the user. Available for administrator"
+    )
     @PutMapping("/user/{userId}/disable")
     public ResponseEntity<UserInfoResponse> disableUser(@PathVariable Long userId) {
         UserInfoResponse response = this.adminService.disableUser(userId);
