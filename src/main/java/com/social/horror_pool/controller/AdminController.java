@@ -3,6 +3,7 @@ package com.social.horror_pool.controller;
 import com.social.horror_pool.payload.UserInfoResponse;
 import com.social.horror_pool.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Admin", description = "Endpoints for user management by administrators")
 @RestController
 @RequestMapping("/horrorpool/admin")
 public class AdminController {
@@ -21,8 +23,8 @@ public class AdminController {
     }
 
     @Operation(
-            summary = "Lock/unlock the user",
-            description = "Lock/unlock the user. Available for administrator"
+            summary = "Lock or unlock a user account",
+            description = "Toggle the lock status of a user account by user ID. Only accessible to administrators."
     )
     @PutMapping("/user/{userId}/lock")
     public ResponseEntity<UserInfoResponse> changeUserLockStatus(@PathVariable Long userId) {
@@ -31,8 +33,8 @@ public class AdminController {
     }
 
     @Operation(
-            summary = "Disable/enable the user",
-            description = "Disable/enable the user. Available for administrator"
+            summary = "Disable or enable a user account",
+            description = "Toggle the enabled status of a user account by user ID. Only accessible to administrators."
     )
     @PutMapping("/user/{userId}/disable")
     public ResponseEntity<UserInfoResponse> disableUser(@PathVariable Long userId) {
