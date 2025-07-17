@@ -1,6 +1,7 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.MovieDTO;
+import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
@@ -22,8 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -104,6 +104,15 @@ public class MovieServiceImplTest {
 
         verify(movieRepository, times(1)).findAll(any(Pageable.class));
         verify(modelMapper, times(3)).map(any(Movie.class), eq(MovieDTO.class));
+
+    }
+
+    @Test
+    public void testGetAllMovies_ThrowsAPIExceptionWhenSortIsInvalid() {
+
+        APIException exception = assertThrows(APIException.class, () -> movieService.getAllMovies(0, 5, "invalidField", "asc"));
+
+        assertEquals("Invalid sort field", exception.getMessage());
 
     }
 
