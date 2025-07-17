@@ -60,6 +60,18 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void addMovie_Success() {
+        when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(null);
+        when(modelMapper.map(eq(dto1), eq(Movie.class))).thenReturn(movie1);
+        when(movieRepository.save(movie1)).thenReturn(movie1);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+
+        MovieDTO result = movieService.addMovie(dto1);
+        assertNotNull(result);
+        assertEquals(dto1, result);
+    }
+
+    @Test
     public void testGetAllMovies_ReturnsAllMoviesPaged_AscOrder() {
 
         List<Movie> movieList = Arrays.asList(movie1, movie2, movie3);
