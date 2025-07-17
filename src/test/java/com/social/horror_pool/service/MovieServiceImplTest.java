@@ -48,11 +48,9 @@ public class MovieServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-
         movie1 = createMovie(1L, "Alien", false);
         movie2 = createMovie(2L, "Hereditary", false);
         movie3 = createMovie(3L, "The Babadook", true);
-
 
         dto1 = createMovieDTO(movie1);
         dto2 = createMovieDTO(movie2);
@@ -72,8 +70,17 @@ public class MovieServiceImplTest {
     }
 
     @Test
-    public void testGetAllMovies_ReturnsAllMoviesPaged_AscOrder() {
+    public void addMovie_MovieWithTheSameTitleAndReleaseDateExists_Exception() {
+        when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(movie1);
 
+        APIException exception = assertThrows(APIException.class, () -> movieService.addMovie(dto1));
+
+        assertTrue(exception.getMessage().contains(dto1.getTitle()));
+        assertTrue(exception.getMessage().contains("already exists"));
+    }
+
+    @Test
+    public void testGetAllMovies_ReturnsAllMoviesPaged_AscOrder() {
         List<Movie> movieList = Arrays.asList(movie1, movie2, movie3);
         Page<Movie> moviePage = new PageImpl<>(movieList);
 
@@ -92,12 +99,10 @@ public class MovieServiceImplTest {
 
         verify(movieRepository, times(1)).findAll(any(Pageable.class));
         verify(modelMapper, times(3)).map(any(Movie.class), eq(MovieDTO.class));
-
     }
 
     @Test
     public void testGetAllMovies_ReturnsAllMoviesPaged_DescOrder() {
-
         List<Movie> movieList = Arrays.asList(movie3, movie2, movie1);
         Page<Movie> moviePage = new PageImpl<>(movieList);
 
@@ -116,16 +121,13 @@ public class MovieServiceImplTest {
 
         verify(movieRepository, times(1)).findAll(any(Pageable.class));
         verify(modelMapper, times(3)).map(any(Movie.class), eq(MovieDTO.class));
-
     }
 
     @Test
     public void testGetAllMovies_ThrowsAPIExceptionWhenSortIsInvalid() {
-
         APIException exception = assertThrows(APIException.class, () -> movieService.getAllMovies(0, 5, "invalidField", "asc"));
 
         assertEquals("Invalid sort field", exception.getMessage());
-
     }
 
     private Movie createMovie(Long id, String title, boolean adult) {
