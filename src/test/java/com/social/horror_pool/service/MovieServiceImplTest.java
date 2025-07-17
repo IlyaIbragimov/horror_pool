@@ -78,6 +78,20 @@ public class MovieServiceImplTest {
         assertTrue(exception.getMessage().contains(dto1.getTitle()));
         assertTrue(exception.getMessage().contains("already exists"));
     }
+    @Test
+    public void addMovie_MovieWithTheSameTitleButDifferentReleaseDateExists_Success() {
+        Movie movieWithTheSameTitleButAnotherDate = createMovie(4L, movie1.getTitle(), false);
+
+        when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(movieWithTheSameTitleButAnotherDate);
+
+        when(modelMapper.map(eq(dto1), eq(Movie.class))).thenReturn(movie1);
+        when(movieRepository.save(movie1)).thenReturn(movie1);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+
+        MovieDTO result = movieService.addMovie(dto1);
+        assertNotNull(result);
+        assertEquals(dto1, result);
+    }
 
     @Test
     public void testGetAllMovies_ReturnsAllMoviesPaged_AscOrder() {
