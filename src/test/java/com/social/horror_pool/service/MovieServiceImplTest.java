@@ -60,7 +60,7 @@ public class MovieServiceImplTest {
     }
 
     @Test
-    public void testGetAllMovies_ReturnsAllMoviesPaged() {
+    public void testGetAllMovies_ReturnsAllMoviesPaged_AscOrder() {
 
         List<Movie> movieList = Arrays.asList(movie1, movie2, movie3);
         Page<Movie> moviePage = new PageImpl<>(movieList);
@@ -70,16 +70,37 @@ public class MovieServiceImplTest {
         when(modelMapper.map(eq(movie2), eq(MovieDTO.class))).thenReturn(dto2);
         when(modelMapper.map(eq(movie3), eq(MovieDTO.class))).thenReturn(dto3);
 
-        int pageNumber = 0;
-        int pageSize = 5;
-        String order = "asc";
-
-        MovieAllResponse response = movieService.getAllMovies(pageNumber, pageSize, "title", order);
+        MovieAllResponse response = movieService.getAllMovies(0, 5, "title", "asc");
 
         assertNotNull(response);
         assertEquals(3, response.getMovies().size());
         assertEquals("Alien", response.getMovies().get(0).getTitle());
-        assertEquals("The Babadook", response.getMovies().get(2).getOriginalTitle());
+
+        assertEquals("The Babadook", response.getMovies().get(2).getTitle());
+
+        verify(movieRepository, times(1)).findAll(any(Pageable.class));
+        verify(modelMapper, times(3)).map(any(Movie.class), eq(MovieDTO.class));
+
+    }
+
+    @Test
+    public void testGetAllMovies_ReturnsAllMoviesPaged_DescOrder() {
+
+        List<Movie> movieList = Arrays.asList(movie3, movie2, movie1);
+        Page<Movie> moviePage = new PageImpl<>(movieList);
+
+        when(movieRepository.findAll(any(Pageable.class))).thenReturn(moviePage);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+        when(modelMapper.map(eq(movie2), eq(MovieDTO.class))).thenReturn(dto2);
+        when(modelMapper.map(eq(movie3), eq(MovieDTO.class))).thenReturn(dto3);
+
+        MovieAllResponse response = movieService.getAllMovies(0, 5, "title", "desc");
+
+        assertNotNull(response);
+        assertEquals(3, response.getMovies().size());
+        assertEquals("Alien", response.getMovies().get(2).getTitle());
+        assertEquals("Hereditary", response.getMovies().get(1).getTitle());
+        assertEquals("The Babadook", response.getMovies().get(0).getTitle());
 
         verify(movieRepository, times(1)).findAll(any(Pageable.class));
         verify(modelMapper, times(3)).map(any(Movie.class), eq(MovieDTO.class));
