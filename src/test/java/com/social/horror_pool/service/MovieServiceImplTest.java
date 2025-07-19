@@ -1,8 +1,10 @@
 package com.social.horror_pool.service;
 
+import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
+import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
@@ -20,10 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,14 +47,31 @@ public class MovieServiceImplTest {
 
     private MovieDTO dto1, dto2, dto3;
 
+    private Genre genre1, genre2;
+
+    private GenreDTO genreDTO1, genreDTO2;
+
     @BeforeEach
     public void setUp() {
         movie1 = createMovie(1L, "Alien", false);
         movie2 = createMovie(2L, "Hereditary", false);
         movie3 = createMovie(3L, "The Babadook", true);
 
+        genre1 = createGenre(1L, "Horror");
+        genre2 = createGenre(2L, "Sci-Fi");
+        genreDTO1 = createGenreDTO(1L, "Horror");
+        genreDTO2 = createGenreDTO(2L, "Sci-Fi");
+
+        movie1.setGenres(new ArrayList<>(Arrays.asList(genre1, genre2)));
+        movie2.setGenres(new ArrayList<>(Collections.singletonList(genre1)));
+
+        genre1.setMovies(new ArrayList<>(Arrays.asList(movie1, movie2)));
+        genre2.setMovies(new ArrayList<>(Collections.singletonList(movie1)));
+
         dto1 = createMovieDTO(movie1);
+        dto1.setGenres(Arrays.asList(genreDTO1, genreDTO2));
         dto2 = createMovieDTO(movie2);
+        dto2.setGenres(Collections.singletonList(genreDTO1));
         dto3 = createMovieDTO(movie3);
     }
 
@@ -147,6 +163,30 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+
+        when(genreRepository.save(genre1)).thenReturn(genre1);
+        when(genreRepository.save(genre2)).thenReturn(genre2);
+
+        doNothing().when(movieRepository).delete(movie1);
+
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+        MovieDTO result = movieService.deleteMovie(1L);
+
+        assertNotNull(result);
+        assertEquals(dto1, result);
+
+        verify(genreRepository, times(1)).save(genre1);
+        verify(genreRepository, times(1)).save(genre2);
+
+        verify(movieRepository, times(1)).delete(movie1);
+
+        assertFalse(genre1.getMovies().contains(movie1));
+        assertFalse(genre2.getMovies().contains(movie1));
+    }
+
+    @Test
     public void getMovieById_ReturnsMovieWithTheSameId() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
@@ -191,6 +231,22 @@ public class MovieServiceImplTest {
         movie.setWatchlistItems(new ArrayList<>());
         movie.setComments(new ArrayList<>());
         return movie;
+    }
+
+    private Genre createGenre(Long id, String name) {
+        Genre genre = new Genre();
+        genre.setGenreId(id);
+        genre.setName(name);
+        genre.setDescription("Description for " + name);
+        return genre;
+    }
+
+    private GenreDTO createGenreDTO(Long id, String name) {
+        GenreDTO genreDTO = new GenreDTO();
+        genreDTO.setGenreId(id);
+        genreDTO.setName(name);
+        genreDTO.setDescription("Description for " + name);
+        return genreDTO;
     }
 
     private MovieDTO createMovieDTO(Movie movie) {
