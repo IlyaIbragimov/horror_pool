@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -142,6 +143,20 @@ public class MovieServiceImplTest {
         APIException exception = assertThrows(APIException.class, () -> movieService.getAllMovies(0, 5, "invalidField", "asc"));
 
         assertEquals("Invalid sort field", exception.getMessage());
+    }
+
+    @Test
+    public void getMovieById_ReturnsMovieWithTheSameId() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+
+        MovieDTO result = movieService.getMovieById(1L);
+
+        assertNotNull(result);
+        assertEquals(dto1, result);
+
+        verify(movieRepository, times(1)).findById(1L);
+        verify(modelMapper, times(1)).map(movie1, MovieDTO.class);
     }
 
     private Movie createMovie(Long id, String title, boolean adult) {
