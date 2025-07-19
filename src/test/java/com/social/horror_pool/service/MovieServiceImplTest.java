@@ -187,6 +187,14 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void deleteMovie_MovieNotFound_ThrowsResourceNotFoundException() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> movieService.deleteMovie(1L));
+        assertEquals("Movie was not found with movieId : 1", exception.getMessage());
+    }
+
+    @Test
     public void getMovieById_ReturnsMovieWithTheSameId() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
