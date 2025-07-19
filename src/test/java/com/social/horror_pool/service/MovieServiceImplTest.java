@@ -2,6 +2,7 @@ package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
+import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
@@ -71,7 +72,7 @@ public class MovieServiceImplTest {
     }
 
     @Test
-    public void addMovie_MovieWithTheSameTitleAndReleaseDateExists_Exception() {
+    public void addMovie_MovieWithTheSameTitleAndReleaseDateExists_APIException() {
         when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(movie1);
 
         APIException exception = assertThrows(APIException.class, () -> movieService.addMovie(dto1));
@@ -157,6 +158,16 @@ public class MovieServiceImplTest {
 
         verify(movieRepository, times(1)).findById(1L);
         verify(modelMapper, times(1)).map(movie1, MovieDTO.class);
+    }
+
+    @Test
+    public void getMovieById_MovieNotFound_ThrowsResourceNotFoundException() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> movieService.getMovieById(1L));
+        assertEquals("Movie was not found with movieId : 1", exception.getMessage());
+
+        verify(movieRepository, times(1)).findById(1L);
     }
 
     private Movie createMovie(Long id, String title, boolean adult) {
