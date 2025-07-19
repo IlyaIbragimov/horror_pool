@@ -163,6 +163,30 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void editMovie_NoDuplicateTitleFound_GenresAreFound_ReturnsUpdatedMovieDto() {
+        MovieDTO updatedMovieDTO = createMovieDTO(movie1);
+
+        updatedMovieDTO.setTitle("Updated");
+        updatedMovieDTO.setReleaseDate(LocalDate.of(2020,1,1));
+        updatedMovieDTO.setGenres(Collections.singletonList(genreDTO1));
+
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(null);
+        when(genreRepository.findAllById(anyList())).thenReturn(Collections.singletonList(genre1));
+        when(movieRepository.save(movie1)).thenReturn(movie1);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(updatedMovieDTO);
+
+        MovieDTO result = movieService.editMovie(updatedMovieDTO, 1L);
+
+        assertNotNull(result);
+        assertEquals("Updated", result.getTitle());
+        assertEquals(updatedMovieDTO.getReleaseDate(), result.getReleaseDate());
+        assertEquals(1, result.getGenres().size());
+        verify(movieRepository).save(movie1);
+        verify(modelMapper).map(movie1, MovieDTO.class);
+    }
+
+    @Test
     public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
