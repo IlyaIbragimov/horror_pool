@@ -187,6 +187,14 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void editMovie_MovieNotFound_ReturnsResourceNotFoundException() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> movieService.editMovie(dto1, 1L));
+        assertEquals("Movie was not found with movieId : 1", exception.getMessage());
+    }
+
+    @Test
     public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
