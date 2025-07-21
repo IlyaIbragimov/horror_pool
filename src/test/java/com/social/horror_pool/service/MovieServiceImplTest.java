@@ -101,7 +101,6 @@ public class MovieServiceImplTest {
         Movie movieWithTheSameTitleButAnotherDate = createMovie(4L, movie1.getTitle(), false);
 
         when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(movieWithTheSameTitleButAnotherDate);
-
         when(modelMapper.map(eq(dto1), eq(Movie.class))).thenReturn(movie1);
         when(movieRepository.save(movie1)).thenReturn(movie1);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
@@ -126,7 +125,6 @@ public class MovieServiceImplTest {
         assertNotNull(response);
         assertEquals(3, response.getMovies().size());
         assertEquals("Alien", response.getMovies().get(0).getTitle());
-
         assertEquals("The Babadook", response.getMovies().get(2).getTitle());
 
         verify(movieRepository, times(1)).findAll(any(Pageable.class));
@@ -165,7 +163,6 @@ public class MovieServiceImplTest {
     @Test
     public void editMovie_NoDuplicateTitleFound_GenresAreFound_ReturnsUpdatedMovieDto() {
         MovieDTO updatedMovieDTO = createMovieDTO(movie1);
-
         updatedMovieDTO.setTitle("Updated");
         updatedMovieDTO.setReleaseDate(LocalDate.of(2020,1,1));
         updatedMovieDTO.setGenres(Collections.singletonList(genreDTO1));
@@ -197,12 +194,10 @@ public class MovieServiceImplTest {
     @Test
     public void editMovie_DuplicateTitleWithSameReleaseDateFound_ReturnsApiException() {
         MovieDTO updatedMovieDTO = createMovieDTO(movie1);
-
         updatedMovieDTO.setTitle("Hereditary");
         updatedMovieDTO.setReleaseDate(LocalDate.of(2002,1,1));
 
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-
         when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(movie2);
         APIException exception = assertThrows(APIException.class, () -> movieService.editMovie(updatedMovieDTO, 1L));
 
@@ -219,7 +214,6 @@ public class MovieServiceImplTest {
         updatedMovieDTO.setGenres(Arrays.asList(genreDTO1, genreDTO2));
 
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-
         when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(movie2);
         when(genreRepository.findAllById(anyList())).thenReturn(Arrays.asList(genre1, genre2));
         when(movieRepository.save(movie1)).thenReturn(movie1);
@@ -255,6 +249,25 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void editMovie_EditOnlyDescription_Success() {
+        MovieDTO updatedMovieDTO = createMovieDTO(movie1);
+        updatedMovieDTO.setDescription("updated description");
+
+        when(movieRepository.findById(movie1.getMovieId())).thenReturn(Optional.of(movie1));
+        when(movieRepository.findByTitle(movie1.getTitle())).thenReturn(movie1);
+        when(movieRepository.save(movie1)).thenReturn(movie1);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(updatedMovieDTO);
+
+        MovieDTO result = movieService.editMovie(updatedMovieDTO, movie1.getMovieId());
+
+        assertNotNull(result);
+        assertEquals("updated description", result.getDescription());
+
+        verify(movieRepository).save(movie1);
+        verify(modelMapper).map(movie1, MovieDTO.class);
+    }
+
+    @Test
     public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
@@ -271,7 +284,6 @@ public class MovieServiceImplTest {
 
         verify(genreRepository, times(1)).save(genre1);
         verify(genreRepository, times(1)).save(genre2);
-
         verify(movieRepository, times(1)).delete(movie1);
 
         assertFalse(genre1.getMovies().contains(movie1));
