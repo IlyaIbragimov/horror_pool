@@ -212,6 +212,23 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void editMovie_GenreNotFound_ReturnsResourceNotFoundException() {
+        MovieDTO updatedMovieDTO = createMovieDTO(movie1);
+        GenreDTO nonExistingGenreDto = createGenreDTO(3L, "nonExistingGenre");
+        updatedMovieDTO.setTitle("Updated");
+        updatedMovieDTO.setReleaseDate(LocalDate.of(2008,1,1));
+        updatedMovieDTO.setGenres(Arrays.asList(genreDTO1, genreDTO2, nonExistingGenreDto));
+
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(null);
+        when(genreRepository.findAllById(anyList())).thenReturn(Arrays.asList(genre1, genre2));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> movieService.editMovie(updatedMovieDTO, 1L));
+
+        assertEquals("Genre was not found with genreId : 3", exception.getMessage());
+    }
+
+    @Test
     public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
