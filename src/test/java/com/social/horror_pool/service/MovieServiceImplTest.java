@@ -212,6 +212,32 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void editMovie_DuplicateTitleWithDifferentReleaseDateFound_Success() {
+        MovieDTO updatedMovieDTO = createMovieDTO(movie1);
+        updatedMovieDTO.setTitle("Hereditary");
+        updatedMovieDTO.setReleaseDate(LocalDate.of(2008,1,1));
+        updatedMovieDTO.setGenres(Arrays.asList(genreDTO1, genreDTO2));
+
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+
+        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(movie2);
+        when(genreRepository.findAllById(anyList())).thenReturn(Arrays.asList(genre1, genre2));
+        when(movieRepository.save(movie1)).thenReturn(movie1);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(updatedMovieDTO);
+
+        MovieDTO result = movieService.editMovie(updatedMovieDTO, 1L);
+
+        assertNotNull(result);
+        assertEquals("Hereditary", result.getTitle());
+        assertEquals(updatedMovieDTO.getReleaseDate(), result.getReleaseDate());
+        assertEquals(2, result.getGenres().size());
+        assertNotEquals(movie2.getReleaseDate(), updatedMovieDTO.getReleaseDate());
+
+        verify(movieRepository).save(movie1);
+        verify(modelMapper).map(movie1, MovieDTO.class);
+    }
+
+    @Test
     public void editMovie_GenreNotFound_ReturnsResourceNotFoundException() {
         MovieDTO updatedMovieDTO = createMovieDTO(movie1);
         GenreDTO nonExistingGenreDto = createGenreDTO(3L, "nonExistingGenre");
