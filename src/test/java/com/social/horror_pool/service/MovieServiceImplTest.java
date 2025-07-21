@@ -195,6 +195,23 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void editMovie_DuplicateTitleWithSameReleaseDateFound_ReturnsApiException() {
+        MovieDTO updatedMovieDTO = createMovieDTO(movie1);
+
+        updatedMovieDTO.setTitle("Hereditary");
+        updatedMovieDTO.setReleaseDate(LocalDate.of(2002,1,1));
+
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+
+        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(movie2);
+        APIException exception = assertThrows(APIException.class, () -> movieService.editMovie(updatedMovieDTO, 1L));
+
+        assertTrue(exception.getMessage().contains("already exists."));
+        assertNotEquals(1L, movie2.getMovieId());
+        assertEquals(movie2.getReleaseDate(), updatedMovieDTO.getReleaseDate());
+    }
+
+    @Test
     public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
