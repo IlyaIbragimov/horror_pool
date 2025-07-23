@@ -103,6 +103,28 @@ public class GenreServiceImplTest {
         verify(modelMapper, times(3)).map(any(Genre.class), eq(GenreDTO.class));
     }
 
+    @Test
+    public void getAllGenres__ReturnsGenreAllResponse_DescOrder() {
+        List<Genre> genreList = Arrays.asList(genre3, genre2, genre1);
+        Page<Genre> genrePage = new PageImpl<>(genreList);
+
+        when(genreRepository.findAll(any(Pageable.class))).thenReturn(genrePage);
+        when(modelMapper.map(eq(genre1), eq(GenreDTO.class))).thenReturn(genreDTO1);
+        when(modelMapper.map(eq(genre2), eq(GenreDTO.class))).thenReturn(genreDTO2);
+        when(modelMapper.map(eq(genre3), eq(GenreDTO.class))).thenReturn(genreDTO3);
+
+        GenreAllResponse result = genreServiceImpl.getAllGenres(0, 3,  "desc");
+
+        assertNotNull(result);
+        assertEquals(3, result.getGenres().size());
+        assertEquals(genreDTO1, result.getGenres().get(2));
+        assertEquals(genreDTO2, result.getGenres().get(1));
+        assertEquals(genreDTO3, result.getGenres().get(0));
+
+        verify(genreRepository, times(1)).findAll(any(Pageable.class));
+        verify(modelMapper, times(3)).map(any(Genre.class), eq(GenreDTO.class));
+    }
+
 
 
 
