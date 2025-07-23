@@ -86,6 +86,10 @@ public class MovieServiceImplTest {
         MovieDTO result = movieService.addMovie(dto1);
         assertNotNull(result);
         assertEquals(dto1, result);
+        verify(movieRepository, times(1)).findByTitle(dto1.getTitle());
+        verify(movieRepository, times(1)).save(movie1);
+        verify(modelMapper, times(1)).map(eq(dto1), eq(Movie.class));
+        verify(modelMapper, times(1)).map(eq(movie1), eq(MovieDTO.class));
     }
 
     @Test
@@ -96,7 +100,11 @@ public class MovieServiceImplTest {
 
         assertTrue(exception.getMessage().contains(dto1.getTitle()));
         assertTrue(exception.getMessage().contains("already exists"));
+        verify(movieRepository, times(1)).findByTitle(dto1.getTitle());
+        verify(movieRepository, never()).save(any());
+        verify(modelMapper, never()).map(any(), any());
     }
+
     @Test
     public void addMovie_MovieWithTheSameTitleButDifferentReleaseDateExists_Success() {
         Movie movieWithTheSameTitleButAnotherDate = createMovie(4L, movie1.getTitle(), false);
@@ -109,6 +117,10 @@ public class MovieServiceImplTest {
         MovieDTO result = movieService.addMovie(dto1);
         assertNotNull(result);
         assertEquals(dto1, result);
+        verify(movieRepository, times(1)).findByTitle(dto1.getTitle());
+        verify(modelMapper, times(1)).map(eq(dto1), eq(Movie.class));
+        verify(movieRepository, times(1)).save(movie1);
+        verify(modelMapper, times(1)).map(eq(movie1), eq(MovieDTO.class));
     }
 
     @Test

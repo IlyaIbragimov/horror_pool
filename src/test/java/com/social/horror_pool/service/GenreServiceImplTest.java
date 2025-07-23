@@ -59,6 +59,7 @@ public class GenreServiceImplTest {
         assertNotNull(result);
         assertEquals(genreDTO1, result);
         verify(genreRepository, times(1)).findByName(genreDTO1.getName());
+        verify(genreRepository, times(1)).save(genre1);
         verify(modelMapper, times(1)).map(genreDTO1, Genre.class);
         verify(modelMapper, times(1)).map(genre1, GenreDTO.class);
     }
