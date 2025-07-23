@@ -3,6 +3,7 @@ package com.social.horror_pool.service;
 import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Genre;
+import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.impl.GenreServiceImpl;
@@ -13,6 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -72,6 +79,28 @@ public class GenreServiceImplTest {
 
         assertTrue(exception.getMessage().contains(genreDTO1.getName()));
         assertTrue(exception.getMessage().contains("already exists"));
+    }
+
+    @Test
+    public void getAllGenres__ReturnsGenreAllResponse_AscOrder() {
+        List<Genre> genreList = Arrays.asList(genre1, genre2, genre3);
+        Page<Genre> genrePage = new PageImpl<>(genreList);
+
+        when(genreRepository.findAll(any(Pageable.class))).thenReturn(genrePage);
+        when(modelMapper.map(eq(genre1), eq(GenreDTO.class))).thenReturn(genreDTO1);
+        when(modelMapper.map(eq(genre2), eq(GenreDTO.class))).thenReturn(genreDTO2);
+        when(modelMapper.map(eq(genre3), eq(GenreDTO.class))).thenReturn(genreDTO3);
+
+        GenreAllResponse result = genreServiceImpl.getAllGenres(0, 3,  "asc");
+
+        assertNotNull(result);
+        assertEquals(3, result.getGenres().size());
+        assertEquals(genreDTO1, result.getGenres().get(0));
+        assertEquals(genreDTO2, result.getGenres().get(1));
+        assertEquals(genreDTO3, result.getGenres().get(2));
+
+        verify(genreRepository, times(1)).findAll(any(Pageable.class));
+        verify(modelMapper, times(3)).map(any(Genre.class), eq(GenreDTO.class));
     }
 
 
