@@ -1,6 +1,7 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
@@ -13,8 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,6 +62,16 @@ public class GenreServiceImplTest {
         verify(genreRepository, times(1)).save(genre1);
         verify(modelMapper, times(1)).map(genreDTO1, Genre.class);
         verify(modelMapper, times(1)).map(genre1, GenreDTO.class);
+    }
+
+    @Test
+    public void addGenre_GenreAlreadyExists_ReturnsAPIException() {
+        when(genreRepository.findByName(genreDTO1.getName())).thenReturn(genre1);
+
+        APIException exception = assertThrows(APIException.class, () -> genreServiceImpl.addGenre(genreDTO1));
+
+        assertTrue(exception.getMessage().contains(genreDTO1.getName()));
+        assertTrue(exception.getMessage().contains("already exists"));
     }
 
 
