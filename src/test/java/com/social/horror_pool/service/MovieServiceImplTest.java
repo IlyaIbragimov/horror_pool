@@ -20,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -296,6 +297,31 @@ public class MovieServiceImplTest {
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> movieService.deleteMovie(1L));
         assertEquals("Movie was not found with movieId : 1", exception.getMessage());
+    }
+
+    @Test
+    public void getMoviesByKeyword_ValidParams_ReturnsPagedResponse() {
+        List<Movie> movies = Arrays.asList(movie1);
+        Page<Movie> moviePage = new PageImpl<>(movies);
+        String sortBy = "title";
+        String order = "asc";
+        String keyword = "alien";
+        Integer year = 2001;
+        String language = "en";
+        Boolean adult = false;
+        Double voteAverage = 8.0;
+        Double popularity = 51.0;
+
+        when(movieRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(moviePage);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+
+        MovieAllResponse response = movieService.getMoviesByKeyword(0, 10, sortBy, order, keyword, year, language, adult, voteAverage, popularity);
+
+        assertNotNull(response);
+        assertEquals(1, response.getMovies().size());
+        assertEquals("Alien", response.getMovies().getFirst().getTitle());
+
+        verify(movieRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test

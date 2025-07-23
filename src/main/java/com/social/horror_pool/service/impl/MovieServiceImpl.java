@@ -162,7 +162,6 @@ public class MovieServiceImpl implements MovieService {
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
-
         List<Movie> moviesSorted = page.getContent();
 
         List<MovieDTO> movieDTOS = moviesSorted.stream()
@@ -176,8 +175,6 @@ public class MovieServiceImpl implements MovieService {
         response.setTotalElements(page.getTotalElements());
         response.setLastPage(page.isLast());
         return response;
-
-
     }
 
     private Specification<Movie> filterMovies(Integer year, String language, Boolean adult, Double voteAverage, Double popularity, String keyword) {
