@@ -300,7 +300,7 @@ public class MovieServiceImplTest {
     }
 
     @Test
-    public void getMoviesByKeyword_ValidParams_ReturnsPagedResponse() {
+    public void getMoviesByKeyword_ValidParams_ReturnsMovieAllResponse() {
         List<Movie> movies = Arrays.asList(movie1);
         Page<Movie> moviePage = new PageImpl<>(movies);
         String sortBy = "title";
@@ -322,6 +322,17 @@ public class MovieServiceImplTest {
         assertEquals("Alien", response.getMovies().getFirst().getTitle());
 
         verify(movieRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
+    public void getMoviesByKeyword_InvalidSortField_ThrowsAPIException() {
+        String invalidSortBy = "wrong_field";
+
+        APIException ex = assertThrows(APIException.class, () -> {
+            movieService.getMoviesByKeyword(0, 10, invalidSortBy, "asc", "alien", 1979, "en", false, 8.0, 50.0);
+        });
+
+        assertEquals("Invalid sort field", ex.getMessage());
     }
 
     @Test
