@@ -124,12 +124,7 @@ public class GenreServiceImplTest {
         verify(genreRepository, times(1)).findAll(any(Pageable.class));
         verify(modelMapper, times(3)).map(any(Genre.class), eq(GenreDTO.class));
     }
-
-
-
-
-
-
+    
     private Genre createGenre(Long genreId, String genreName) {
         Genre genre = new Genre();
         genre.setGenreId(genreId);
