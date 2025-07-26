@@ -12,32 +12,74 @@ Spring Boot backend for a horror movie catalog app, featuring user authenticatio
 - Maven
 - JPA/Hibernate
 - ModelMapper
+- Docker
 
 ---
 
 ## ⚙️ Getting Started
 
-### 1. Clone & Build
+### Option 1: **Run with Docker (Recommended)**
+
+No need to install PostgreSQL or set up a local DB!  
+Just build and run everything in containers:
+
 ```bash
+# Clone the repository
 git clone https://github.com/your-username/horror_pool.git
 cd horror_pool
-mvn clean install
-```
 
-### 2. Setup DB (PostgreSQL)
-- Create DB named `horror_pool`
-- Update credentials in `application.properties`
+# Build the JAR (skip tests to avoid DB errors if you don't have PostgreSQL locally)
+mvn clean package -DskipTests
 
+# Build and run Docker containers (app + database)
+docker-compose up --build
 ```
+The backend will be available at: http://localhost:8080/swagger-ui/index.html
+
+Default DB Credentials (for Dockerized PostgreSQL)
+
+Username: postgres
+
+Password: postgres
+
+Database: horror_pool
+
+All these are set in the docker-compose.yml and passed as environment variables.
+
+### Option 2: **Run Locally (Manual Setup)**
+
+If you prefer running the backend outside Docker, you need:
+
+Java 21+
+
+Maven
+
+PostgreSQL installed and running
+
+1. Create DB and configure credentials
+2. Create a PostgreSQL database named horror_pool.
+3.  Update your src/main/resources/application.properties:
+```bash
 spring.datasource.url=jdbc:postgresql://localhost:5432/horror_pool
 spring.datasource.username=YOUR_USERNAME
 spring.datasource.password=YOUR_PASSWORD
+spring.app.jwtSecret=YOUR_JWT_SECRET
 ```
-
-### 3. Run
+4. Build and Run
 ```bash
+mvn clean install
 mvn spring-boot:run
 ```
+The backend will be available at http://localhost:8080/swagger-ui/index.html
+
+---
+## 📘 API Documentation (Swagger)
+
+The application integrates [Swagger UI](https://swagger.io/tools/swagger-ui/) via Springdoc OpenAPI for easy API testing and exploration.
+
+🔗 Access the interactive docs at: http://localhost:8080/swagger-ui/index.html
+
+💡 Most endpoints require authentication via JWT stored in HTTP-only cookies. You may need to sign in first to access protected routes. (username: admin, password: adminPassword), use the http://localhost:8080/horrorpool/public/signin endpoint for this.
 
 ---
 
@@ -77,22 +119,6 @@ POST /api/movie/{movieId}/addComment
 PUT /api/watchlist/{watchlistItemId}/toggleWatched
 ```
 
-## 📬 Postman Collection
-
-You can test the API using Postman with this collection:  
-👉 https://documenter.getpostman.com/view/29685625/2sB34cqNrU
-
----
-## 📘 API Documentation (Swagger)
-
-The application integrates [Swagger UI](https://swagger.io/tools/swagger-ui/) via Springdoc OpenAPI for easy API testing and exploration.
-
-🔗 Access the interactive docs at: http://localhost:8080/swagger-ui/index.html
-
-💡 Most endpoints require authentication via JWT stored in HTTP-only cookies. You may need to sign in first to access protected routes. (username: admin, password: adminPassword), use the http://localhost:8080/horrorpool/public/signin endpoint for this.
-
----
-
 ## 🛡️ Roles & Permissions
 
 | Role   | Access                                      |
@@ -113,13 +139,11 @@ The application integrates [Swagger UI](https://swagger.io/tools/swagger-ui/) vi
 ---
 
 ## ⚠️ Known Limitations / TODO
-- No unit tests yet
-- No Swagger/OpenAPI docs
-- No Docker support
-
+- unit tests in progress (for now only MovieServiceImpl is covered)
 ---
 
 ## 🧪 Testing
+Run unit tests (you need PostgreSQL running with valid credentials in application.properties):
 ```
 mvn test
 ```
