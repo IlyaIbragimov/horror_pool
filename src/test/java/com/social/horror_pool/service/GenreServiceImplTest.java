@@ -1,6 +1,7 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.payload.GenreAllResponse;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -49,9 +51,9 @@ public class GenreServiceImplTest {
         genre2 = createGenre(2L, "Body horror");
         genre3 = createGenre(3L, "Classic");
 
-        genreDTO1 = createGenreDTO(1L, "Thriller");
-        genreDTO2 = createGenreDTO(2L, "Body horror");
-        genreDTO3 = createGenreDTO(3L, "Classic");
+        genreDTO1 = createGenreDTO(genre1);
+        genreDTO2 = createGenreDTO(genre2);
+        genreDTO3 = createGenreDTO(genre3);
     }
 
     @Test
@@ -124,6 +126,28 @@ public class GenreServiceImplTest {
         verify(genreRepository, times(1)).findAll(any(Pageable.class));
         verify(modelMapper, times(3)).map(any(Genre.class), eq(GenreDTO.class));
     }
+
+    @Test
+    public void editGenre_UpdateExistingGenre_Success_ReturnsGenreDTO() {
+        GenreDTO updateDTO = createGenreDTO(genre3);
+        updateDTO.setDescription("Updated");
+        updateDTO.setName("Updated");
+
+        when(genreRepository.findById(updateDTO.getGenreId())).thenReturn(Optional.of(genre3));
+        when(genreRepository.findByName(updateDTO.getName())).thenReturn(genre3);
+        when(genreRepository.save(genre3)).thenReturn(genre3);
+        when(modelMapper.map(eq(genre3), eq(GenreDTO.class))).thenReturn(updateDTO);
+
+        GenreDTO result = genreServiceImpl.editGenre(updateDTO, 3L);
+
+        assertNotNull(result);
+        assertEquals(updateDTO.getGenreId(), result.getGenreId());
+        assertEquals(updateDTO.getDescription(), result.getDescription());
+        assertEquals(updateDTO.getName(), result.getName());
+        verify(genreRepository, times(1)).findById(updateDTO.getGenreId());
+        verify(genreRepository, times(1)).save(genre3);
+        verify(modelMapper).map(genre3, GenreDTO.class);
+    }
     
     private Genre createGenre(Long genreId, String genreName) {
         Genre genre = new Genre();
@@ -133,11 +157,11 @@ public class GenreServiceImplTest {
         return genre;
     }
 
-    private GenreDTO createGenreDTO(Long id, String name) {
+    private GenreDTO createGenreDTO(Genre genre) {
         GenreDTO genreDTO = new GenreDTO();
-        genreDTO.setGenreId(id);
-        genreDTO.setName(name);
-        genreDTO.setDescription("Description for " + name);
+        genreDTO.setGenreId(genre.getGenreId());
+        genreDTO.setName(genre.getName());
+        genreDTO.setDescription("Description for " + genre.getName());
         return genreDTO;
     }
 }
