@@ -156,6 +156,21 @@ public class GenreServiceImplTest {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> genreServiceImpl.editGenre(genreDTO3, NotExistingGenreId));
         assertEquals("Genre was not found with genreId : 5", exception.getMessage());
     }
+
+    @Test
+    public void editGenre_GenreAlreadyExists_ReturnsAPIException() {
+        GenreDTO updateDTO = createGenreDTO(genre3);
+        updateDTO.setName("Body horror");
+
+        when(genreRepository.findById(updateDTO.getGenreId())).thenReturn(Optional.of(genre3));
+        when(genreRepository.findByName(updateDTO.getName())).thenReturn(genre2);
+
+        APIException exception = assertThrows(APIException.class, () -> genreServiceImpl.editGenre(updateDTO, 3L));
+
+        assertTrue(exception.getMessage().contains(updateDTO.getName()));
+        assertTrue(exception.getMessage().contains("already exists"));
+        assertEquals(genre2.getName(), updateDTO.getName());
+    }
     
     private Genre createGenre(Long genreId, String genreName) {
         Genre genre = new Genre();
