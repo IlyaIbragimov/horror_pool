@@ -1,8 +1,8 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.GenreDTO;
-import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
+import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
@@ -147,6 +147,14 @@ public class GenreServiceImplTest {
         verify(genreRepository, times(1)).findById(updateDTO.getGenreId());
         verify(genreRepository, times(1)).save(genre3);
         verify(modelMapper).map(genre3, GenreDTO.class);
+    }
+
+    @Test
+    public void editGenre_NotExistingGenre_ReturnsResourceNotFoundException() {
+        Long NotExistingGenreId = 5L;
+        when(genreRepository.findById(NotExistingGenreId)).thenReturn(Optional.empty());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> genreServiceImpl.editGenre(genreDTO3, NotExistingGenreId));
+        assertEquals("Genre was not found with genreId : 5", exception.getMessage());
     }
     
     private Genre createGenre(Long genreId, String genreName) {
