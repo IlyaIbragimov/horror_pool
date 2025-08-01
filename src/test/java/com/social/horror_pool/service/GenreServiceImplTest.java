@@ -198,6 +198,13 @@ public class GenreServiceImplTest {
 
         assertFalse(movie.getGenres().contains(genre1));
     }
+
+    @Test
+    public void deleteGenre_NotExistingGenre_ReturnsResourceNotFoundException() {
+        when(genreRepository.findById(5L)).thenReturn(Optional.empty());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> genreServiceImpl.deleteGenre(5L));
+        assertEquals("Genre was not found with genreId : 5", exception.getMessage());
+    }
     
     private Genre createGenre(Long genreId, String genreName) {
         Genre genre = new Genre();
