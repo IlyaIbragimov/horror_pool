@@ -16,9 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -204,6 +202,29 @@ public class GenreServiceImplTest {
         when(genreRepository.findById(5L)).thenReturn(Optional.empty());
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> genreServiceImpl.deleteGenre(5L));
         assertEquals("Genre was not found with genreId : 5", exception.getMessage());
+    }
+
+    @Test
+    public void getGenresByKeyword_ReturnsGenreAllResponse() {
+        String keyword = "thr";
+        int pageNumber = 0;
+        int pageSize = 1;
+        String order = "asc";
+
+        List<Genre> genreList = new ArrayList<>(Collections.singletonList(genre1));
+        Page<Genre> genrePage = new PageImpl<>(genreList);
+
+        when(genreRepository.findByNameLikeIgnoreCase("%thr%", PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending())))
+                .thenReturn(genrePage);
+
+        when(modelMapper.map(genre1, GenreDTO.class)).thenReturn(genreDTO1);
+        GenreAllResponse response = genreServiceImpl.getGenresByKeyword(pageNumber, pageSize, order, keyword);
+
+        assertNotNull(response);
+        assertEquals(1, response.getGenres().size());
+        assertEquals("Thriller", response.getGenres().getFirst().getName());
+
+        verify(genreRepository, times(1)).findByNameLikeIgnoreCase("%thr%", PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending()));
     }
     
     private Genre createGenre(Long genreId, String genreName) {
