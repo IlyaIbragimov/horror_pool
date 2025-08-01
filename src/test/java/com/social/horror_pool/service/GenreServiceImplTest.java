@@ -4,6 +4,7 @@ import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
+import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
@@ -19,9 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -175,6 +175,29 @@ public class GenreServiceImplTest {
         verify(genreRepository, times(1)).findByName(updateDTO.getName());
         verify(genreRepository, times(1)).findById(updateDTO.getGenreId());
     }
+
+    @Test
+    public void deleteGenre_Success_ReturnsGenreDTO() {
+        Movie movie = createMovie(1L, "Test");
+        movie.setGenres(new ArrayList<>(Arrays.asList(genre1, genre2, genre3)));
+        genre1.setMovies(new ArrayList<>(Collections.singletonList(movie)));
+
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(genre1));
+        when(movieRepository.save(movie)).thenReturn(movie);
+
+        doNothing().when(genreRepository).delete(genre1);
+        when(modelMapper.map(genre1, GenreDTO.class)).thenReturn(genreDTO1);
+
+        GenreDTO result = genreServiceImpl.deleteGenre(1L);
+
+        assertNotNull(result);
+        assertEquals(genreDTO1, result);
+        verify(genreRepository, times(1)).findById(1L);
+        verify(genreRepository, times(1)).delete(genre1);
+        verify(movieRepository, times(1)).save(movie);
+
+        assertFalse(movie.getGenres().contains(genre1));
+    }
     
     private Genre createGenre(Long genreId, String genreName) {
         Genre genre = new Genre();
@@ -190,5 +213,28 @@ public class GenreServiceImplTest {
         genreDTO.setName(genre.getName());
         genreDTO.setDescription("Description for " + genre.getName());
         return genreDTO;
+    }
+
+    private Movie createMovie(Long id, String title) {
+        Movie movie = new Movie();
+        movie.setMovieId(id);
+        movie.setTitle(title);
+        movie.setOriginalTitle(title);
+        movie.setDescription("Description for " + title);
+        movie.setOverview("Overview for " + title);
+        movie.setReleaseDate(LocalDate.of(2000 + id.intValue(), 1, 1));
+        movie.setReleaseYear(2000 + id.intValue());
+        movie.setPosterPath("/" + title.toLowerCase() + "_poster.jpg");
+        movie.setBackdropPath("/" + title.toLowerCase() + "_backdrop.jpg");
+        movie.setVoteAverage(7.0 + id);
+        movie.setVoteCount(1000 * id.intValue());
+        movie.setPopularity(50.0 + id);
+        movie.setOriginalLanguage("en");
+        movie.setAdult(false);
+        movie.setVideo(false);
+        movie.setGenres(new ArrayList<>());
+        movie.setWatchlistItems(new ArrayList<>());
+        movie.setComments(new ArrayList<>());
+        return movie;
     }
 }
