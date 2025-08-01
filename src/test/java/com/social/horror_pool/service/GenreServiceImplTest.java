@@ -147,6 +147,7 @@ public class GenreServiceImplTest {
         verify(genreRepository, times(1)).findById(updateDTO.getGenreId());
         verify(genreRepository, times(1)).save(genre3);
         verify(modelMapper).map(genre3, GenreDTO.class);
+        verify(genreRepository, times(1)).findByName(updateDTO.getName());
     }
 
     @Test
@@ -155,6 +156,7 @@ public class GenreServiceImplTest {
         when(genreRepository.findById(NotExistingGenreId)).thenReturn(Optional.empty());
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> genreServiceImpl.editGenre(genreDTO3, NotExistingGenreId));
         assertEquals("Genre was not found with genreId : 5", exception.getMessage());
+        verify(genreRepository, times(1)).findById(NotExistingGenreId);
     }
 
     @Test
@@ -170,6 +172,8 @@ public class GenreServiceImplTest {
         assertTrue(exception.getMessage().contains(updateDTO.getName()));
         assertTrue(exception.getMessage().contains("already exists"));
         assertEquals(genre2.getName(), updateDTO.getName());
+        verify(genreRepository, times(1)).findByName(updateDTO.getName());
+        verify(genreRepository, times(1)).findById(updateDTO.getGenreId());
     }
     
     private Genre createGenre(Long genreId, String genreName) {
