@@ -103,6 +103,24 @@ public class WatchlistServiceImplTest {
         assertEquals("Please, register sign in to create a watchlist", exception.getMessage());
     }
 
+    @Test
+    public void updateWatchlist_Success_ReturnWatchlistDTO() {
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.save(any(Watchlist.class))).thenReturn(watchlist1);
+
+        WatchlistDTO updatedWatchlistDTO = createWatchlistDTO(watchlist1);
+        updatedWatchlistDTO.setTitle("Updated");
+
+        when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(updatedWatchlistDTO);
+
+        WatchlistDTO result = watchlistServiceImpl.updateWatchlist(1L, "Updated");
+
+        assertEquals(updatedWatchlistDTO, result);
+        verify(userRepository).findByUsername("username1");
+        assertEquals("Updated", result.getTitle());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
