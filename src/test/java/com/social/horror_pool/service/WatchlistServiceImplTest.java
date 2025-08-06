@@ -4,6 +4,7 @@ import com.social.horror_pool.configuration.RoleName;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.exception.APIException;
+import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.model.Role;
 import com.social.horror_pool.model.User;
@@ -119,6 +120,14 @@ public class WatchlistServiceImplTest {
         assertEquals(updatedWatchlistDTO, result);
         verify(userRepository).findByUsername("username1");
         assertEquals("Updated", result.getTitle());
+    }
+    @Test
+    public void updateWatchlist_NonExistingWatchlistId_ReturnResourceNotFoundException() {
+        when(watchlistRepository.findById(4L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.updateWatchlist(4L, "Updated"));
+
+        assertEquals("Watchlist was not found with id : 4", exception.getMessage());
     }
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
