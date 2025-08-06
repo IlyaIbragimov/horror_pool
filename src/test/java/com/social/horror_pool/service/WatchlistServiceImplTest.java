@@ -95,6 +95,14 @@ public class WatchlistServiceImplTest {
         assertEquals("You already have a watchlist with this title", exception.getMessage());
     }
 
+    @Test
+    public void createWatchlist_UserIsNotLoggedIn_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.empty());
+
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite"));
+        assertEquals("Please, register sign in to create a watchlist", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
