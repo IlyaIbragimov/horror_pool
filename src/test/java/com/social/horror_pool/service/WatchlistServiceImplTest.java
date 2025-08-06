@@ -3,6 +3,7 @@ package com.social.horror_pool.service;
 import com.social.horror_pool.configuration.RoleName;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.dto.WatchlistDTO;
+import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.model.Role;
 import com.social.horror_pool.model.User;
@@ -25,11 +26,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,16 +80,20 @@ public class WatchlistServiceImplTest {
         when(watchlistRepository.save(any(Watchlist.class))).thenReturn(newWatchlist);
         when(modelMapper.map(any(Watchlist.class), eq(WatchlistDTO.class))).thenReturn(newWatchlistDTO);
 
-
         WatchlistDTO result = watchlistServiceImpl.createWatchlist("Test");
 
         assertEquals(result, newWatchlistDTO);
         verify(userRepository).findByUsername("username1");
     }
+    @Test
+    public void createWatchlist_WatchlistAlreadyExists_ReturnAPIException() {
+        user1.setWatchlist(Collections.singletonList(watchlist1));
 
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
 
-
-
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite"));
+        assertEquals("You already have a watchlist with this title", exception.getMessage());
+    }
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
