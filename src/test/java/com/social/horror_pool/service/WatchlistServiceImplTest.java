@@ -157,6 +157,13 @@ public class WatchlistServiceImplTest {
         verify(watchlistRepository, times(1)).delete(watchlist1);
     }
 
+    @Test
+    public void deleteWatchlist_NonExistingWatchlistId_ReturnResourceNotFoundException() {
+        when(watchlistRepository.findById(4L)).thenReturn(Optional.empty());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.deleteWatchlist(4L));
+        assertEquals("Watchlist was not found with id : 4", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
