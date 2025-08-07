@@ -29,8 +29,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.time.LocalDate;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,6 +82,7 @@ public class WatchlistServiceImplTest {
 
         WatchlistDTO result = watchlistServiceImpl.createWatchlist("Test");
 
+        assertNotNull(result);
         assertEquals(result, newWatchlistDTO);
         verify(userRepository).findByUsername("username1");
     }
@@ -117,6 +117,7 @@ public class WatchlistServiceImplTest {
 
         WatchlistDTO result = watchlistServiceImpl.updateWatchlist(1L, "Updated");
 
+        assertNotNull(result);
         assertEquals(updatedWatchlistDTO, result);
         verify(userRepository).findByUsername("username1");
         assertEquals("Updated", result.getTitle());
@@ -138,6 +139,22 @@ public class WatchlistServiceImplTest {
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.updateWatchlist(1L, "Updated"));
 
         assertEquals("You do not have permission to modify this watchlist.", exception.getMessage());
+    }
+
+    @Test
+    public void deleteWatchlist_Success_ReturnWatchlistDTO() {
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        doNothing().when(watchlistRepository).delete(watchlist1);
+        when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(watchlistDTO1);
+
+        WatchlistDTO result = watchlistServiceImpl.deleteWatchlist(1L);
+
+        assertNotNull(result);
+        assertEquals(watchlistDTO1, result);
+        verify(userRepository, times(1)).findByUsername("username1");
+        verify(modelMapper, times(1)).map(watchlist1, WatchlistDTO.class);
+        verify(watchlistRepository, times(1)).delete(watchlist1);
     }
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
