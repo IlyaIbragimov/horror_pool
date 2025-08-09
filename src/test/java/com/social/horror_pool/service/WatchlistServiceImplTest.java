@@ -15,6 +15,7 @@ import com.social.horror_pool.repository.WatchlistItemRepository;
 import com.social.horror_pool.repository.WatchlistRepository;
 import com.social.horror_pool.security.CustomUserDetails;
 import com.social.horror_pool.service.impl.WatchlistServiceImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -69,6 +70,11 @@ public class WatchlistServiceImplTest {
         CustomUserDetails customUserDetails = new CustomUserDetails(user1);
         Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, customUserDetails.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
