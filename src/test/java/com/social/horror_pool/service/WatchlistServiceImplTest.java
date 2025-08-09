@@ -3,12 +3,10 @@ package com.social.horror_pool.service;
 import com.social.horror_pool.configuration.RoleName;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.dto.WatchlistDTO;
+import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
-import com.social.horror_pool.model.Movie;
-import com.social.horror_pool.model.Role;
-import com.social.horror_pool.model.User;
-import com.social.horror_pool.model.Watchlist;
+import com.social.horror_pool.model.*;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.repository.WatchlistItemRepository;
@@ -176,6 +174,36 @@ public class WatchlistServiceImplTest {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user2));
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.deleteWatchlist(1L));
         assertEquals("You do not have permission to modify this watchlist.", exception.getMessage());
+    }
+
+    @Test
+    public void addMovieToWatchlist_Success_ReturnWatchlistDTO() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+        when(watchlistRepository.save(any(Watchlist.class))).thenReturn(watchlist1);
+
+        WatchlistItemDTO itemDTO = new WatchlistItemDTO();
+        MovieDTO movieDTO = createMovieDTO(movie1);
+
+        when(modelMapper.map(eq(watchlist1), eq(WatchlistDTO.class))).thenReturn(watchlistDTO1);
+        when(modelMapper.map(any(WatchlistItem.class), eq(WatchlistItemDTO.class))).thenReturn(itemDTO);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(movieDTO);
+
+        WatchlistDTO result = watchlistServiceImpl.addMovieToWatchlist(1L, 1L);
+
+        assertNotNull(result);
+        assertEquals(1, watchlist1.getWatchlistItems().size());
+        WatchlistItem added = watchlist1.getWatchlistItems().get(0);
+        assertEquals(movie1, added.getMovie());
+        assertEquals(watchlist1, added.getWatchlist());
+
+        verify(watchlistRepository).findById(1L);
+        verify(movieRepository).findById(1L);
+        verify(watchlistRepository).save(watchlist1);
+        verify(modelMapper).map(watchlist1, WatchlistDTO.class);
+        verify(modelMapper).map(added, WatchlistItemDTO.class);
+        verify(modelMapper).map(movie1, MovieDTO.class);
     }
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
