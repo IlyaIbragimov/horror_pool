@@ -222,6 +222,15 @@ public class WatchlistServiceImplTest {
         assertEquals("You do not have permission to modify this watchlist.", exception.getMessage());
     }
 
+    @Test
+    public void addMovieToWatchlist_MovieNotFound_ReturnResourceNotFoundException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(movieRepository.findById(1L)).thenReturn(Optional.empty());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.addMovieToWatchlist(1L, 1L));
+        assertEquals("Movie was not found with id : 1", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
