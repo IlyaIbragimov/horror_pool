@@ -213,6 +213,15 @@ public class WatchlistServiceImplTest {
         assertEquals("Watchlist was not found with id : 1", exception.getMessage());
     }
 
+    @Test
+    public void addMovieToWatchlist_NotAuthorisedUser_ReturnAPIException() {
+        watchlist1.setUser(user2);
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.addMovieToWatchlist(1L, 1L));
+        assertEquals("You do not have permission to modify this watchlist.", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
