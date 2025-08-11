@@ -231,6 +231,20 @@ public class WatchlistServiceImplTest {
         assertEquals("Movie was not found with id : 1", exception.getMessage());
     }
 
+    @Test
+    public void addMovieToWatchlist_MovieIsAlreadyInWatchlist_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
+
+        WatchlistItem item = new WatchlistItem();
+        item.setMovie(movie1);
+        watchlist1.setWatchlistItems(List.of(item));
+
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.addMovieToWatchlist(1L, 1L));
+        assertEquals("Movie is already in the watchlist.", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
