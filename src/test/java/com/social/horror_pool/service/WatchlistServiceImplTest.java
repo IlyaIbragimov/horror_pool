@@ -245,6 +245,41 @@ public class WatchlistServiceImplTest {
         assertEquals("Movie is already in the watchlist.", exception.getMessage());
     }
 
+    @Test
+    public void removeMovieFromWatchlist_Success_ReturnWatchlistDTO() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(watchlistRepository.save(any(Watchlist.class))).thenReturn(watchlist1);
+
+        WatchlistItem item = new WatchlistItem();
+        item.setMovie(movie1);
+        item.setWatchlist(watchlist1);
+        item.setWatchItemId(1L);
+
+        MovieDTO movieDTO = createMovieDTO(movie1);
+        watchlist1.setWatchlistItems(new ArrayList<>(Collections.singletonList(item)));
+
+        WatchlistItemDTO itemDTO = new WatchlistItemDTO();
+        itemDTO.setMovieDTO(movieDTO);
+        itemDTO.setWatchlistId(1L);
+        itemDTO.setWatchItemId(1L);
+
+        doNothing().when(watchlistItemRepository).delete(any(WatchlistItem.class));
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(modelMapper.map(eq(watchlist1), eq(WatchlistDTO.class))).thenReturn(watchlistDTO1);
+
+        WatchlistDTO result = watchlistServiceImpl.removeMovieFromWatchlist(1L, 1L);
+
+        assertNotNull(result);
+        assertEquals(result, watchlistDTO1);
+        assertFalse(watchlist1.getWatchlistItems().contains(item));
+
+        verify(watchlistItemRepository).delete(any(WatchlistItem.class));
+        verify(watchlistRepository).save(watchlist1);
+        verify(watchlistRepository).findById(1L);
+        verify(watchlistItemRepository).findById(1L);
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
