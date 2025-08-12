@@ -251,33 +251,47 @@ public class WatchlistServiceImplTest {
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         when(watchlistRepository.save(any(Watchlist.class))).thenReturn(watchlist1);
 
-        WatchlistItem item = new WatchlistItem();
-        item.setMovie(movie1);
-        item.setWatchlist(watchlist1);
-        item.setWatchItemId(1L);
+        WatchlistItem itemToDelete = new WatchlistItem();
+        itemToDelete.setMovie(movie1);
+        itemToDelete.setWatchlist(watchlist1);
+        itemToDelete.setWatchItemId(1L);
+        MovieDTO movie1DTO = createMovieDTO(movie1);
+        WatchlistItemDTO itemToDeleteDTO = new WatchlistItemDTO();
+        itemToDeleteDTO.setMovieDTO(movie1DTO);
+        itemToDeleteDTO.setWatchlistId(1L);
+        itemToDeleteDTO.setWatchItemId(1L);
 
-        MovieDTO movieDTO = createMovieDTO(movie1);
-        watchlist1.setWatchlistItems(new ArrayList<>(Collections.singletonList(item)));
+        WatchlistItem anotherItem = new WatchlistItem();
+        anotherItem.setWatchItemId(2L);
+        anotherItem.setMovie(movie2);
+        anotherItem.setWatchlist(watchlist1);
+        MovieDTO movie2DTO = createMovieDTO(movie2);
+        WatchlistItemDTO anotherItemDTO = new WatchlistItemDTO();
+        anotherItemDTO.setMovieDTO(movie2DTO);
+        anotherItemDTO.setWatchlistId(1L);
+        anotherItemDTO.setWatchItemId(2L);
 
-        WatchlistItemDTO itemDTO = new WatchlistItemDTO();
-        itemDTO.setMovieDTO(movieDTO);
-        itemDTO.setWatchlistId(1L);
-        itemDTO.setWatchItemId(1L);
+        watchlist1.setWatchlistItems(new ArrayList<>(Arrays.asList(itemToDelete, anotherItem)));
 
-        doNothing().when(watchlistItemRepository).delete(any(WatchlistItem.class));
-        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(itemToDelete));
         when(modelMapper.map(eq(watchlist1), eq(WatchlistDTO.class))).thenReturn(watchlistDTO1);
+        when(modelMapper.map(eq(anotherItem), eq(WatchlistItemDTO.class))).thenReturn(anotherItemDTO);
+        when(modelMapper.map(eq(movie2), eq(MovieDTO.class))).thenReturn(movie2DTO);
 
         WatchlistDTO result = watchlistServiceImpl.removeMovieFromWatchlist(1L, 1L);
 
         assertNotNull(result);
         assertEquals(result, watchlistDTO1);
-        assertFalse(watchlist1.getWatchlistItems().contains(item));
+        assertFalse(watchlist1.getWatchlistItems().contains(itemToDelete));
+        assertEquals(1, watchlist1.getWatchlistItems().size());
 
-        verify(watchlistItemRepository).delete(any(WatchlistItem.class));
+        verify(watchlistItemRepository).delete(itemToDelete);
         verify(watchlistRepository).save(watchlist1);
         verify(watchlistRepository).findById(1L);
         verify(watchlistItemRepository).findById(1L);
+        verify(modelMapper).map(watchlist1, WatchlistDTO.class);
+        verify(modelMapper).map(anotherItem, WatchlistItemDTO.class);
+        verify(modelMapper).map(movie2, MovieDTO.class);
     }
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
