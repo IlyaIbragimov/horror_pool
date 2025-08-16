@@ -322,6 +322,21 @@ public class WatchlistServiceImplTest {
         assertEquals("WatchlistItem was not found with id : 1", exception.getMessage());
     }
 
+    @Test
+    public void removeMovieFromWatchlist_WatchlistItemDoesNotBelongToWatchlist_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+
+        WatchlistItem itemToDelete = new WatchlistItem();
+        itemToDelete.setMovie(movie1);
+        itemToDelete.setWatchlist(watchlist2);
+        itemToDelete.setWatchItemId(1L);
+
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(itemToDelete));
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.removeMovieFromWatchlist(1L, 1L));
+        assertEquals("This movie does not belong to the specified watchlist.", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
