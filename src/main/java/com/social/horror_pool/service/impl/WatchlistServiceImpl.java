@@ -246,7 +246,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
         if (!watchlist.getUser().equals(user)) {
-            throw new APIException("You do not have permission to view this watchlist.");
+            throw new APIException("You do not have permission to modify this watchlist.");
         }
 
         WatchlistItem watchlistItem = this.watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(watchlistId, watchlistItemId)
