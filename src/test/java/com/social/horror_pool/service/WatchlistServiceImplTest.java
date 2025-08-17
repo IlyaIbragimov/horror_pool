@@ -337,6 +337,51 @@ public class WatchlistServiceImplTest {
         assertEquals("This movie does not belong to the specified watchlist.", exception.getMessage());
     }
 
+    @Test
+    public void toggleWatchlistItemAsWatched_Success_ReturnWatchlistItemDTO() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user1);
+
+        WatchlistItem item = new WatchlistItem();
+        item.setMovie(movie1);
+        item.setWatchlist(watchlist1);
+        item.setWatchItemId(1L);
+        item.setWatched(false);
+
+        when(watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(1L,1L)).thenReturn(Optional.of(item));
+        when(watchlistItemRepository.save(any(WatchlistItem.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        MovieDTO movie1DTO = createMovieDTO(movie1);
+        when(modelMapper.map(eq(item.getMovie()), eq(MovieDTO.class))).thenReturn(movie1DTO);
+
+        when(modelMapper.map(any(WatchlistItem.class), eq(WatchlistItemDTO.class)))
+                .thenAnswer(inv -> {
+                    WatchlistItem src = inv.getArgument(0);
+                    WatchlistItemDTO dto = new WatchlistItemDTO();
+                    dto.setWatchItemId(src.getWatchItemId());
+                    dto.setWatchlistId(src.getWatchlist().getWatchlistId());
+                    dto.setWatched(src.isWatched());
+                    return dto;
+                });
+
+        assertFalse(item.isWatched());
+        WatchlistItemDTO result = watchlistServiceImpl.toggleWatchlistItemAsWatched(1L,1L);
+
+        assertNotNull(result);
+        assertTrue(result.isWatched());
+        assertTrue(item.isWatched());
+        assertEquals(1L, result.getWatchItemId());
+        assertEquals(1L, result.getWatchlistId());
+        assertEquals(movie1.getTitle(), movie1DTO.getTitle());
+
+        verify(watchlistRepository).findById(1L);
+        verify(watchlistItemRepository).findByWatchlist_WatchlistIdAndWatchItemId(1L, 1L);
+        verify(watchlistItemRepository).save(item);
+        verify(modelMapper).map(item, WatchlistItemDTO.class);
+        verify(modelMapper).map(movie1, MovieDTO.class);
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
