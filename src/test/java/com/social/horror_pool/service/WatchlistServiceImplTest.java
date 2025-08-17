@@ -382,6 +382,16 @@ public class WatchlistServiceImplTest {
         verify(modelMapper).map(movie1, MovieDTO.class);
     }
 
+    @Test
+    public void toggleWatchlistItemAsWatched_WatchlistNotFound_ReturnResourceNotFoundException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.toggleWatchlistItemAsWatched(1L,1L));
+
+        assertEquals("Watchlist was not found with id : 1", exception.getMessage());
+    }
+
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
