@@ -401,6 +401,15 @@ public class WatchlistServiceImplTest {
         assertEquals("You do not have permission to modify this watchlist.", exception.getMessage());
     }
 
+    @Test
+    public void toggleWatchlistItemAsWatched_MovieIsNotInWatchlist_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        when(watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(1L,1L)).thenReturn(Optional.empty());
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.toggleWatchlistItemAsWatched(1L,1L));
+        assertEquals("Movie was not found in the watchlist", exception.getMessage());
+    }
+
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
