@@ -338,6 +338,16 @@ public class WatchlistServiceImplTest {
     }
 
     @Test
+    public void getWatchlistById_WatchlistNotFound_ReturnResourceNotFoundException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.getWatchlistById(1L, false, 0,3,"asc"));
+
+        assertEquals("Watchlist was not found with id : 1", exception.getMessage());
+    }
+
+    @Test
     public void toggleWatchlistItemAsWatched_Success_ReturnWatchlistItemDTO() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
