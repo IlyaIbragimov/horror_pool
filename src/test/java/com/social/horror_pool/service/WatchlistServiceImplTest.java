@@ -348,6 +348,15 @@ public class WatchlistServiceImplTest {
     }
 
     @Test
+    public void getWatchlistById_WatchlistBelongToAnotherUser_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user2);
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.getWatchlistById(1L, false, 0,3,"asc"));
+        assertEquals("You do not have permission to view this watchlist.", exception.getMessage());
+    }
+
+    @Test
     public void toggleWatchlistItemAsWatched_Success_ReturnWatchlistItemDTO() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
