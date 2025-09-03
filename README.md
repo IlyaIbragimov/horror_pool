@@ -14,6 +14,9 @@ Spring Boot backend for a horror movie catalog app, featuring user authenticatio
 - ModelMapper
 - Docker
 
+
+  ![CI](https://github.com/IlyaIbragimov/horror_pool/actions/workflows/ci.yml/badge.svg)
+
 ---
 
 ## ⚙️ Getting Started
