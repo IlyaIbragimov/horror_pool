@@ -23,57 +23,110 @@ Spring Boot backend for a horror movie catalog app, featuring user authenticatio
 
 ### Option 1: **Run with Docker (Recommended)**
 
-No need to install PostgreSQL or set up a local DB!  
-Just build and run everything in containers:
+You don’t need to install PostgreSQL locally — the database runs in a container.
 
+Prereqs:
+* Docker Desktop (or Docker Engine) with Compose v2
+* JDK 21 + Maven (only to build the JAR before composing)
+
+
+1) Clone the repository
 ```bash
-# Clone the repository
 git clone https://github.com/your-username/horror_pool.git
 cd horror_pool
-
-# Build the JAR (skip tests to avoid DB errors if you don't have PostgreSQL locally)
-mvn clean package -DskipTests
-
-# Build and run Docker containers (app + database)
-docker-compose up --build
 ```
-The backend will be available at: http://localhost:8080/swagger-ui/index.html
 
-Default DB Credentials (for Dockerized PostgreSQL)
+2) Create your .env, copy the example and edit secrets:
+```bash
+cp .env.example .env
+```
+Edit .env and set:
 
-Username: postgres
+* POSTGRES_PASSWORD — DB password (local only)
+* SPRING_APP_JWT_SECRET — random strong secret (Base64 recommended)
 
-Password: postgres
+Generate a Base64 secret:
 
-Database: horror_pool
+* macOS/Linux: openssl rand -base64 32
+* PowerShell: [Convert]::ToBase64String((1..32 | % {Get-Random -Max 256}))
 
-All these are set in the docker-compose.yml and passed as environment variables.
+3) Build the app JAR
+```bash
+# run unit tests:
+mvn -B -Dtest='*Test,!HorrorPoolApplicationTests' clean package
 
-### Option 2: **Run Locally (Manual Setup)**
+# (or skip tests if you prefer)
+mvn -B clean package -DskipTests
+```
 
-If you prefer running the backend outside Docker, you need:
+4) Start containers (app + postgres)
+```bash
+docker compose up --build -d
+```
+5) Verify
 
-Java 21+
+* Health: http://localhost:8080/actuator/health
+* Swagger UI: http://localhost:8080/swagger-ui/index.html
 
-Maven
+6) Stop / clean
+```bash
+docker compose down -v
+```
+Default connection (inside Docker):
+* Host: localhost
+* Port: 5432 (change in docker-compose.yml if your local 5432 is busy)
+* DB: ${POSTGRES_DB} (default horror_pool)
+* User: ${POSTGRES_USER} (default postgres)
+* Password: ${POSTGRES_PASSWORD} (from your .env)
 
-PostgreSQL installed and running
+Note: The Dockerized DB is separate from any local PostgreSQL you might have.
 
-1. Create DB and configure credentials
-2. Create a PostgreSQL database named horror_pool.
-3.  Update your src/main/resources/application.properties:
+### Option 2: **Run Locally (Manual Setup without Docker)**
+
+Prereqs
+* JDK 21, Maven, PostgreSQL running locally
+
+1. Create a PostgreSQL database named horror_pool.
+2. Either set environment variables, or edit src/main/resources/application.properties:
 ```bash
 spring.datasource.url=jdbc:postgresql://localhost:5432/horror_pool
 spring.datasource.username=YOUR_USERNAME
 spring.datasource.password=YOUR_PASSWORD
-spring.app.jwtSecret=YOUR_JWT_SECRET
+spring.app.jwtSecret=YOUR_STRONG_SECRET   #  Base64
 ```
-4. Build and Run
+3) Run
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
-The backend will be available at http://localhost:8080/swagger-ui/index.html
+Open Swagger: http://localhost:8080/swagger-ui/index.html
+
+### Tips & Troubleshooting
+
+* Port 5432 already in use? Change the mapping in docker-compose.yml:
+```bash
+postgres:
+  ports:
+    - "5433:5432"
+```
+Then connect to localhost:5433.
+
+* Rebuilding after code changes
+```bash
+mvn -B clean package -DskipTests
+docker compose up --build -d
+```
+* Health endpoints:
+Liveness/Readiness: GET /actuator/health (and /actuator/health/readiness)
+
+### What Docker Compose uses
+
+docker-compose.yml reads values from your .env (not committed):
+
+* Non-secret defaults (DB name/user) are visible in the file.
+* Secrets (POSTGRES_PASSWORD, SPRING_APP_JWT_SECRET) are required from .env.
+
+.env.example is provided as a template. Create your own .env before running.
 
 ---
 ## 📘 API Documentation (Swagger)
@@ -142,7 +195,7 @@ PUT /api/watchlist/{watchlistItemId}/toggleWatched
 ---
 
 ## ⚠️ Known Limitations / TODO
-- unit tests in progress (for now only MovieServiceImpl is covered)
+- Tests in progress (for now only unit tests for MovieServiceImpl, GenreServiceImpls and WatchlistServiceImpl is covered)
 ---
 
 ## 🧪 Testing
