@@ -1,31 +1,35 @@
-
 services:
   postgres:
     image: postgres:16
     container_name: horror_pool_db
     environment:
-      POSTGRES_DB: horror_pool
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-horror_pool}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-horror_pool}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
   app:
-    image: horror_pool
-    container_name: horror_pool_app
     build:
       context: .
+    image: horror_pool
+    container_name: horror_pool_app
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8080:8080"
-    depends_on:
-      - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/horror_pool
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_APP_JWT_SECRET: c3VwZXJTZWNyZXRLZXkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY=
-
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-horror_pool}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      SPRING_APP_JWT_SECRET: ${SPRING_APP_JWT_SECRET:?set in .env}
 volumes:
   postgres_data:
