@@ -27,6 +27,11 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     needs: build
+    env:
+      POSTGRES_DB: horror_pool
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      SPRING_APP_JWT_SECRET: ${{ secrets.SPRING_APP_JWT_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
