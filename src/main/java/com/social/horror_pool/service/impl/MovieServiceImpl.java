@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -154,6 +155,18 @@ public class MovieServiceImpl implements MovieService {
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
 
         return this.modelMapper.map(movie, MovieDTO.class);
+    }
+
+    @Override
+    public MovieDTO findByTmdbId(Long tmdbId) {
+        Movie movie = this.movieRepository.findByTmdbId(tmdbId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "tmdbId", tmdbId));
+        return this.modelMapper.map(movie, MovieDTO.class);
+    }
+
+    @Override
+    public boolean existsByTmdbId(Long tmdbId) {
+        return this.movieRepository.existsByTmdbId(tmdbId);
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){

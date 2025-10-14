@@ -132,7 +132,6 @@ public class MovieController {
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
 
-
     @Operation(
             summary = "Delete the existing movie",
             description = "Delete the existing movie. Available only for administrator"
@@ -141,5 +140,24 @@ public class MovieController {
     public ResponseEntity<MovieDTO> deleteMovie(@PathVariable Long movieId){
         MovieDTO result = this.movieService.deleteMovie(movieId);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Return the movie by it's tmdbId",
+            description = "Return the movie by it's tmdbId. Available for admin only"
+    )
+    @GetMapping("/admin/movie/{tmdbId}")
+    public ResponseEntity<MovieDTO> getMovieByTmdbId(@PathVariable Long tmdbId){
+        MovieDTO response = this.movieService.findByTmdbId(tmdbId);
+        return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Return if the movie exists in DB by it's tmdbId",
+            description = "Return if the movie exists in DB by it's tmdbId. Available for admin only"
+    )
+    @GetMapping("admin/movie/exists/{tmbdId}")
+    public boolean ifExistsByTmdbId(@PathVariable Long tmdbId) {
+        return this.movieService.existsByTmdbId(tmdbId);
     }
 }
