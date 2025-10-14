@@ -28,9 +28,7 @@ import java.util.stream.Collectors;
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
-
     private final ModelMapper modelMapper;
-
     private final GenreRepository genreRepository;
 
     public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper, GenreRepository genreRepository) {
@@ -61,7 +59,6 @@ public class MovieServiceImpl implements MovieService {
         Page<Movie> page = this.movieRepository.findAll(pageable);
 
         return generateMovieAllResponse(page, pageNumber, pageSize);
-
     }
 
     @Override
@@ -148,7 +145,6 @@ public class MovieServiceImpl implements MovieService {
         Page<Movie> page = this.movieRepository.findAll(filters, pageable);
 
         return generateMovieAllResponse(page, pageNumber, pageSize);
-
     }
 
     @Override
@@ -158,7 +154,6 @@ public class MovieServiceImpl implements MovieService {
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
 
         return this.modelMapper.map(movie, MovieDTO.class);
-
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
@@ -212,8 +207,5 @@ public class MovieServiceImpl implements MovieService {
         }
 
         return filters;
-
     }
-
-
 }

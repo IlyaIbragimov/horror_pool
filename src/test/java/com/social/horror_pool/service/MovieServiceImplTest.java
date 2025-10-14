@@ -413,6 +413,7 @@ public class MovieServiceImplTest {
     private MovieDTO createMovieDTO(Movie movie) {
         return new MovieDTO(
                 movie.getMovieId(),
+                movie.getTmdbId(),
                 movie.getTitle(),
                 movie.getOriginalTitle(),
                 movie.getDescription(),

@@ -17,6 +17,7 @@ import java.util.List;
 public class MovieDTO {
 
     private Long movieId;
+    private Long tmdbId;
     @NotBlank(message = "Movie title cannot be empty")
     private String title;
     private String originalTitle;
