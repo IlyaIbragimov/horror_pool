@@ -158,14 +158,14 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieDTO findByTmdbId(Long tmdbId) {
+    public MovieDTO getMovieByTmdbId(Long tmdbId) {
         Movie movie = this.movieRepository.findByTmdbId(tmdbId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "tmdbId", tmdbId));
         return this.modelMapper.map(movie, MovieDTO.class);
     }
 
     @Override
-    public boolean existsByTmdbId(Long tmdbId) {
+    public boolean checkIftmdbIdExists(Long tmdbId) {
         return this.movieRepository.existsByTmdbId(tmdbId);
     }
 

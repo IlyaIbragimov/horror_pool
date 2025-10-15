@@ -148,7 +148,7 @@ public class MovieController {
     )
     @GetMapping("/admin/movie/{tmdbId}")
     public ResponseEntity<MovieDTO> getMovieByTmdbId(@PathVariable Long tmdbId){
-        MovieDTO response = this.movieService.findByTmdbId(tmdbId);
+        MovieDTO response = this.movieService.getMovieByTmdbId(tmdbId);
         return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
     }
 
@@ -157,7 +157,7 @@ public class MovieController {
             description = "Return if the movie exists in DB by it's tmdbId. Available for admin only"
     )
     @GetMapping("admin/movie/exists/{tmbdId}")
-    public boolean ifExistsByTmdbId(@PathVariable Long tmdbId) {
-        return this.movieService.existsByTmdbId(tmdbId);
+    public boolean ifTmdbIdExists(@PathVariable Long tmdbId) {
+        return this.movieService.checkIftmdbIdExists(tmdbId);
     }
 }
