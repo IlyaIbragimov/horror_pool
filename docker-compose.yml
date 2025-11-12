@@ -32,7 +32,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
       SPRING_APP_JWT_SECRET: ${SPRING_APP_JWT_SECRET:?set in .env}
-      TMDB_API_KEY: ${TMDB_API_KEY:?set in .env}
-      TMDB_READ_TOKEN: ${TMDB_READ_TOKEN:?set in .env}
+#      TMDB_API_KEY: ${TMDB_API_KEY:?set in .env}
+#      TMDB_READ_TOKEN: ${TMDB_READ_TOKEN:?set in .env}
 volumes:
   postgres_data:

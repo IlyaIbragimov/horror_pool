@@ -20,7 +20,7 @@ Spring Boot backend for a horror movie catalog app, featuring user authenticatio
 ---
 ### Data Source & Attribution
 
-<p align="left">
+<p>
   <a href="https://www.themoviedb.org/">
     <img src="docs/mdblogo.svg" alt="TMDB Logo" width="140">
   </a>
