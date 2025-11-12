@@ -18,6 +18,17 @@ Spring Boot backend for a horror movie catalog app, featuring user authenticatio
   ![CI](https://github.com/IlyaIbragimov/horror_pool/actions/workflows/ci.yml/badge.svg)
 
 ---
+### Data Source & Attribution
+
+<p align="left">
+  <a href="https://www.themoviedb.org/">
+    <img src="docs/mdblogo.svg" alt="TMDB Logo" width="140">
+  </a>
+</p>
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+---
 
 ## ⚙️ Getting Started
 
