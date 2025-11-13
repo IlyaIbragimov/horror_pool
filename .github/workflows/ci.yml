@@ -32,6 +32,7 @@ jobs:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       SPRING_APP_JWT_SECRET: ${{ secrets.SPRING_APP_JWT_SECRET }}
+      TMDB_READ_TOKEN: ${{secrets.TMDB_READ_TOKEN}}
     steps:
       - uses: actions/checkout@v4
 
