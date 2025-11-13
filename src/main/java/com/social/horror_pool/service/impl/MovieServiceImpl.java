@@ -2,6 +2,7 @@ package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.dto.MovieDTO;
+import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
 import com.social.horror_pool.enums.MovieSortField;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
@@ -11,6 +12,7 @@ import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieService;
+import com.social.horror_pool.tmdb.TmdbClient;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,11 +34,13 @@ public class MovieServiceImpl implements MovieService {
     private final MovieRepository movieRepository;
     private final ModelMapper modelMapper;
     private final GenreRepository genreRepository;
+    private final TmdbClient tmdbClient;
 
-    public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper, GenreRepository genreRepository) {
+    public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper, GenreRepository genreRepository, TmdbClient tmdbClient) {
         this.modelMapper = modelMapper;
         this.movieRepository = movieRepository;
         this.genreRepository = genreRepository;
+        this.tmdbClient = tmdbClient;
     }
 
     @Override
@@ -169,6 +174,43 @@ public class MovieServiceImpl implements MovieService {
         return this.movieRepository.existsByTmdbId(tmdbId);
     }
 
+    @Override
+    @Transactional
+    public Optional<MovieDTO> importFromTmdb(Long tmdbId, String language) {
+
+        Optional<Movie> existing = movieRepository.findByTmdbId(tmdbId);
+        if (existing.isPresent()) {
+            return Optional.of(toDto(existing.get()));
+        }
+
+        TmdbMovieDTO tm = tmdbClient.getMovieById(tmdbId, language == null ? "en-US" : language);
+        if (tm == null || tm.getId() == null) {
+            return Optional.empty();
+        }
+
+        Movie m = new Movie();
+        m.setTmdbId(tm.getId());
+        m.setTitle(tm.getTitle());
+        m.setOverview(tm.getOverview());
+        m.setPosterPath(tm.getPosterPath());
+        m.setBackdropPath(tm.getBackdropPath());
+        m.setOriginalLanguage(tm.getOriginalLanguage());
+        m.setVoteAverage(tm.getVoteAverage());
+        m.setVoteCount(tm.getVoteCount());
+        m.setPopularity(tm.getPopularity());
+        m.setAdult(Boolean.TRUE.equals(tm.getAdult()));
+        m.setVideo(Boolean.TRUE.equals(tm.getVideo()));
+
+        LocalDate rd = tm.getReleaseDate();
+        if (rd != null) {
+            m.setReleaseDate(rd);
+            m.setReleaseYear(rd.getYear());
+        }
+
+        Movie saved = movieRepository.save(m);
+        return Optional.of(toDto(saved));
+    }
+
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
         List<Movie> moviesSorted = page.getContent();
 
@@ -183,6 +225,10 @@ public class MovieServiceImpl implements MovieService {
         response.setTotalElements(page.getTotalElements());
         response.setLastPage(page.isLast());
         return response;
+    }
+
+    private MovieDTO toDto(Movie m) {
+        return modelMapper.map(m, MovieDTO.class);
     }
 
     private Specification<Movie> filterMovies(Integer year, String language, Boolean adult, Double voteAverage, Double popularity, String keyword) {
