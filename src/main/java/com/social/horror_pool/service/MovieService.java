@@ -17,4 +17,5 @@ public interface MovieService {
     MovieDTO getMovieById(Long movieId);
     MovieDTO getMovieByTmdbId(Long tmdbId);
     boolean checkIftmdbIdExists(Long tmdbId);
+    Optional<MovieDTO> importFromTmdb(Long tmdbId, String language);
 }
