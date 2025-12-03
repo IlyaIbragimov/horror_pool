@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/horrorpool/public/tmdb")
+@RequestMapping("/horrorpool/admin/tmdb")
 public class TmdbController {
 
     private final MovieService movieService;
