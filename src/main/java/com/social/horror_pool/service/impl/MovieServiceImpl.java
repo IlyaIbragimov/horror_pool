@@ -204,8 +204,8 @@ public class MovieServiceImpl implements MovieService {
             movie.setReleaseYear(rd.getYear());
         }
 
-        this.movieRepository.save(movie);
-        return this.modelMapper.map(movie, MovieDTO.class);
+        Movie saved = this.movieRepository.save(movie);
+        return this.modelMapper.map(saved, MovieDTO.class);
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){

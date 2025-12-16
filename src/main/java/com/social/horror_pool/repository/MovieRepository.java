@@ -13,5 +13,4 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, JpaSpecific
     Movie findByTitle(@NotBlank(message = "Movie title cannot be empty") String title);
     Optional<Movie> findByTmdbId(Long tmdbId);
     boolean existsByTmdbId(Long tmdbId);
-    Page<Movie> findByTitleLikeIgnoreCase(String s, Pageable pageable);
 }
