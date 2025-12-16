@@ -2,6 +2,7 @@ package com.social.horror_pool.controller;
 
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.service.MovieService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +20,7 @@ public class TmdbController {
     public ResponseEntity<MovieDTO> importMovie(
             @PathVariable Long tmdbId,
             @RequestParam(defaultValue = "en-US") String language) {
-        return this.movieService.importFromTmdb(tmdbId, language)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        MovieDTO result = this.movieService.importFromTmdb(tmdbId, language);
+        return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
 }

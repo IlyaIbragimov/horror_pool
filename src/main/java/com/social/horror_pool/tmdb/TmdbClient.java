@@ -1,12 +1,16 @@
 package com.social.horror_pool.tmdb;
 
 import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
+import com.social.horror_pool.exception.APIException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.Optional;
 
 @Component
 public class TmdbClient {
@@ -22,7 +26,7 @@ public class TmdbClient {
         this.readToken = readToken;
     }
 
-    public TmdbMovieDTO getMovieById(long tmdbId, String language) {
+    public Optional<TmdbMovieDTO> getMovieById(long tmdbId, String language) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
                 .path("/movie/{id}")
@@ -37,12 +41,14 @@ public class TmdbClient {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<TmdbMovieDTO> resp = restTemplate.exchange(
+            ResponseEntity<TmdbMovieDTO> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity, TmdbMovieDTO.class
             );
-            return resp.getBody();
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound ex) {
+            return Optional.empty();
         } catch (RestClientException ex) {
-            throw new RuntimeException("TMDB request failed: " + ex.getMessage(), ex);
+            throw new APIException("TMDB request failed" + ex);
         }
     }
 }

@@ -176,39 +176,36 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional
-    public Optional<MovieDTO> importFromTmdb(Long tmdbId, String language) {
+    public MovieDTO importFromTmdb(Long tmdbId, String language) {
 
-        Optional<Movie> existing = movieRepository.findByTmdbId(tmdbId);
-        if (existing.isPresent()) {
-            return Optional.of(toDto(existing.get()));
+        if (movieRepository.existsByTmdbId(tmdbId)) {
+            throw new APIException("Movie with tmdbID: " + tmdbId + " already exists");
         }
 
-        TmdbMovieDTO tm = tmdbClient.getMovieById(tmdbId, language == null ? "en-US" : language);
-        if (tm == null || tm.getId() == null) {
-            return Optional.empty();
-        }
+        TmdbMovieDTO tmdbDTO = tmdbClient.getMovieById(tmdbId, language == null ? "en-US" : language)
+                .orElseThrow(() -> new APIException("TMDB movie not found (tmdbId= " + tmdbId + ")"));
 
-        Movie m = new Movie();
-        m.setTmdbId(tm.getId());
-        m.setTitle(tm.getTitle());
-        m.setOverview(tm.getOverview());
-        m.setPosterPath(tm.getPosterPath());
-        m.setBackdropPath(tm.getBackdropPath());
-        m.setOriginalLanguage(tm.getOriginalLanguage());
-        m.setVoteAverage(tm.getVoteAverage());
-        m.setVoteCount(tm.getVoteCount());
-        m.setPopularity(tm.getPopularity());
-        m.setAdult(Boolean.TRUE.equals(tm.getAdult()));
-        m.setVideo(Boolean.TRUE.equals(tm.getVideo()));
+        Movie movie = new Movie();
+        movie.setTmdbId(tmdbDTO.getId());
+        movie.setTitle(tmdbDTO.getTitle());
+        movie.setOverview(tmdbDTO.getOverview());
+        movie.setPosterPath(tmdbDTO.getPosterPath());
+        movie.setBackdropPath(tmdbDTO.getBackdropPath());
+        movie.setOriginalLanguage(tmdbDTO.getOriginalLanguage());
+        movie.setVoteAverage(tmdbDTO.getVoteAverage());
+        movie.setVoteCount(tmdbDTO.getVoteCount());
+        movie.setPopularity(tmdbDTO.getPopularity());
+        movie.setAdult(Boolean.TRUE.equals(tmdbDTO.getAdult()));
+        movie.setVideo(Boolean.TRUE.equals(tmdbDTO.getVideo()));
 
-        LocalDate rd = tm.getReleaseDate();
+        LocalDate rd = tmdbDTO.getReleaseDate();
         if (rd != null) {
-            m.setReleaseDate(rd);
-            m.setReleaseYear(rd.getYear());
+            movie.setReleaseDate(rd);
+            movie.setReleaseYear(rd.getYear());
         }
 
-        Movie saved = movieRepository.save(m);
-        return Optional.of(toDto(saved));
+        this.movieRepository.save(movie);
+        return this.modelMapper.map(movie, MovieDTO.class);
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
@@ -225,10 +222,6 @@ public class MovieServiceImpl implements MovieService {
         response.setTotalElements(page.getTotalElements());
         response.setLastPage(page.isLast());
         return response;
-    }
-
-    private MovieDTO toDto(Movie m) {
-        return modelMapper.map(m, MovieDTO.class);
     }
 
     private Specification<Movie> filterMovies(Integer year, String language, Boolean adult, Double voteAverage, Double popularity, String keyword) {
