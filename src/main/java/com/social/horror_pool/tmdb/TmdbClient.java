@@ -2,6 +2,7 @@ package com.social.horror_pool.tmdb;
 
 import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
 import com.social.horror_pool.exception.APIException;
+import com.social.horror_pool.payload.tmdb.TmdbDiscoverMovieAllResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -49,6 +50,30 @@ public class TmdbClient {
             return Optional.empty();
         } catch (RestClientException ex) {
             throw new APIException("TMDB request failed" + ex);
+        }
+    }
+
+    public TmdbDiscoverMovieAllResponse discoverHorrors(Integer page, String language) {
+        String url = UriComponentsBuilder
+                .fromHttpUrl(baseUrl)
+                .path("/discover/movie")
+                .queryParam("with_genre", 27)
+                .queryParam("page", page)
+                .queryParam("language", language)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setBearerAuth(readToken);
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<TmdbDiscoverMovieAllResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, TmdbDiscoverMovieAllResponse.class);
+            return response.getBody();
+        } catch (RestClientException ex) {
+            throw new APIException("TMDB discover request failed: " + ex.getMessage());
         }
     }
 }
