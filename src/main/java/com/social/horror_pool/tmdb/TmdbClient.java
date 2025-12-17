@@ -70,7 +70,9 @@ public class TmdbClient {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         try {
-            ResponseEntity<TmdbDiscoverMovieAllResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, TmdbDiscoverMovieAllResponse.class);
+            ResponseEntity<TmdbDiscoverMovieAllResponse> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, TmdbDiscoverMovieAllResponse.class
+            );
             return response.getBody();
         } catch (RestClientException ex) {
             throw new APIException("TMDB discover request failed: " + ex.getMessage());
