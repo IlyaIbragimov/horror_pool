@@ -2,6 +2,7 @@ package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.dto.MovieDTO;
+import com.social.horror_pool.dto.tmdb.TmdbDiscoverMovieDTO;
 import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
 import com.social.horror_pool.enums.MovieSortField;
 import com.social.horror_pool.exception.APIException;
@@ -9,6 +10,8 @@ import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
+import com.social.horror_pool.payload.tmdb.BulkImportResultResponse;
+import com.social.horror_pool.payload.tmdb.TmdbDiscoverMovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieService;
@@ -206,6 +209,37 @@ public class MovieServiceImpl implements MovieService {
 
         Movie saved = this.movieRepository.save(movie);
         return this.modelMapper.map(saved, MovieDTO.class);
+    }
+
+    @Override
+    @Transactional
+    public BulkImportResultResponse bulkImportFromTmdb(Integer pages, String language) {
+        int pagesToImport = (pages == null || pages < 1) ? 1 : pages;
+        String languageToImport = (language == null || language.isBlank()) ? "en-US" : language;
+
+        BulkImportResultResponse response = new BulkImportResultResponse();
+
+        for (int p = 1; p <= pagesToImport; p++) {
+            TmdbDiscoverMovieAllResponse discoverResponse = this.tmdbClient.discoverHorrors(p, languageToImport);
+            if (discoverResponse == null || discoverResponse.getMovies() == null) continue;
+
+            for (TmdbDiscoverMovieDTO movie : discoverResponse.getMovies()) {
+                if (movie == null || movie.getTmdbId() == null) continue;
+                Long tmdbId = movie.getTmdbId();
+                try {
+                    if (this.movieRepository.existsByTmdbId(tmdbId)) {
+                        response.setSkipped(response.getSkipped() + 1);
+                        continue;
+                    }
+                    this.importFromTmdb(tmdbId, languageToImport);
+                    response.setImported(response.getImported() + 1);
+                } catch (Exception ex) {
+                    response.setFailed(response.getFailed() + 1);
+                    response.getErrors().add("tmdbId = " + tmdbId + " : " + ex.getMessage());
+                }
+            }
+        }
+        return response;
     }
 
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
