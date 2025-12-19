@@ -12,9 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TmdbDiscoverMovieAllResponse {
-
-    private List<TmdbDiscoverMovieDTO> movies;
-    private Integer pageNumber;
-    private Long totalElements;
-    private Integer totalPages;
+    private Integer page;
+    private List<TmdbDiscoverMovieDTO> results;
+    private Integer total_pages;
+    private Integer total_results;
 }

@@ -221,11 +221,11 @@ public class MovieServiceImpl implements MovieService {
 
         for (int p = 1; p <= pagesToImport; p++) {
             TmdbDiscoverMovieAllResponse discoverResponse = this.tmdbClient.discoverHorrors(p, languageToImport);
-            if (discoverResponse == null || discoverResponse.getMovies() == null) continue;
+            if (discoverResponse == null || discoverResponse.getResults() == null) continue;
 
-            for (TmdbDiscoverMovieDTO movie : discoverResponse.getMovies()) {
-                if (movie == null || movie.getTmdbId() == null) continue;
-                Long tmdbId = movie.getTmdbId();
+            for (TmdbDiscoverMovieDTO movie : discoverResponse.getResults()) {
+                if (movie == null || movie.getId() == null) continue;
+                Long tmdbId = movie.getId();
                 try {
                     if (this.movieRepository.existsByTmdbId(tmdbId)) {
                         response.setSkipped(response.getSkipped() + 1);

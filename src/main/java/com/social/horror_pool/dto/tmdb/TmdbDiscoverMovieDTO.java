@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TmdbDiscoverMovieDTO {
-    private Long tmdbId;
+    private Long id;
 }
