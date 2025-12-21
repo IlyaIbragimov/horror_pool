@@ -5,6 +5,8 @@ import com.social.horror_pool.payload.tmdb.BulkImportResultResponse;
 import com.social.horror_pool.service.MovieService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +29,7 @@ public class TmdbController {
     @PostMapping("/import/{tmdbId}")
     public ResponseEntity<MovieDTO> importMovieFromTmdb(
             @PathVariable Long tmdbId,
-            @RequestParam(defaultValue = "en-US") String language) {
+            @RequestParam(name = "language", defaultValue = "en-US") String language) {
         MovieDTO result = this.movieService.importFromTmdb(tmdbId, language);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
@@ -38,8 +40,8 @@ public class TmdbController {
     )
     @PostMapping("/bulkImport")
     public ResponseEntity<BulkImportResultResponse> bulkImportFromTmd(
-            @RequestParam(defaultValue = "1") Integer pages,
-            @RequestParam(defaultValue = "en-US") String language) {
+            @RequestParam(name = "pages", defaultValue = "1") @Min(1) @Max(10) Integer pages,
+            @RequestParam(name = "language", defaultValue = "en-US") String language) {
         BulkImportResultResponse result = this.movieService.bulkImportFromTmdb(pages, language);
         return new ResponseEntity<BulkImportResultResponse>(result, HttpStatus.OK);
     }
