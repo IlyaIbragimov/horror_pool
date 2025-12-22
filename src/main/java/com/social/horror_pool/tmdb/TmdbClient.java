@@ -3,6 +3,8 @@ package com.social.horror_pool.tmdb;
 import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.payload.tmdb.TmdbDiscoverMovieAllResponse;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -27,6 +29,8 @@ public class TmdbClient {
         this.readToken = readToken;
     }
 
+    @Retry(name = "tmdbRetry")
+    @RateLimiter(name = "tmdbMovieById")
     public Optional<TmdbMovieDTO> getMovieById(long tmdbId, String language) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
@@ -53,6 +57,8 @@ public class TmdbClient {
         }
     }
 
+    @Retry(name = "tmdbRetry")
+    @RateLimiter(name = "tmdbDiscover")
     public TmdbDiscoverMovieAllResponse discoverHorrors(Integer page, String language) {
         String url = UriComponentsBuilder
                 .fromHttpUrl(baseUrl)
