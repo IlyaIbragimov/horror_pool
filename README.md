@@ -13,6 +13,7 @@ Spring Boot backend for a horror movie catalog app, featuring user authenticatio
 - JPA/Hibernate
 - ModelMapper
 - Docker
+- resilience4j
 
 
   ![CI](https://github.com/IlyaIbragimov/horror_pool/actions/workflows/ci.yml/badge.svg)
@@ -195,6 +196,55 @@ PUT /api/watchlist/{watchlistItemId}/toggleWatched
 
 ---
 
+## 🎬 TMDB Integration (Admin)
+
+The application supports importing movies from **The Movie Database (TMDB)**.  
+All endpoints below are **admin-only**.
+
+Base path:
+
+### 🔹 Import Movie by TMDB ID
+
+Imports a single movie from TMDB by its `tmdbId`.
+```
+POST /horrorpool/admin/tmdb/import/{tmdbId}
+```
+**Query params**
+- `language` (optional, default: `en-US`) – response language
+
+**Notes**
+- Fails if the movie already exists
+- Fails if TMDB movie is not found
+- Returns saved `MovieDTO`
+
+### 🔹 Bulk Import Horror Movies
+
+Bulk imports horror movies (`genre = 27`) using TMDB Discover API.
+```
+POST /horrorpool/admin/tmdb/bulkImport
+```
+**Query params**
+- `pages` (optional, default: `1`) – number of TMDB pages to import  
+  (1 page ≈ 20 movies)
+- `language` (optional, default: `en-US`)
+
+**Behavior**
+- TMDB pages start from **1**
+- Existing movies are skipped
+- Import continues even if some movies fail
+- Rate limiting and retry are enabled
+
+**Response**
+```json
+{
+  "imported": 18,
+  "skipped": 2,
+  "failed": 0,
+  "errors": []
+}
+```
+---
+
 ## ✅ Features
 - Register/Login with JWT cookies
 - Movie catalog with genres
@@ -230,6 +280,7 @@ mvn test
 - `security/jwt/` — JWT token and user details
 - `service/` — Interfaces for business logic
 - `service/impl/` — Service implementations
+- `tmdb/` - TMDB client
 
 ---
 
