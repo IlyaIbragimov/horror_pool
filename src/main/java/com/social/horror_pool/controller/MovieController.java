@@ -50,6 +50,7 @@ public class MovieController {
         MovieAllResponse result = this.movieService.getAllMovies(pageNumber, pageSize, sort, order);
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
+
     @Operation(
             summary = "Search the movie",
             description = "Return the movies depending on the input parameters. Available for everyone"
@@ -81,6 +82,7 @@ public class MovieController {
         MovieDTO response = this.movieService.getMovieById(movieId);
         return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
     }
+
     @Operation(
             summary = "Add a comment to the movie",
             description = "Add a comment to the movie. Available for authenticated user"
