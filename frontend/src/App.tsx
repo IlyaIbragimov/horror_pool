@@ -1,16 +1,5 @@
-import { useState } from 'react'
-import './App.css'
+import { MoviesPage } from "./pages/MoviesPage";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <h1>Horror Pool</h1>
-      </div>
-    </>
-  )
+export default function App() {
+  return <MoviesPage />;
 }
-
-export default App
