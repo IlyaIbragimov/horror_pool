@@ -3,6 +3,7 @@ import { fetchMovies } from "../../api/movie.api";
 import type { MovieAllResponse } from "../../types/movie.types";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
 import styles from "./MoviesPage.module.css";
+import { Link } from "react-router-dom";
 
 export function MoviesPage() {
   const [page, setPage] = useState(1);
@@ -50,7 +51,9 @@ export function MoviesPage() {
 
       <div className={styles.grid}>
         {data?.movies.map((m) => (
-          <MovieCard key={m.movieId} movie={m} />
+         <Link key={m.movieId} to={`/movies/${m.movieId}`} className={styles.cardLink}>
+            <MovieCard key={m.movieId} movie={m} />
+         </Link>
         ))}
       </div>
     </div>
