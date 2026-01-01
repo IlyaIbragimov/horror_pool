@@ -1,5 +1,5 @@
 import { http } from "./http";
-import type { MovieAllResponse } from "../types/movie.types";
+import type { MovieAllResponse, MovieDTO } from "../types/movie.types";
 
 export type MoviesQuery = {
   page?: number;
@@ -20,4 +20,8 @@ export function fetchMovies(params: MoviesQuery = {}): Promise<MovieAllResponse>
   const url = `/public/movie/all${qs ? `?${qs}` : ""}`;
 
   return http<MovieAllResponse>(url);
+}
+
+export function fetchMovieById(movieId: number): Promise<MovieDTO> {
+  return http<MovieDTO>(`/public/movie/${movieId}`);
 }

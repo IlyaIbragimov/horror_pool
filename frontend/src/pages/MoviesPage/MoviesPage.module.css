@@ -51,6 +51,12 @@
   align-items: start;
 }
 
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 @media (max-width: 520px) {
   .page {
     padding: 12px;
