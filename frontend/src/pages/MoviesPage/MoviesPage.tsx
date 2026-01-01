@@ -5,7 +5,7 @@ import { MovieCard } from "../../components/MovieCard/MovieCard";
 import styles from "./MoviesPage.module.css";
 
 export function MoviesPage() {
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [size] = useState(12);
 
   const [data, setData] = useState<MovieAllResponse | null>(null);
@@ -16,7 +16,7 @@ export function MoviesPage() {
     setLoading(true);
     setError(null);
 
-    fetchMovies({ page, size, order: "asc", sort: "title" })
+    fetchMovies({ page: page - 1, size, order: "asc", sort: "title" })
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
@@ -28,12 +28,12 @@ export function MoviesPage() {
         <h2>Movies</h2>
 
         <div className={styles.pager}>
-          <button disabled={loading || page <= 0} onClick={() => setPage((p) => p - 1)}>
+          <button disabled={loading || page <= 1} onClick={() => setPage((p) => p - 1)}>
             Prev
           </button>
 
           <span>
-            Page {data?.pageNumber ?? page} / {data?.totalPages ?? "?"}
+            Page {data ? data.pageNumber + 1 : page} / {data?.totalPages ?? "?"}
           </span>
 
           <button
