@@ -1,5 +1,16 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
+import Footer from "../components/Footer/Footer";
+import styles from "./AppLayout.module.css";
 
-export function AppLayout({ children }: { children: ReactNode }) {
-  return <div className="container">{children}</div>;
+export function AppLayout() {
+  return (
+    <div className={styles.app}>
+      <main className={styles.main}>
+        <div className={styles.container}>
+           <Outlet />
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 }
