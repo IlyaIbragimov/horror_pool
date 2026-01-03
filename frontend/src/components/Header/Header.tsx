@@ -1,0 +1,97 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import "./Header.css";
+
+export default function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
+
+  const onSubmitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("search:", query);
+  };
+
+  return (
+    <header className="header">
+      <div className="container">
+        <div className="header-wrapper">
+          <div className="header-left">
+            <Link className="logo" to="/movies" onClick={() => setMobileOpen(false)}>
+              Horror Pool
+            </Link>
+          </div>
+
+          <nav className="header-menu desktop-menu" aria-label="Main navigation">
+            <Link className="header-menu-item" to="/movies">
+              Movies
+            </Link>
+            <a className="header-menu-item" href="#genres">
+              Genres
+            </a>
+            <a className="header-menu-item" href="#popular">
+              New popular
+            </a>
+          </nav>
+
+          <form className="search" onSubmit={onSubmitSearch} role="search">
+            <input
+              className="search-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search movies..."
+              aria-label="Search movies"
+            />
+
+            <button className="search-btn" type="submit">
+              Search
+            </button>
+          </form>
+
+          <div className="header-actions">
+            <div className="buttons">
+              <Link className="btn btn-ghost" to="/login">
+                Sign in
+              </Link>
+              <Link className="btn btn-primary" to="/register">
+                Sign up
+              </Link>
+            </div>
+
+            <button
+              className="burger"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle mobile menu"
+              aria-expanded={mobileOpen}
+              type="button"
+            >
+              {mobileOpen ? "✕" : "☰"}
+            </button>
+          </div>
+        </div>
+
+        <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
+          <Link to="/movies" onClick={() => setMobileOpen(false)}>
+            Movies
+          </Link>
+          <a href="#genres" onClick={toggleMobileMenu}>
+            Genres
+          </a>
+          <a href="#popular" onClick={toggleMobileMenu}>
+            New popular
+          </a>
+
+          <div className="mobile-actions">
+            <Link className="btn btn-ghost" to="/login" onClick={() => setMobileOpen(false)}>
+              Sign in
+            </Link>
+            <Link className="btn btn-primary" to="/register" onClick={() => setMobileOpen(false)}>
+              Sign up
+            </Link>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
