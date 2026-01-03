@@ -1,1 +1,13 @@
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background-color: #2f3c4d ;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
 
