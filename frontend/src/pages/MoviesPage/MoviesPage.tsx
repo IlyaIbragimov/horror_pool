@@ -7,26 +7,50 @@ import { Link } from "react-router-dom";
 
 export function MoviesPage() {
   const [page, setPage] = useState(1);
-  const [size] = useState(12);
+  const [size] = useState(18);
 
   const [data, setData] = useState<MovieAllResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sort, setSort] = useState<"title" | "popularity" | "releaseDate" | "voteAverage">("title");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     setLoading(true);
     setError(null);
 
-    fetchMovies({ page: page - 1, size, order: "asc", sort: "title" })
+    fetchMovies({ page: page - 1, size, order, sort })
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-  }, [page, size]);
+  }, [page, size, order, sort]);
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h2>Movies</h2>
+
+        <nav className={styles.nav}>
+        <button
+            className={`${styles.navItem} ${sort === "releaseDate" && order === "desc" ? styles.active : ""}`}
+            onClick={() => { setSort("releaseDate"); setOrder("desc"); setPage(1); }}
+            >
+            Newest
+        </button>
+
+        <button
+            className={`${styles.navItem} ${sort === "popularity" && order === "desc" ? styles.active : ""}`}
+            onClick={() => { setSort("popularity"); setOrder("desc"); setPage(1); }}
+            >
+           Popular
+        </button>
+
+        <button
+            className={`${styles.navItem} ${sort === "voteAverage" && order === "desc" ? styles.active : ""}`}
+            onClick={() => { setSort("voteAverage"); setOrder("desc"); setPage(1); }}
+            >
+           Most Rated
+        </button>
+        </nav>
 
         <div className={styles.pager}>
           <button disabled={loading || page <= 1} onClick={() => setPage((p) => p - 1)}>
