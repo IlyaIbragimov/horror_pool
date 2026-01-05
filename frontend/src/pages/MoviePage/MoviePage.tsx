@@ -61,23 +61,11 @@ export function MoviePage() {
           {movie.overview && <div className={styles.overview}>{movie.overview}</div>}
 
           <div className={styles.kv}>
-            <div className={styles.k}>Original title</div>
-            <div>{movie.originalTitle ?? "-"}</div>
-
-            <div className={styles.k}>Description</div>
-            <div>{movie.description ?? "-"}</div>
-
             <div className={styles.k}>Release year</div>
             <div>{movie.releaseYear ?? "-"}</div>
 
             <div className={styles.k}>Popularity</div>
             <div>{movie.popularity ?? "-"}</div>
-
-            <div className={styles.k}>Adult</div>
-            <div>{movie.adult ?? "-"}</div>
-
-            <div className={styles.k}>Video</div>
-            <div>{movie.video ?? "-"}</div>
           </div>
         </div>
       </div>
