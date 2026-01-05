@@ -25,6 +25,8 @@ public class Genre {
     @Column(length = 1000)
     private String description;
 
+    private String posterPath;
+
     @ManyToMany(mappedBy = "genres")
     private List<Movie> movies = new ArrayList<>();
 }

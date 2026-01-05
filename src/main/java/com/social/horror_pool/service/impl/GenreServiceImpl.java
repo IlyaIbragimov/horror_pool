@@ -68,6 +68,7 @@ public class GenreServiceImpl implements GenreService {
 
         genreToUpdate.setName(genreDTO.getName());
         genreToUpdate.setDescription(genreDTO.getDescription());
+        genreToUpdate.setPosterPath(genreDTO.getPosterPath());
 
         this.genreRepository.save(genreToUpdate);
 

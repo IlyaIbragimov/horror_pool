@@ -20,4 +20,6 @@ public class GenreDTO {
     @NotBlank(message = "Description cannot be blank")
     @Size(max = 1000 , message = "Description cannot be longer than 1000 characters")
     private String description;
+
+    private String posterPath;
 }
