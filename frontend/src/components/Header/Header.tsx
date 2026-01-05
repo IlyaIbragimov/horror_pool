@@ -27,9 +27,9 @@ export default function Header() {
             <Link className="header-menu-item" to="/movies">
               Movies
             </Link>
-            <a className="header-menu-item" href="#genres">
+            <Link className="header-menu-item" to="/genres">
               Genres
-            </a>
+            </Link>
             <a className="header-menu-item" href="#popular">
               New popular
             </a>
@@ -75,9 +75,9 @@ export default function Header() {
           <Link to="/movies" onClick={() => setMobileOpen(false)}>
             Movies
           </Link>
-          <a href="#genres" onClick={toggleMobileMenu}>
+           <Link to="/genres" onClick={() => setMobileOpen(false)}>
             Genres
-          </a>
+          </Link>
           <a href="#popular" onClick={toggleMobileMenu}>
             New popular
           </a>
