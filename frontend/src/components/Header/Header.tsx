@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
+import tmdblogo from "../../assets/logos/tmdblogo.svg"
+import logo from "../../assets/logos/logo.svg"
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -15,12 +17,15 @@ export default function Header() {
 
   return (
     <header className="header">
-      <div className="container">
         <div className="header-wrapper">
-          <div className="header-left">
-            <Link className="logo" to="/movies" onClick={() => setMobileOpen(false)}>
-              Horror Pool
-            </Link>
+
+          <div className="header-logo">
+            <div className="logo">
+             <a> <img src={logo} alt="" /> </a>
+            </div>
+            <div className="logo">
+             <a> <img src={tmdblogo} alt="" /> </a>
+            </div>
           </div>
 
           <nav className="header-menu desktop-menu" aria-label="Main navigation">
@@ -30,24 +35,22 @@ export default function Header() {
             <Link className="header-menu-item" to="/genres">
               Genres
             </Link>
-            <a className="header-menu-item" href="#popular">
-              New popular
-            </a>
+            <Link className="header-menu-item" to="/genres">
+              Templates
+            </Link>
           </nav>
 
-          <form className="search" onSubmit={onSubmitSearch} role="search">
-            <input
-              className="search-input"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search movies..."
-              aria-label="Search movies"
-            />
+          <div className="search-wrapper">
+            <form className="search-form" onSubmit={onSubmitSearch} role="search">
 
-            <button className="search-btn" type="submit">
-              Search
-            </button>
-          </form>
+              <input className="search-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search movies..." aria-label="Search movies"/>
+
+              <button className="search-btn" type="submit">
+                Search
+              </button>
+
+            </form>
+          </div>
 
           <div className="header-actions">
             <div className="buttons">
@@ -58,18 +61,12 @@ export default function Header() {
                 Sign up
               </Link>
             </div>
-
-            <button
-              className="burger"
-              onClick={toggleMobileMenu}
-              aria-label="Toggle mobile menu"
-              aria-expanded={mobileOpen}
-              type="button"
-            >
-              {mobileOpen ? "✕" : "☰"}
-            </button>
           </div>
-        </div>
+
+          <button className="burger" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={mobileOpen} type="button">
+            {mobileOpen ? "✕" : "☰"}
+          </button>
+      </div>
 
         <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
           <Link to="/movies" onClick={() => setMobileOpen(false)}>
@@ -91,7 +88,9 @@ export default function Header() {
             </Link>
           </div>
         </div>
-      </div>
+
+
+
     </header>
   );
 }
