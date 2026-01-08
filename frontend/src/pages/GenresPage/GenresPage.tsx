@@ -49,7 +49,7 @@ export function GenresPage() {
       {error && <div className={styles.error}>{error}</div>}
       {loading && <div>Loading...</div>}
 
-      <div className={styles.grid}>
+      <div className={styles.list}>
         {data?.genres.map((g) => (
          <Link key={g.genreId} to={`/genres/${g.genreId}`} className={styles.cardLink}>
             <GenreCard key={g.genreId} genre={g} />

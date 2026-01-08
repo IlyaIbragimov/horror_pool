@@ -42,20 +42,20 @@
   margin: 10px 0;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 12px;
-  align-items: start;
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
 }
 
 .cardLink {
   text-decoration: none;
   color: inherit;
   display: block;
+  width: 100%;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .page {
     padding: 12px;
   }
@@ -65,8 +65,7 @@
     align-items: flex-start;
   }
 
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
+  .list {
+    gap: 24px;
   }
 }
