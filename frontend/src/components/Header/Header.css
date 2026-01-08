@@ -10,17 +10,17 @@
 
 .header-wrapper {
   display: flex;
-  padding: 16px 16px;
-  min-width: 0;
   align-items: center;
+  gap: 16px;
+  padding: 16px;
+  min-width: 0;
 }
 
 .header-logo {
-  width: 20%;
-  margin: 0 20px 0 0;
   display: flex;
   gap: 16px;
-  align-items: center;
+  flex: 0 0 auto;
+  margin: 0;
 }
 
 .logo {
@@ -37,16 +37,14 @@
 
 .desktop-menu {
   display: flex;
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  justify-content: space-around;
-  gap: 20px;
+  flex: 1 0 auto;
+  min-width: 0;
+  justify-content: space-evenly; 
+  gap: 20px;          
 }
 
 .header-menu-item {
   color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
   padding: 8px 10px;
   border-radius: 10px;
   white-space: nowrap;
@@ -57,27 +55,30 @@
 }
 
 .search-wrapper {
-  width: 50%;
+  flex: 0 1 520px; 
+  width: auto;     
+  min-width: 260px;
   display: flex;
-  min-width: 300px;
-  justify-content: space-around;
+  min-width: 0;   
 }
 
 .search-form {
   width: 100%;
+  display: flex;
+  gap: 8px;
+  min-width: 0;     
 }
 
 .search-input {
-  width: 50%;
-  max-width: 520px;
-  min-width: 80px;
+  flex: 1 1 auto;          
+  margin: 0;
   padding: 10px 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(0, 0, 0, 0.18);
   color: rgba(255, 255, 255, 0.92);
   outline: none;
-  margin: 0 8px 0 0;
+  min-width: 0;   
 }
 
 .search-input::placeholder {
@@ -97,7 +98,6 @@
   padding: 10px 14px;
   border-radius: 999px;
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .search-btn:hover {
@@ -105,19 +105,16 @@
 }
 
 .header-actions {
-  width: 20%;
-  margin: 0 40px 0 0;
+  flex: 0 0 auto;
 }
-
 .buttons {
   display: flex;
   gap: 10px;
-  justify-content: end;
+  justify-content: flex-end;
 }
 
 .btn {
   display: inline-flex;
-  align-items: center;
   justify-content: center;
   padding: 10px 14px;
   border-radius: 999px;
@@ -157,6 +154,7 @@
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
+  margin: 0 0 0 auto;
 }
 
 .burger:hover {
@@ -182,7 +180,6 @@
   padding: 10px 10px;
   border-radius: 12px;
   color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
 }
 
 .mobile-menu a:hover {
@@ -190,9 +187,7 @@
 }
 
 .mobile-actions {
-  margin-top: 10px;
-  display: grid;
-  gap: 8px;
+  display: block;
 }
 
 .mobile-actions .btn {
@@ -221,10 +216,6 @@
 }
 
 @media (max-width: 920px) {
-  .header-wrapper {
-    flex-wrap: nowrap;
-  }
-
   .header {
     margin: 0 0 15px 0;
   }
@@ -238,14 +229,6 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .search-input {
-    max-width: 70%;
-  }
-
-  .search-wrapper {
-    width: 100%;
   }
 
   .header-actions {

@@ -24,7 +24,9 @@ export default function Header() {
              <a> <img src={logo} alt="" /> </a>
             </div>
             <div className="logo">
-             <a> <img src={tmdblogo} alt="" /> </a>
+              <a href="https://www.themoviedb.org" target="_blank" rel="noreferrer" aria-label="TMDB">
+                <img src={tmdblogo} alt="TMDB" />
+              </a>
             </div>
           </div>
 
@@ -75,7 +77,7 @@ export default function Header() {
            <Link to="/genres" onClick={() => setMobileOpen(false)}>
             Genres
           </Link>
-          <a href="#popular" onClick={toggleMobileMenu}>
+          <a href="#templates" onClick={() => setMobileOpen(false)}>
             New popular
           </a>
 
