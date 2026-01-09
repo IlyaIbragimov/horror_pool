@@ -2,17 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signIn } from "../../api/auth.api";
 import styles from "./SignInPage.module.css";
+import { useAuth } from "../../auth/AuthContext";
+
 
 export default function SignInPage() {
+  
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const { refresh } = useAuth();
   const navigate = useNavigate();
-
   const close = () => navigate(-1);
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -20,6 +21,7 @@ export default function SignInPage() {
 
     try {
       await signIn(username, password);
+      await refresh();
       close();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sign in failed");

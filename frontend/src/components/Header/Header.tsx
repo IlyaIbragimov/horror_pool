@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import "./Header.css";
 import tmdblogo from "../../assets/logos/tmdblogo.svg"
 import logo from "../../assets/logos/logo.svg"
 
 export default function Header() {
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
-
   const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
-
+  const { user, loading, logout } = useAuth();
   const onSubmitSearch = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("search:", query);
@@ -55,14 +56,23 @@ export default function Header() {
           </div>
 
           <div className="header-actions">
-            <div className="buttons">
-              <Link className="btn btn-ghost" to="/login">
-                Sign in
-              </Link>
-              <Link className="btn btn-primary" to="/register">
-                Sign up
-              </Link>
-            </div>
+            {loading ? null : user ? (
+              <div className="buttons">
+                <span style={{ opacity: 0.9, marginRight: 10 }}>{user}</span>
+                <button className="btn btn-ghost" onClick={logout} type="button">
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="buttons">
+                <Link className="btn btn-ghost" to="/login">
+                  Sign in
+                </Link>
+                <Link className="btn btn-primary" to="/register">
+                  Sign up
+                </Link>
+              </div>
+            )}
           </div>
 
           <button className="burger" onClick={toggleMobileMenu} aria-label="Toggle mobile menu" aria-expanded={mobileOpen} type="button">
