@@ -11,7 +11,7 @@ export default function SignInPage() {
 
   const navigate = useNavigate();
 
-  const close = () => navigate(-1); // вернёт на предыдущую страницу
+  const close = () => navigate(-1);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,7 +20,6 @@ export default function SignInPage() {
 
     try {
       await signIn(username, password);
-      // после логина просто закрываем "модалку"
       close();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sign in failed");
@@ -30,7 +29,6 @@ export default function SignInPage() {
   };
 
   const onOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    // закрываем только если кликнули именно по фону, не по окну
     if (e.target === e.currentTarget) close();
   };
 
