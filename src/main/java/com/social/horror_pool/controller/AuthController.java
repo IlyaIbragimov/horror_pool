@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Tag(name = "Authentication", description = "Endpoints for user sign-in, sign-up, and profile access")
 @RestController
 @RequestMapping("/horrorpool")
@@ -57,8 +59,8 @@ public class AuthController {
             description = "Returns the username of the currently authenticated user. Requires authentication."
     )
     @GetMapping("/username")
-    public String getCurrentUsername() {
-        return this.authService.getCurrentUsername();
+    public Map<String, String> getCurrentUsername() {
+        return Map.of("username", this.authService.getCurrentUsername());
     }
 
     @Operation(
