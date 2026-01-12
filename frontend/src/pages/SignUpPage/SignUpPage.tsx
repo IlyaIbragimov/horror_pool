@@ -27,7 +27,7 @@ export default function SignUpPage() {
       await refresh();
       close();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Sign in failed");
+      setError(e instanceof Error ? e.message : "Sign up failed");
     } finally {
       setLoading(false);
     }
@@ -97,6 +97,11 @@ export default function SignUpPage() {
           <button className={styles.submit} disabled={loading} type="submit">
             {loading ? "Registering..." : "Sign Up"}
           </button>
+
+          <div className={styles.alreadyregisted}>
+            <span>Already have an account ?</span>
+            <a href = "/login">Sign In</a>
+          </div>
 
           {error && <p className={styles.error}>{error}</p>}
         </form>
