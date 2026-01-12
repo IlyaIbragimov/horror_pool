@@ -81,28 +81,35 @@ export default function Header() {
       </div>
 
         <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
-          <Link to="/movies" onClick={() => setMobileOpen(false)}>
-            Movies
-          </Link>
-           <Link to="/genres" onClick={() => setMobileOpen(false)}>
-            Genres
-          </Link>
-          <a href="#templates" onClick={() => setMobileOpen(false)}>
-            New popular
-          </a>
+            <Link to="/movies" onClick={() => setMobileOpen(false)}>
+              Movies
+            </Link>
+            <Link to="/genres" onClick={() => setMobileOpen(false)}>
+              Genres
+            </Link>
+            <a href="#templates" onClick={() => setMobileOpen(false)}>
+              New popular
+            </a>
 
-          <div className="mobile-actions">
-            <Link className="btn btn-ghost" to="/login" onClick={() => setMobileOpen(false)}>
-              Sign in
-            </Link>
-            <Link className="btn btn-primary" to="/register" onClick={() => setMobileOpen(false)}>
-              Sign up
-            </Link>
+            <div className="mobile-actions">
+              {loading ? null : user ? (
+                <>
+                  <button type="button" className="btn btn-primary" onClick={async () => { await logout(); setMobileOpen(false);}}>
+                      Sign out
+                  </button>
+                </>
+              ) : ( 
+                <>
+                  <Link className="btn btn-ghost" to="/login" onClick={() => setMobileOpen(false)}>
+                    Sign in
+                  </Link>
+                  <Link className="btn btn-primary" to="/register" onClick={() => setMobileOpen(false)}>
+                    Sign up
+                  </Link>
+                </>
+              )}
           </div>
         </div>
-
-
-
     </header>
   );
 }
