@@ -48,10 +48,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public MessageResponse signUpNewUser(String username, String email, String password, String confirmPassword) {
         if (userRepository.existsByUsername(username))
-            return  new MessageResponse("Username is already taken");
+            return new MessageResponse("Username is already taken");
 
         if (userRepository.existsByEmail(email))
-            return  new MessageResponse("Email is already taken");
+            return new MessageResponse("Email is already taken");
 
         if (!password.equals(confirmPassword)) {
             return new MessageResponse("Passwords do not match");
