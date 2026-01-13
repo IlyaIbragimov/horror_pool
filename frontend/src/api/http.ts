@@ -16,23 +16,31 @@ export async function http<T>(path: string, init: RequestInit = {}): Promise<T> 
   });
 
 if (!res.ok) {
-  const contentType = res.headers.get("content-type") ?? "";
-
-  let message = res.statusText || `HTTP ${res.status}`;
+  const ct = res.headers.get("content-type") ?? "";
+  let msg = res.statusText || "Request failed";
 
   try {
-    if (contentType.includes("application/json")) {
+    if (ct.includes("application/json")) {
       const data = await res.json();
-      message = data?.message ?? JSON.stringify(data);
+
+      if (data && typeof data === "object" && "message" in data && typeof data.message === "string") {
+        msg = data.message;
+      } else if (data && typeof data === "object" && !Array.isArray(data)) {
+          msg = Object.entries(data)
+          .filter(([, v]) => typeof v === "string" && v.trim().length > 0)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join("\n");
+      } else if (typeof data === "string") {
+        msg = data;
+      }
     } else {
       const text = await res.text();
-      message = text || message;
+      msg = text || msg;
     }
-  } catch {
-    throw new Error("Something went wrong")
+  } catch(e) {
+    console.warn("Failed to parse error response", e)
   }
-
-  throw new Error(message);
+  throw new Error(msg);
 }
 
   if (res.status === 204) return undefined as T;
