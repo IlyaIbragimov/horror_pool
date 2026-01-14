@@ -8,7 +8,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestControllerAdvice
@@ -19,7 +21,8 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                null
         );
         return new ResponseEntity<APIExceptionResponse>(apiExceptionResponse,HttpStatus.BAD_REQUEST);
     }
@@ -30,18 +33,27 @@ public class GlobalExceptionHandler {
                 e.getMessage(),
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
-                request.getRequestURI()
+                request.getRequestURI(),
+                null
         );
         return new ResponseEntity<APIExceptionResponse>(apiExceptionResponse,HttpStatus.NOT_FOUND);
     }
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> handleDTOValidationException(MethodArgumentNotValidException e) {
-        Map<String, String> errors = new HashMap<>();
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<APIExceptionResponse> handleDTOValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
+        List<String> errors = new ArrayList<>();
 
         e.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(),error.getDefaultMessage());
+            errors.add(error.getDefaultMessage());
         });
 
-        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.BAD_REQUEST);
+        APIExceptionResponse apiExceptionResponse = new APIExceptionResponse(
+                "Validation failed",
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                request.getRequestURI(),
+                errors
+        );
+
+        return new ResponseEntity<APIExceptionResponse>(apiExceptionResponse, HttpStatus.BAD_REQUEST);
     }
 }
