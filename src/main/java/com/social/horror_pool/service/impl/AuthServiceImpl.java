@@ -48,13 +48,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public MessageResponse signUpNewUser(String username, String email, String password, String confirmPassword) {
         if (userRepository.existsByUsername(username))
-            return new MessageResponse("Username is already taken");
+            throw new APIException("Username is already taken");
 
         if (userRepository.existsByEmail(email))
-            return new MessageResponse("Email is already taken");
+            throw new APIException("Email is already taken");
 
         if (!password.equals(confirmPassword)) {
-            return new MessageResponse("Passwords do not match");
+            throw new APIException("Passwords do not match");
         }
 
         User user = new User(username, email, this.passwordEncoder.encode(password));
