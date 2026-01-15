@@ -43,7 +43,9 @@ public class GlobalExceptionHandler {
         List<String> errors = new ArrayList<>();
 
         e.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.add(error.getDefaultMessage());
+            if (!errors.contains(error.getDefaultMessage())) {
+                errors.add(error.getDefaultMessage());
+            }
         });
 
         APIExceptionResponse apiExceptionResponse = new APIExceptionResponse(
