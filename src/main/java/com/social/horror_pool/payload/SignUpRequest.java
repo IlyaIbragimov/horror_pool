@@ -7,20 +7,20 @@ import lombok.Data;
 
 @Data
 public class SignUpRequest {
-    @NotBlank
-    @Size(min = 5, max = 20)
+    @NotBlank(message = "Username cannot be blank")
+    @Size(min = 5, max = 20, message = "Username must be 5-20 characters long")
     private String username;
 
-    @NotBlank
-    @Email
-    @Size(max = 50)
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Invalid email format")
+    @Size(max = 50, message = "Email cannot be longer than 50 chars")
     private String email;
 
-    @NotBlank
-    @Size(min = 8, max = 20)
+    @NotBlank(message = "Password cannot be blank")
+    @Size(min = 8, max = 20, message = "Password must be 8-20 characters long")
     private String password;
 
-    @NotBlank
-    @Size(min = 8, max = 20)
+    @NotBlank(message = "Please confirm the password")
+    @Size(min = 8, max = 20, message = "Password must be 8-20 characters long")
     private String confirmPassword;
 }
