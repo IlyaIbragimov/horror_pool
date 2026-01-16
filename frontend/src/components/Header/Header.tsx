@@ -4,6 +4,7 @@ import { useAuth } from "../../auth/AuthContext";
 import "./Header.css";
 import tmdblogo from "../../assets/logos/tmdblogo.svg"
 import logo from "../../assets/logos/logo.svg"
+import { useNavigate } from "react-router-dom"
 
 export default function Header() {
 
@@ -11,11 +12,17 @@ export default function Header() {
   const [query, setQuery] = useState("");
   const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
   const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
   const onSubmitSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("search:", query);
+    const q = query.trim();
+    const params = new URLSearchParams();
+    if (q) params.set("keyword", q);
+    params.set("page", "1");
+    navigate(`/movies?${params.toString()}`);
+    setQuery("");
   };
-
+  
   return (
     <header className="header">
         <div className="header-wrapper">
@@ -45,13 +52,8 @@ export default function Header() {
 
           <div className="search-wrapper">
             <form className="search-form" onSubmit={onSubmitSearch} role="search">
-
               <input className="search-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search movies..." aria-label="Search movies"/>
-
-              <button className="search-btn" type="submit">
-                Search
-              </button>
-
+              <button className="search-btn" type="submit">Search</button>
             </form>
           </div>
 
