@@ -21,3 +21,18 @@ export type MovieAllResponse = {
     totalPages: number;
     lastPage: boolean
 }
+
+export type MoviesQuery = {
+  page?: number;
+  size?: number;
+  sort?: string;
+  order?: string;
+};
+
+export type SearchMovieQuery = {
+  keyword?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
+  order?: string;
+};
