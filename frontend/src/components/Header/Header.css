@@ -107,10 +107,19 @@
 .header-actions {
   flex: 0 0 auto;
 }
+
 .buttons {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+}
+
+.username{
+  margin: 0 10px 0 0;
+  text-align: center;
+  align-content: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
 }
 
 .btn {

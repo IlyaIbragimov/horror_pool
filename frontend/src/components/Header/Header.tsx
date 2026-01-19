@@ -60,7 +60,7 @@ export default function Header() {
           <div className="header-actions">
             {loading ? null : user ? (
               <div className="buttons">
-                <span style={{ opacity: 0.9, marginRight: 10 }}>{user}</span>
+                <span className="username">{user}</span>
                 <button className="btn btn-ghost" onClick={logout} type="button">
                   Sign out
                 </button>
