@@ -36,3 +36,10 @@ export type SearchMovieQuery = {
   sort?: string;
   order?: string;
 };
+
+export type Comment = {
+  commentId: number;
+  commentContent: string;
+  userName: string;
+  date: string;
+}
