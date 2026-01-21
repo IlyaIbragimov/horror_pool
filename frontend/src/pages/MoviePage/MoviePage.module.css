@@ -21,6 +21,7 @@
   box-sizing: border-box;
   height: 42px;
   max-width: 100%;
+  border-radius: 8px;
 }
 
 .comment_button{
@@ -31,6 +32,10 @@
   border-radius: 8px;
   cursor: pointer;
   min-width: none;
+}
+
+.comments {
+  max-width: 100%;
 }
 
 .back {

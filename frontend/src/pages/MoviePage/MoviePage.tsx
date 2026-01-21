@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { MovieDTO } from "../../types/movie.types";
-import { fetchMovieById } from "../../api/movie.api";
+import { fetchMovieById, addCommentToMovie } from "../../api/movie.api";
 import styles from "./MoviePage.module.css";
+import { CommentCard } from "../../components/CommentCard/CommentCard";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -12,7 +13,8 @@ export function MoviePage() {
   const [movie, setMovie] = useState<MovieDTO | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [comment, setComment] = useState("");
+  const [commentContent, setCommentContent] = useState("");
+
 
   useEffect(() => {
     if (!movieId) return;
@@ -37,6 +39,24 @@ export function MoviePage() {
   if (!movie) return <div className={styles.page}>Movie not found</div>;
 
   const posterUrl = movie.posterPath ? `${TMDB_IMG_BASE}${movie.posterPath}` : null;
+
+  const onSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!movieId) return;
+      const text = commentContent.trim();
+      if (!text) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const updatedMovie = await addCommentToMovie(Number(movieId), text);
+        setMovie(updatedMovie); 
+        setCommentContent("");  
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Adding comment failed");
+      } finally {
+        setLoading(false);
+      }
+  };
 
   return (
     <div className={styles.page}>
@@ -74,12 +94,16 @@ export function MoviePage() {
       </div>
 
       <div className={styles.comment_section}>
-        <form className={styles.comment_form}>
-          <textarea className={styles.comment_input} value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Write review..." aria-label="Write review"/>
-          <button className={styles.comment_button}>Add</button>
+        <form className={styles.comment_form} onSubmit={onSubmit}>
+          <textarea className={styles.comment_input} value={commentContent} onChange={(e) => setCommentContent(e.target.value)} placeholder="Write review..." aria-label="Write review"/>
+          <button type="submit" className={styles.comment_button}>Add</button>
         </form>
+        <div className={styles.comments}>
+        {movie?.comments.map((c) => (
+          <CommentCard key={c.commentId} comment={c} />
+        ))}
+        </div>
       </div>
-      
     </div>
   );
 }
