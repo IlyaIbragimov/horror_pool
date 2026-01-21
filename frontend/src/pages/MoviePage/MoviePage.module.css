@@ -34,6 +34,10 @@
   min-width: none;
 }
 
+.comment_login_hint{
+  color: rgba(255, 255, 255, 0.92);
+}
+
 .comments {
   max-width: 100%;
 }

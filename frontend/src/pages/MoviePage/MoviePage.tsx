@@ -4,6 +4,7 @@ import type { MovieDTO } from "../../types/movie.types";
 import { fetchMovieById, addCommentToMovie } from "../../api/movie.api";
 import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
+import { useAuth } from "../../auth/AuthContext";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -14,6 +15,7 @@ export function MoviePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState("");
+  const { user, loading: authLoading } = useAuth();
 
 
   useEffect(() => {
@@ -43,6 +45,10 @@ export function MoviePage() {
   const onSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (!movieId) return;
+      if (!user) {
+        setError("Please sign in to add a comment.");
+        return;
+      }
       const text = commentContent.trim();
       if (!text) return;
       setLoading(true);
@@ -94,10 +100,23 @@ export function MoviePage() {
       </div>
 
       <div className={styles.comment_section}>
-        <form className={styles.comment_form} onSubmit={onSubmit}>
-          <textarea className={styles.comment_input} value={commentContent} onChange={(e) => setCommentContent(e.target.value)} placeholder="Write review..." aria-label="Write review"/>
-          <button type="submit" className={styles.comment_button}>Add</button>
-        </form>
+        {!authLoading && !user ? (
+          <div className={styles.comment_login_hint}>
+            Please sign in to add a comment.
+          </div>
+        ) : (
+          <form className={styles.comment_form} onSubmit={onSubmit}>
+            <textarea
+              className={styles.comment_input}
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              placeholder="Write a comment..."
+            />
+            <button type="submit" className={styles.comment_button} disabled={loading}>
+              Add
+            </button>
+          </form>
+        )}
         <div className={styles.comments}>
         {movie?.comments.map((c) => (
           <CommentCard key={c.commentId} comment={c} />
