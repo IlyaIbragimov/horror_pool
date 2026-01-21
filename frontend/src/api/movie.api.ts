@@ -33,3 +33,11 @@ export function searchMovie(params: SearchMovieQuery = {}): Promise<MovieAllResp
 
   return http<MovieAllResponse>(url);
 }
+
+export function addCommentToMovie(movieId: number, commentContent: string): Promise<MovieDTO> {
+  return http<MovieDTO>(`/public/movie/${movieId}/addComment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ commentContent }),
+  });
+}

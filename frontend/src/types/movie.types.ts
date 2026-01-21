@@ -11,6 +11,7 @@ export type MovieDTO = {
   voteCount: number | null;
   popularity: number | null;
   originalLanguage: string | null;
+  comments: Comment[];
 }
 
 export type MovieAllResponse = {
