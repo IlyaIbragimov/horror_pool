@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +29,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final MovieRepository movieRepository;
     private final ModelMapper modelMapper;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm a");
 
     public CommentServiceImpl(CommentRepository commentRepository, MovieRepository movieRepository, UserRepository userRepository, ModelMapper modelMapper) {
         this.commentRepository = commentRepository;
@@ -48,7 +50,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setUser(user);
         comment.setMovie(movie);
         comment.setCommentContent(commentDTO.getCommentContent());
-        comment.setDate(LocalDateTime.now());
+        comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 
        return returnMovieWithComments(movie);
@@ -74,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         comment.setCommentContent(commentDTO.getCommentContent());
-        comment.setDate(LocalDateTime.now());
+        comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 
         return returnMovieWithComments(movie);

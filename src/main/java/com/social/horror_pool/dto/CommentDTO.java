@@ -18,6 +18,6 @@ public class CommentDTO {
 
     private String userName;
 
-    private LocalDateTime date;
+    private String date;
 
 }

@@ -13,7 +13,7 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
-    private LocalDateTime date;
+    private String date;
 
     private String commentContent;
 
