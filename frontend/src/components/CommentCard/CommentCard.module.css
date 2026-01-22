@@ -2,9 +2,7 @@
 .comment_card {
   background: #f2f2f2;
   border: 1px solid #d9d9d9;
-  border-radius: 8px;
   padding: 12px 14px;
-  margin: 10px 0;
   max-width: 100%;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
@@ -12,9 +10,7 @@
 .comment_data {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-
+  gap: 8px;
   padding-bottom: 8px;
   margin-bottom: 8px;
   border-bottom: 1px solid #dedede;
@@ -22,7 +18,7 @@
 
 .comment_user {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 12px;
   color: #2f2f2f;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -30,7 +26,7 @@
 }
 
 .comment_date {
-  font-size: 12px;
+  font-size: 10px;
   color: #6b6b6b;
   white-space: nowrap;
 }
@@ -41,6 +37,17 @@
   color: #2c2c2c;
   overflow-wrap: anywhere;
   word-break: break-word;
+  margin: 0 0 10px 0;
+}
+
+.comment_options{
+  font-size: 12px;
+}
+
+.comment_response a {
+  text-decoration: underline;
+  color: rgba(29, 129, 243, 0.92);
+  cursor: pointer;
 }
 
 .comment_card:hover {

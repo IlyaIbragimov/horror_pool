@@ -100,11 +100,7 @@ export function MoviePage() {
       </div>
 
       <div className={styles.comment_section}>
-        {!authLoading && !user ? (
-          <div className={styles.comment_login_hint}>
-            Please sign in to add a comment.
-          </div>
-        ) : (
+        <h2>Your review to the the movie</h2>
           <form className={styles.comment_form} onSubmit={onSubmit}>
             <textarea
               className={styles.comment_input}
@@ -112,11 +108,16 @@ export function MoviePage() {
               onChange={(e) => setCommentContent(e.target.value)}
               placeholder="Write a comment..."
             />
-            <button type="submit" className={styles.comment_button} disabled={loading}>
-              Add
-            </button>
+            {!authLoading && !user ? (
+          <div className={styles.comment_login_hint}>
+            <a href = "/login">Sign in</a> to add a comment.
+          </div>
+          ) : (
+          <button type="submit" className={styles.comment_button} disabled={loading}>
+            Add
+          </button>
+          )}
           </form>
-        )}
         <div className={styles.comments}>
         {movie?.comments.map((c) => (
           <CommentCard key={c.commentId} comment={c} />

@@ -9,10 +9,15 @@ export function CommentCard({ comment }: Props) {
     <div className={styles.comment_card}>
         
         <div className={styles.comment_data}>
-            <div className={styles.comment_user}>{comment.userName}</div>
-            <div className={styles.comment_date}>{comment.date}</div>
+            <div className={styles.comment_user}>{comment.userName},</div>
+            <div className={styles.comment_date}>left at {comment.date}</div>
         </div>
         <div className={styles.comment_text}>{comment.commentContent}</div>
+        <div className={styles.comment_options}>
+          <div className={styles.comment_response}>
+            <a>Reply</a>
+          </div>
+        </div>
     </div>
   );
 }
