@@ -12,7 +12,8 @@ export function MoviePage() {
   const { movieId } = useParams();
 
   const [movie, setMovie] = useState<MovieDTO | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState("");
   const { user, loading: authLoading } = useAuth();
@@ -27,16 +28,16 @@ export function MoviePage() {
       return;
     }
 
-    setLoading(true);
+    setPageLoading(true);
     setError(null);
 
     fetchMovieById(id)
       .then(setMovie)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
+      .finally(() => setPageLoading(false));
   }, [movieId]);
 
-  if (loading) return <div className={styles.page}>Loading...</div>;
+  if (pageLoading) return <div className={styles.page}>Loading...</div>;
   if (error) return <div className={styles.page} style={{ color: "#ff6b6b" }}>{error}</div>;
   if (!movie) return <div className={styles.page}>Movie not found</div>;
 
@@ -51,7 +52,7 @@ export function MoviePage() {
       }
       const text = commentContent.trim();
       if (!text) return;
-      setLoading(true);
+      setSubmitLoading(true);
       setError(null);
       try {
         const updatedMovie = await addCommentToMovie(Number(movieId), text);
@@ -60,7 +61,7 @@ export function MoviePage() {
       } catch (e) {
         setError(e instanceof Error ? e.message : "Adding comment failed");
       } finally {
-        setLoading(false);
+        setSubmitLoading(false);
       }
   };
 
@@ -100,7 +101,7 @@ export function MoviePage() {
       </div>
 
       <div className={styles.comment_section}>
-        <h2>Your review to the the movie</h2>
+        <h2>Your review to the movie</h2>
           <form className={styles.comment_form} onSubmit={onSubmit}>
             <textarea
               className={styles.comment_input}
@@ -113,13 +114,13 @@ export function MoviePage() {
             <a href = "/login">Sign in</a> to add a comment.
           </div>
           ) : (
-          <button type="submit" className={styles.comment_button} disabled={loading}>
+          <button type="submit" className={styles.comment_button} disabled={submitLoading || !commentContent.trim()}>
             Add
           </button>
           )}
           </form>
         <div className={styles.comments}>
-        {movie?.comments.map((c) => (
+        {(movie.comments ?? []).map((c) => (
           <CommentCard key={c.commentId} comment={c} />
         ))}
         </div>
