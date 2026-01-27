@@ -7,6 +7,7 @@ import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Comment;
 import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.model.User;
+import com.social.horror_pool.payload.CreateCommentRequest;
 import com.social.horror_pool.repository.CommentRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
@@ -39,7 +40,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public MovieDTO addCommentToMovie(Long movieId, CommentDTO commentDTO) {
+    public MovieDTO addCommentToMovie(Long movieId, CreateCommentRequest request) {
         User user = getCurrentUser();
 
         Movie movie = movieRepository.findById(movieId)
@@ -49,7 +50,7 @@ public class CommentServiceImpl implements CommentService {
 
         comment.setUser(user);
         comment.setMovie(movie);
-        comment.setCommentContent(commentDTO.getCommentContent());
+        comment.setCommentContent(request.getCommentContent());
         comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 
@@ -57,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public MovieDTO replyToComment(Long movieId, Long commentId, CommentDTO commentDTO) {
+    public MovieDTO replyToComment(Long movieId, Long commentId, CreateCommentRequest request) {
         User user = getCurrentUser();
 
         Movie movie = movieRepository.findById(movieId)
@@ -70,7 +71,7 @@ public class CommentServiceImpl implements CommentService {
 
         reply.setUser(user);
         reply.setMovie(movie);
-        reply.setCommentContent(commentDTO.getCommentContent());
+        reply.setCommentContent(request.getCommentContent());
         reply.setDate(LocalDateTime.now().format(formatter));
         reply.setParentCommentId(commentId);
         this.commentRepository.save(reply);
@@ -80,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public MovieDTO editComment(Long movieId, Long commentId, CommentDTO commentDTO) {
+    public MovieDTO editComment(Long movieId, Long commentId, CreateCommentRequest request) {
         User user = getCurrentUser();
 
         Movie movie = movieRepository.findById(movieId)
@@ -97,7 +98,7 @@ public class CommentServiceImpl implements CommentService {
             throw new APIException("Comment does not belong to the specified movie");
         }
 
-        comment.setCommentContent(commentDTO.getCommentContent());
+        comment.setCommentContent(request.getCommentContent());
         comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 

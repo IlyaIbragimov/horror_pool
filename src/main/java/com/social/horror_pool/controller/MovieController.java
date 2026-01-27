@@ -3,6 +3,7 @@ package com.social.horror_pool.controller;
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.CommentDTO;
 import com.social.horror_pool.dto.MovieDTO;
+import com.social.horror_pool.payload.CreateCommentRequest;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.service.CommentService;
 import com.social.horror_pool.service.MovieService;
@@ -90,9 +91,9 @@ public class MovieController {
     @PostMapping("/movie/{movieId}/addComment")
     public ResponseEntity<MovieDTO> addComment(
             @PathVariable Long movieId,
-            @Valid @RequestBody CommentDTO commentDTO
+            @Valid @RequestBody CreateCommentRequest request
     ) {
-        MovieDTO response = this.commentService.addCommentToMovie(movieId, commentDTO);
+        MovieDTO response = this.commentService.addCommentToMovie(movieId, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -104,9 +105,9 @@ public class MovieController {
     public ResponseEntity<MovieDTO> replyToComment(
             @PathVariable Long movieId,
             @PathVariable Long commentId,
-            @Valid @RequestBody CommentDTO commentDTO
+            @Valid @RequestBody CreateCommentRequest request
     ) {
-        MovieDTO response = this.commentService.replyToComment(movieId, commentId, commentDTO);
+        MovieDTO response = this.commentService.replyToComment(movieId, commentId, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -118,9 +119,9 @@ public class MovieController {
     public ResponseEntity<MovieDTO> editComment(
             @PathVariable Long movieId,
             @PathVariable Long commentId,
-            @Valid @RequestBody CommentDTO commentDTO
+            @Valid @RequestBody CreateCommentRequest request
     ) {
-        MovieDTO response = this.commentService.editComment(movieId, commentId, commentDTO);
+        MovieDTO response = this.commentService.editComment(movieId, commentId, request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
