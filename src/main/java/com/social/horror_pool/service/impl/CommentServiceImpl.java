@@ -57,6 +57,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public MovieDTO replyToComment(Long movieId, Long commentId, CommentDTO commentDTO) {
+        User user = getCurrentUser();
+
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieId));
+
+        Comment parentComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", movieId));
+
+        Comment reply = new Comment();
+
+        reply.setUser(user);
+        reply.setMovie(movie);
+        reply.setCommentContent(commentDTO.getCommentContent());
+        reply.setDate(LocalDateTime.now().format(formatter));
+        reply.setParentCommentId(commentId);
+        this.commentRepository.save(reply);
+
+        return returnMovieWithComments(movie);
+    }
+
+    @Override
     @Transactional
     public MovieDTO editComment(Long movieId, Long commentId, CommentDTO commentDTO) {
         User user = getCurrentUser();
@@ -106,7 +128,6 @@ public class CommentServiceImpl implements CommentService {
         return returnMovieWithComments(movie);
 
     }
-
 
     private MovieDTO returnMovieWithComments(Movie movie) {
         List<CommentDTO> commentDTOS = this.commentRepository.findByMovie(movie).stream()

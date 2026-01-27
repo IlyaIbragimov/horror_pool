@@ -10,4 +10,6 @@ public interface CommentService {
     MovieDTO editComment(Long movieId, Long commentId, @Valid CommentDTO commentDTO);
 
     MovieDTO deleteComment(Long movieId, Long commentId);
+
+    MovieDTO replyToComment(Long movieId, Long commentId, @Valid CommentDTO commentDTO);
 }
