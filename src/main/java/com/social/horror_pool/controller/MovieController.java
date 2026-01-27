@@ -100,7 +100,7 @@ public class MovieController {
             summary = "Reply to the comment",
             description = "Reply to the comment. Available for authenticated user who left the comment"
     )
-    @PostMapping("movie/{movieId}/comment/{commentId}/reply}")
+    @PostMapping("movie/{movieId}/comment/{commentId}/reply")
     public ResponseEntity<MovieDTO> replyToComment(
             @PathVariable Long movieId,
             @PathVariable Long commentId,
