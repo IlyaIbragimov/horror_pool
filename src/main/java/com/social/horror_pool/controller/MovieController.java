@@ -97,6 +97,20 @@ public class MovieController {
     }
 
     @Operation(
+            summary = "Reply to the comment",
+            description = "Reply to the comment. Available for authenticated user who left the comment"
+    )
+    @PostMapping("movie/{movieId}/comment/{commentId}/reply}")
+    public ResponseEntity<MovieDTO> replyToComment(
+            @PathVariable Long movieId,
+            @PathVariable Long commentId,
+            @Valid @RequestBody CommentDTO commentDTO
+    ) {
+        MovieDTO response = this.commentService.replyToComment(movieId, commentId, commentDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(
             summary = "Edit a comment to the movie",
             description = "Edit a comment to the movie. Available for authenticated user who left the comment"
     )
