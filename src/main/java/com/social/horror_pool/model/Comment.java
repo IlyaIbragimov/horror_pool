@@ -17,6 +17,8 @@ public class Comment {
 
     private String commentContent;
 
+    private Long parentCommentId;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
