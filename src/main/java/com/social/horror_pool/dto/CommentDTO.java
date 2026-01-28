@@ -21,5 +21,4 @@ public class CommentDTO {
     private String date;
 
     private Long parentCommentId;
-
 }
