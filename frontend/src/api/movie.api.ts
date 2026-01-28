@@ -41,3 +41,11 @@ export function addCommentToMovie(movieId: number, commentContent: string): Prom
     body: JSON.stringify({ commentContent }),
   });
 }
+
+export function replyToComment(movieId: number, commentId: number, commentContent: string): Promise<MovieDTO> {
+  return http<MovieDTO>(`/movie/${movieId}/comment/${commentId}/reply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ commentContent }),
+  });
+}
