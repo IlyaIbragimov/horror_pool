@@ -14,6 +14,7 @@ import com.social.horror_pool.payload.tmdb.BulkImportResultResponse;
 import com.social.horror_pool.payload.tmdb.TmdbDiscoverMovieAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
+import com.social.horror_pool.service.MovieCommentsMapper;
 import com.social.horror_pool.service.MovieService;
 import com.social.horror_pool.tmdb.TmdbClient;
 import jakarta.transaction.Transactional;
@@ -38,12 +39,14 @@ public class MovieServiceImpl implements MovieService {
     private final ModelMapper modelMapper;
     private final GenreRepository genreRepository;
     private final TmdbClient tmdbClient;
+    private final MovieCommentsMapper movieCommentsMapper;
 
-    public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper, GenreRepository genreRepository, TmdbClient tmdbClient) {
+    public MovieServiceImpl(MovieRepository movieRepository, ModelMapper modelMapper, GenreRepository genreRepository, TmdbClient tmdbClient, MovieCommentsMapper movieCommentsMapper) {
         this.modelMapper = modelMapper;
         this.movieRepository = movieRepository;
         this.genreRepository = genreRepository;
         this.tmdbClient = tmdbClient;
+        this.movieCommentsMapper = movieCommentsMapper;
     }
 
     @Override
@@ -162,7 +165,7 @@ public class MovieServiceImpl implements MovieService {
         Movie movie = this.movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
 
-        return this.modelMapper.map(movie, MovieDTO.class);
+        return this.movieCommentsMapper.returnMovieWithComments(movie);
     }
 
     @Override

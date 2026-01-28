@@ -1,6 +1,5 @@
 package com.social.horror_pool.service.impl;
 
-import com.social.horror_pool.dto.CommentDTO;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
@@ -13,29 +12,28 @@ import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.security.CustomUserDetails;
 import com.social.horror_pool.service.CommentService;
+import com.social.horror_pool.service.MovieCommentsMapper;
 import jakarta.transaction.Transactional;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final MovieRepository movieRepository;
-    private final ModelMapper modelMapper;
+    private final MovieCommentsMapper movieCommentsMapper;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm a");
 
-    public CommentServiceImpl(CommentRepository commentRepository, MovieRepository movieRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public CommentServiceImpl(CommentRepository commentRepository, MovieRepository movieRepository, UserRepository userRepository, MovieCommentsMapper movieCommentsMapper) {
         this.commentRepository = commentRepository;
         this.movieRepository = movieRepository;
-        this.modelMapper = modelMapper;
+        this.movieCommentsMapper = movieCommentsMapper;
     }
 
     @Override
@@ -54,10 +52,11 @@ public class CommentServiceImpl implements CommentService {
         comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 
-       return returnMovieWithComments(movie);
+       return movieCommentsMapper.returnMovieWithComments(movie);
     }
 
     @Override
+    @Transactional
     public MovieDTO replyToComment(Long movieId, Long commentId, CreateCommentRequest request) {
         User user = getCurrentUser();
 
@@ -65,7 +64,11 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "id", movieId));
 
         Comment parentComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", movieId));
+                .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
+
+        if (!Objects.equals(parentComment.getMovie().getMovieId(), movieId)) {
+            throw new APIException("Comment does not belong to this movie");
+        }
 
         Comment reply = new Comment();
 
@@ -73,10 +76,10 @@ public class CommentServiceImpl implements CommentService {
         reply.setMovie(movie);
         reply.setCommentContent(request.getCommentContent());
         reply.setDate(LocalDateTime.now().format(formatter));
-        reply.setParentCommentId(commentId);
+        reply.setParentComment(parentComment);
         this.commentRepository.save(reply);
 
-        return returnMovieWithComments(movie);
+        return movieCommentsMapper.returnMovieWithComments(movie);
     }
 
     @Override
@@ -99,10 +102,9 @@ public class CommentServiceImpl implements CommentService {
         }
 
         comment.setCommentContent(request.getCommentContent());
-        comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 
-        return returnMovieWithComments(movie);
+        return movieCommentsMapper.returnMovieWithComments(movie);
     }
 
     @Override
@@ -126,22 +128,8 @@ public class CommentServiceImpl implements CommentService {
 
         this.commentRepository.delete(comment);
 
-        return returnMovieWithComments(movie);
+        return movieCommentsMapper.returnMovieWithComments(movie);
 
-    }
-
-    private MovieDTO returnMovieWithComments(Movie movie) {
-        List<CommentDTO> commentDTOS = this.commentRepository.findByMovie(movie).stream()
-                .map(com -> {
-                    CommentDTO dto = modelMapper.map(com, CommentDTO.class);
-                    dto.setUserName(com.getUser().getUsername());
-                    return dto;
-                }).toList();
-
-        MovieDTO response = this.modelMapper.map(movie, MovieDTO.class);
-        response.setComments(commentDTOS);
-
-        return response;
     }
 
     private User getCurrentUser() {
