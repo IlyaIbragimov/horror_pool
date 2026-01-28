@@ -3,6 +3,7 @@ import styles from "./CommentCard.module.css";
 
 type Props = {
   comment: Comment;
+  depth: number;
   isReplyOpen: boolean;
   replyText: string;
   onReplyTextChange: (v: string) => void;
@@ -14,6 +15,7 @@ type Props = {
 
 export function CommentCard({
   comment,
+  depth,
   isReplyOpen,
   replyText,
   onReplyTextChange,
@@ -23,7 +25,7 @@ export function CommentCard({
   disabled,
 }: Props) {
   return (
-    <div className={styles.comment_card}>
+    <div className={styles.comment_card} style={{ marginLeft: `${Math.min(depth, 6) * 24}px` }}>
       <div className={styles.comment_data}>
         <div className={styles.comment_user}>{comment.userName},</div>
         <div className={styles.comment_date}>left at {comment.date}</div>
