@@ -43,4 +43,7 @@ export type Comment = {
   commentContent: string;
   userName: string;
   date: string;
+  parentCommentId: number;
 }
+
+export type CommentNode = Comment & { replies: CommentNode[] };
