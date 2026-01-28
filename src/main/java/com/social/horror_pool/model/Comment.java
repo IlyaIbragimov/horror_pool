@@ -3,7 +3,6 @@ package com.social.horror_pool.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -17,7 +16,9 @@ public class Comment {
 
     private String commentContent;
 
-    private Long parentCommentId;
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
