@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { MovieDTO } from "../../types/movie.types";
+import type { MovieDTO, CommentNode } from "../../types/movie.types";
 import {
   fetchMovieById,
   addCommentToMovie,
@@ -9,6 +9,7 @@ import {
 import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
 import { useAuth } from "../../auth/AuthContext";
+import { buildCommentsTree } from "../../mappers/CommentTreeMapper";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -90,6 +91,29 @@ export function MoviePage() {
   const posterUrl = movie.posterPath
     ? `${TMDB_IMG_BASE}${movie.posterPath}`
     : null;
+
+  const tree = buildCommentsTree(movie.comments);
+
+  const renderNodes = (nodes: CommentNode[], depth = 0) => (
+    <>
+      {nodes.map((node) => (
+        <div key={node.commentId}>
+          <CommentCard
+            comment={node}
+            depth={depth}
+            isReplyOpen={replyToId === node.commentId}
+            replyText={replyText}
+            onReplyTextChange={setReplyText}
+            onReplyOpen={() => openReply(node.commentId)}
+            onReplyClose={closeReply}
+            onReplySubmit={() => submitReply(node.commentId)}
+            disabled={submitLoading}
+          />
+          {node.replies.length > 0 && renderNodes(node.replies, depth + 1)}
+        </div>
+      ))}
+    </>
+  );
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,21 +207,7 @@ export function MoviePage() {
             </button>
           )}
         </form>
-        <div className={styles.comments}>
-          {(movie.comments ?? []).map((c) => (
-            <CommentCard
-              key={c.commentId}
-              comment={c}
-              isReplyOpen={replyToId === c.commentId}
-              replyText={replyText}
-              onReplyTextChange={setReplyText}
-              onReplyOpen={() => openReply(c.commentId)}
-              onReplyClose={closeReply}
-              onReplySubmit={() => submitReply(c.commentId)}
-              disabled={submitLoading}
-            />
-          ))}
-        </div>
+        <div className={styles.comments}>{renderNodes(tree)}</div>
       </div>
     </div>
   );
