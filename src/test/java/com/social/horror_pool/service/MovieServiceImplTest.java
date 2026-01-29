@@ -41,6 +41,9 @@ public class MovieServiceImplTest {
     @Mock
     private ModelMapper modelMapper;
 
+    @Mock
+    private MovieCommentsMapper movieCommentsMapper;
+
     @InjectMocks
     private MovieServiceImpl movieService;
 
@@ -350,7 +353,7 @@ public class MovieServiceImplTest {
     @Test
     public void getMovieById_ReturnsMovieWithTheSameId() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+        when(movieCommentsMapper.returnMovieWithComments(movie1)).thenReturn(dto1);
 
         MovieDTO result = movieService.getMovieById(1L);
 
@@ -358,7 +361,7 @@ public class MovieServiceImplTest {
         assertEquals(dto1, result);
 
         verify(movieRepository, times(1)).findById(1L);
-        verify(modelMapper, times(1)).map(movie1, MovieDTO.class);
+        verify(movieCommentsMapper, times(1)).returnMovieWithComments(movie1);
     }
 
     @Test
