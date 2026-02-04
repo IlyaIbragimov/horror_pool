@@ -79,6 +79,7 @@
   color: rgba(10, 20, 30, 0.95);
   font-weight: 700;
   cursor: pointer;
+  margin: 8px 0 0 0;
 }
 
 .submit:disabled {
@@ -88,7 +89,6 @@
 
 .alreadyregisted {
     display:inline-block;
-    margin: 20px 0 0 0;
 }
 
 .alreadyregisted span {

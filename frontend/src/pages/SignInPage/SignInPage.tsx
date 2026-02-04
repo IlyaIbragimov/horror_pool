@@ -77,6 +77,11 @@ export default function SignInPage() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
 
+          <div className={styles.register_link}>
+            <span>Don't have an account ?</span>
+            <a href = "/register">Register</a>
+          </div>
+
           {error && <p className={styles.error}>{error}</p>}
         </form>
       </div>

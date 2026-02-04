@@ -12,9 +12,9 @@
 .modal {
   width: min(520px, 100%);
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(22, 35, 50, 0.92);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
 
@@ -24,7 +24,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .title {
@@ -38,14 +38,14 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
   cursor: pointer;
 }
 
 .closeBtn:hover {
-  background: rgba(255,255,255,0.10);
+  background: rgba(255, 255, 255, 0.10);
 }
 
 .body {
@@ -60,30 +60,48 @@
   max-width: 400px;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.18);
-  color: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.92);
   outline: none;
 }
 
 .input:focus {
-  border-color: rgba(255,255,255,0.30);
-  background: rgba(0,0,0,0.22);
+  border-color: rgba(255, 255, 255, 0.30);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .submit {
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.92);
   color: rgba(10, 20, 30, 0.95);
   font-weight: 700;
   cursor: pointer;
+  margin: 8px 0 0 0;
 }
 
 .submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.register_link {
+  display: inline-block;
+}
+
+.register_link span {
+  margin: 0 8px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.register_link a {
+  color: blue;
+}
+
+.register_link a:hover {
+  text-decoration: underline;
 }
 
 .error {
