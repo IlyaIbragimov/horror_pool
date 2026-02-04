@@ -46,7 +46,6 @@
 }
 
 .comment_response a {
-  text-decoration: underline;
   color: rgba(29, 129, 243, 0.92);
   cursor: pointer;
 }

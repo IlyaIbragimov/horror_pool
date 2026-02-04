@@ -50,6 +50,14 @@
   margin: 0 0 10px 0;
 }
 
+.comment_login_hint a {
+  color: rgba(29, 129, 243, 0.92);
+}
+
+.comment_login_hint a:hover {
+  text-decoration: underline;
+}
+
 .comments {
   max-width: 100%;
 }

@@ -10,6 +10,7 @@ import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
 import { useAuth } from "../../auth/AuthContext";
 import { buildCommentsTree } from "../../mappers/CommentTreeMapper";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -24,8 +25,14 @@ export function MoviePage() {
   const { user, loading: authLoading } = useAuth();
   const [replyToId, setReplyToId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const openReply = (commentId: number) => {
+    if (!user) {
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
     setReplyToId(commentId);
     setReplyText("");
   };
@@ -38,7 +45,7 @@ export function MoviePage() {
   const submitReply = async (parentCommentId: number) => {
     if (!movieId) return;
     if (!user) {
-      setError("Please sign in to reply.");
+      navigate("/login", { state: { from: location.pathname } });
       return;
     }
     const text = replyText.trim();
@@ -118,7 +125,7 @@ export function MoviePage() {
     e.preventDefault();
     if (!movieId) return;
     if (!user) {
-      setError("Please sign in to add a comment.");
+      navigate("/login", { state: { from: location.pathname } });
       return;
     }
     const text = commentContent.trim();
