@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { signUp } from "../../api/auth.api";
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./SignUpPage.module.css";
 
-
 export default function SignUpPage() {
-  
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +13,14 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
   const { refresh } = useAuth();
   const navigate = useNavigate();
-  const close = () => navigate(-1);
+  const location = useLocation();
+
+  const bg = (location.state as any)?.backgroundLocation;
+
+  const close = () => {
+    if (bg) navigate(bg.pathname + bg.search, { replace: true });
+    else navigate("/movies", { replace: true });
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +28,7 @@ export default function SignUpPage() {
     setError(null);
 
     try {
-      await signUp({username, email, password, confirmPassword});
+      await signUp({ username, email, password, confirmPassword });
       await refresh();
       close();
     } catch (e) {
@@ -33,28 +38,31 @@ export default function SignUpPage() {
     }
   };
 
-    const onOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const onOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) close();
   };
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Escape") close();
   };
-
 
   return (
     <div
       className={styles.overlay}
       onMouseDown={onOverlayMouseDown}
       onKeyDown={onKeyDown}
-      tabIndex={-1}
       aria-modal="true"
       role="dialog"
     >
       <div className={styles.modal}>
         <div className={styles.header}>
           <h1 className={styles.title}>Fast registration</h1>
-          <button className={styles.closeBtn} onClick={close} type="button" aria-label="Close">
+          <button
+            className={styles.closeBtn}
+            onClick={close}
+            type="button"
+            aria-label="Close"
+          >
             ✕
           </button>
         </div>
@@ -100,7 +108,9 @@ export default function SignUpPage() {
 
           <div className={styles.alreadyregisted}>
             <span>Already have an account ?</span>
-            <a href = "/login">Sign In</a>
+            <Link to="/login" replace state={{ backgroundLocation: bg }}>
+              Sign In
+            </Link>
           </div>
 
           {error && <p className={styles.error}>{error}</p>}
