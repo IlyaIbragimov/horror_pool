@@ -25,7 +25,10 @@ export function CommentCard({
   disabled,
 }: Props) {
   return (
-    <div className={styles.comment_card} style={{ marginLeft: `${Math.min(depth, 6) * 24}px` }}>
+    <div
+      className={styles.comment_card}
+      style={{ marginLeft: `${Math.min(depth, 6) * 24}px` }}
+    >
       <div className={styles.comment_data}>
         <div className={styles.comment_user}>{comment.userName},</div>
         <div className={styles.comment_date}>left at {comment.date}</div>
@@ -54,11 +57,12 @@ export function CommentCard({
           className={styles.reply_form}
         >
           <textarea
+            className={styles.reply_input}
             value={replyText}
             onChange={(e) => onReplyTextChange(e.target.value)}
             placeholder="Write a reply..."
           />
-          <button type="submit" disabled={disabled || !replyText.trim()}>
+          <button type="submit" className={styles.reply_button} disabled={disabled || !replyText.trim()}>
             Send
           </button>
         </form>

@@ -43,7 +43,6 @@ export function MoviePage() {
     }
     const text = replyText.trim();
     if (!text) return;
-
     setSubmitLoading(true);
     setError(null);
     try {

@@ -22,16 +22,27 @@
   height: 42px;
   max-width: 100%;
   border-radius: 8px;
+  min-width: 100%;
 }
 
 .comment_button{
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.08);
+  background-color: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.92);
   padding: 10px 42px;
   border-radius: 8px;
   cursor: pointer;
   min-width: none;
+}
+
+.comment_button:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.comment_button:disabled {
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.08);
+  opacity: 0.5;
 }
 
 .comment_login_hint{
