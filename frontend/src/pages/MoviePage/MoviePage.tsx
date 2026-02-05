@@ -5,6 +5,8 @@ import {
   fetchMovieById,
   addCommentToMovie,
   replyToComment,
+  editComment,
+  deleteComment,
 } from "../../api/movie.api";
 import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
@@ -23,24 +25,35 @@ export function MoviePage() {
   const [error, setError] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState("");
   const { user, loading: authLoading } = useAuth();
-  const [replyToId, setReplyToId] = useState<number | null>(null);
-  const [replyText, setReplyText] = useState("");
+  const [activeForm, setActiveForm] = useState<{
+    type: "reply" | "edit";
+    commentId: number;
+  } | null>(null);
+  const [formText, setFormText] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-
 
   const openReply = (commentId: number) => {
     if (!user) {
       navigate("/login", { state: { backgroundLocation: location } });
       return;
     }
-    setReplyToId(commentId);
-    setReplyText("");
+    setActiveForm({ type: "reply", commentId });
+    setFormText("");
   };
 
-  const closeReply = () => {
-    setReplyToId(null);
-    setReplyText("");
+  const openEdit = (commentId: number, commentContent: string) => {
+    if (!user) {
+      navigate("/login", { state: { backgroundLocation: location } });
+      return;
+    }
+    setActiveForm({ type: "edit", commentId });
+    setFormText(commentContent);
+  };
+
+  const closeForm = () => {
+    setActiveForm(null);
+    setFormText("");
   };
 
   const submitReply = async (parentCommentId: number) => {
@@ -49,7 +62,7 @@ export function MoviePage() {
       navigate("/login", { state: { backgroundLocation: location } });
       return;
     }
-    const text = replyText.trim();
+    const text = formText.trim();
     if (!text) return;
     setSubmitLoading(true);
     setError(null);
@@ -60,9 +73,49 @@ export function MoviePage() {
         text,
       );
       setMovie(updatedMovie);
-      closeReply();
+      closeForm();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Reply failed");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const submitEdit = async (commentId: number) => {
+    if (!movieId) return;
+    if (!user) {
+      navigate("/login", { state: { backgroundLocation: location } });
+      return;
+    }
+    const text = formText.trim();
+    if (!text) return;
+    setSubmitLoading(true);
+    setError(null);
+    try {
+      const updatedMovie = await editComment(Number(movieId), commentId, text);
+      setMovie(updatedMovie);
+      closeForm();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Edit failed");
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const submitDeleteComment = async (commentId: number) => {
+    if (!movieId) return;
+    if (!user) {
+      navigate("/login", { state: { backgroundLocation: location } });
+      return;
+    }
+    setSubmitLoading(true);
+    setError(null);
+    try {
+      const updatedMovie = await deleteComment(Number(movieId), commentId);
+      setMovie(updatedMovie);
+      closeForm();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed");
     } finally {
       setSubmitLoading(false);
     }
@@ -103,22 +156,46 @@ export function MoviePage() {
 
   const renderNodes = (nodes: CommentNode[], depth = 0) => (
     <>
-      {nodes.map((node) => (
-        <div key={node.commentId}>
-          <CommentCard
-            comment={node}
-            depth={depth}
-            isReplyOpen={replyToId === node.commentId}
-            replyText={replyText}
-            onReplyTextChange={setReplyText}
-            onReplyOpen={() => openReply(node.commentId)}
-            onReplyClose={closeReply}
-            onReplySubmit={() => submitReply(node.commentId)}
-            disabled={submitLoading}
-          />
-          {node.replies.length > 0 && renderNodes(node.replies, depth + 1)}
-        </div>
-      ))}
+      {nodes.map((node) => {
+        const isFormOpen = activeForm?.commentId === node.commentId;
+        const isEditing = isFormOpen && activeForm?.type === "edit";
+        const canEdit = !!user && user === node.userName;
+        const handleSubmit = isEditing
+          ? () => submitEdit(node.commentId)
+          : () => submitReply(node.commentId);
+
+        return (
+          <div key={node.commentId}>
+            <CommentCard
+              comment={node}
+              depth={depth}
+              isFormOpen={isFormOpen}
+              isEditing={isEditing}
+              formText={formText}
+              onFormTextChange={setFormText}
+              onReplyOpen={() => openReply(node.commentId)}
+              onEditOpen={
+                canEdit
+                  ? () => openEdit(node.commentId, node.commentContent)
+                  : undefined
+              }
+            onDelete={
+              canEdit
+                ? () => {
+                    if (!window.confirm("Delete this comment?")) return;
+                    submitDeleteComment(node.commentId);
+                  }
+                : undefined
+            }
+              onFormClose={closeForm}
+              onFormSubmit={handleSubmit}
+              disabled={submitLoading}
+              canEdit={canEdit}
+            />
+            {node.replies.length > 0 && renderNodes(node.replies, depth + 1)}
+          </div>
+        );
+      })}
     </>
   );
 
@@ -126,7 +203,9 @@ export function MoviePage() {
     e.preventDefault();
     if (!movieId) return;
     if (!user) {
-      navigate("/login", { state: { from: location.pathname + location.search } });
+      navigate("/login", {
+        state: { from: location.pathname + location.search },
+      });
       return;
     }
     const text = commentContent.trim();
@@ -202,7 +281,11 @@ export function MoviePage() {
           />
           {!authLoading && !user ? (
             <div className={styles.comment_login_hint}>
-              <Link state={{ backgroundLocation: location }} to="/login">Sign in</Link> to add a comment.</div>
+              <Link state={{ backgroundLocation: location }} to="/login">
+                Sign in
+              </Link>{" "}
+              to add a comment.
+            </div>
           ) : (
             <button
               type="submit"
