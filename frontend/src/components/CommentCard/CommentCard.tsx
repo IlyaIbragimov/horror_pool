@@ -4,25 +4,33 @@ import styles from "./CommentCard.module.css";
 type Props = {
   comment: Comment;
   depth: number;
-  isReplyOpen: boolean;
-  replyText: string;
-  onReplyTextChange: (v: string) => void;
+  isFormOpen: boolean;
+  isEditing: boolean;
+  formText: string;
+  onFormTextChange: (v: string) => void;
   onReplyOpen: () => void;
-  onReplyClose: () => void;
-  onReplySubmit: () => void;
+  onEditOpen?: () => void;
+  onDelete?: () => void;
+  onFormClose: () => void;
+  onFormSubmit: () => void;
   disabled?: boolean;
+  canEdit?: boolean;
 };
 
 export function CommentCard({
   comment,
   depth,
-  isReplyOpen,
-  replyText,
-  onReplyTextChange,
+  isFormOpen,
+  isEditing,
+  formText,
+  onFormTextChange,
   onReplyOpen,
-  onReplyClose,
-  onReplySubmit,
+  onEditOpen,
+  onDelete,
+  onFormClose,
+  onFormSubmit,
   disabled,
+  canEdit,
 }: Props) {
   return (
     <div
@@ -37,32 +45,48 @@ export function CommentCard({
       <div className={styles.comment_text}>{comment.commentContent}</div>
 
       <div className={styles.comment_options}>
-        {!isReplyOpen ? (
-          <div className={styles.comment_response}>
-            <a onClick={onReplyOpen}>Reply</a>
-          </div>
+        {!isFormOpen ? (
+          <>
+            <div className={styles.comment_option}>
+              <a onClick={onReplyOpen}>Reply</a>
+            </div>
+            {canEdit && onEditOpen && (
+              <div className={styles.comment_option}>
+                <a onClick={onEditOpen}>Edit</a>
+              </div>
+            )}
+            {canEdit && onDelete && (
+              <div className={styles.comment_delete}>
+                <a onClick={onDelete}>Delete</a>
+              </div>
+            )}
+          </>
         ) : (
-          <div className={styles.comment_response}>
-            <a onClick={onReplyClose}>Cancel</a>
+          <div className={styles.comment_option}>
+            <a onClick={onFormClose}>Cancel</a>
           </div>
         )}
       </div>
 
-      {isReplyOpen && (
+      {isFormOpen && (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            onReplySubmit();
+            onFormSubmit();
           }}
           className={styles.reply_form}
         >
           <textarea
             className={styles.reply_input}
-            value={replyText}
-            onChange={(e) => onReplyTextChange(e.target.value)}
-            placeholder="Write a reply..."
+            value={formText}
+            onChange={(e) => onFormTextChange(e.target.value)}
+            placeholder={isEditing ? "Edit your comment..." : "Write a reply..."}
           />
-          <button type="submit" className={styles.reply_button} disabled={disabled || !replyText.trim()}>
+          <button
+            type="submit"
+            className={styles.reply_button}
+            disabled={disabled || !formText.trim()}
+          >
             Send
           </button>
         </form>
