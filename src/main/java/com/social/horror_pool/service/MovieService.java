@@ -1,13 +1,9 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.MovieDTO;
-import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.payload.tmdb.BulkImportResultResponse;
 import jakarta.validation.Valid;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface MovieService {
     MovieDTO addMovie(@Valid MovieDTO movieDTO);

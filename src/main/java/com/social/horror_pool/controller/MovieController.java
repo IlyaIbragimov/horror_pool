@@ -1,7 +1,6 @@
 package com.social.horror_pool.controller;
 
 import com.social.horror_pool.configuration.AppConstants;
-import com.social.horror_pool.dto.CommentDTO;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.payload.CreateCommentRequest;
 import com.social.horror_pool.payload.MovieAllResponse;
