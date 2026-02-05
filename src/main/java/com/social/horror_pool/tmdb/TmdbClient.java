@@ -33,7 +33,7 @@ public class TmdbClient {
     @RateLimiter(name = "tmdbMovieById")
     public Optional<TmdbMovieDTO> getMovieById(long tmdbId, String language) {
         String url = UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
+                .fromUriString(baseUrl)
                 .path("/movie/{id}")
                 .queryParam("language", language)
                 .buildAndExpand(tmdbId)
@@ -61,7 +61,7 @@ public class TmdbClient {
     @RateLimiter(name = "tmdbDiscover")
     public TmdbDiscoverMovieAllResponse discoverHorrors(Integer page, String language) {
         String url = UriComponentsBuilder
-                .fromHttpUrl(baseUrl)
+                .fromUriString(baseUrl)
                 .path("/discover/movie")
                 .queryParam("with_genre", 27)
                 .queryParam("page", page)
