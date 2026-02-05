@@ -28,9 +28,10 @@ export function MoviePage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+
   const openReply = (commentId: number) => {
     if (!user) {
-      navigate("/login", { state: { from: location.pathname } });
+      navigate("/login", { state: { backgroundLocation: location } });
       return;
     }
     setReplyToId(commentId);
@@ -45,7 +46,7 @@ export function MoviePage() {
   const submitReply = async (parentCommentId: number) => {
     if (!movieId) return;
     if (!user) {
-      navigate("/login", { state: { from: location.pathname } });
+      navigate("/login", { state: { backgroundLocation: location } });
       return;
     }
     const text = replyText.trim();
@@ -125,7 +126,7 @@ export function MoviePage() {
     e.preventDefault();
     if (!movieId) return;
     if (!user) {
-      navigate("/login", { state: { from: location.pathname } });
+      navigate("/login", { state: { from: location.pathname + location.search } });
       return;
     }
     const text = commentContent.trim();
@@ -201,8 +202,7 @@ export function MoviePage() {
           />
           {!authLoading && !user ? (
             <div className={styles.comment_login_hint}>
-              <a href="/login">Sign in</a> to add a comment.
-            </div>
+              <Link state={{ backgroundLocation: location }} to="/login">Sign in</Link> to add a comment.</div>
           ) : (
             <button
               type="submit"
