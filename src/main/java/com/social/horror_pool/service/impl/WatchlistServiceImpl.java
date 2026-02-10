@@ -49,7 +49,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistDTO createWatchlist(String title) {
+    public WatchlistDTO createWatchlist(String title, boolean isPublic) {
         User user = getCurrentUser();
 
         List<Watchlist> usersWatchlist = user.getWatchlist();
@@ -63,6 +63,8 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = new Watchlist();
 
         watchlist.setTitle(title);
+        watchlist.setPublic(isPublic);
+        watchlist.setRating(0L);
         watchlist.setUser(user);
         this.watchlistRepository.save(watchlist);
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
@@ -81,7 +83,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         Page<Watchlist> page = this.watchlistRepository.findAllByUser(user, pageable);
 
         return generateWatchlistAllResponse(page,pageNumber,pageSize);
-
     }
 
     @Override
@@ -97,7 +98,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.setTitle(title);
         this.watchlistRepository.save(watchlist);
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
-
     }
 
     @Override
@@ -257,6 +257,34 @@ public class WatchlistServiceImpl implements WatchlistService {
         response.setMovieDTO(this.modelMapper.map(watchlistItem.getMovie(), MovieDTO.class));
         return response;
 
+    }
+
+    @Override
+    public WatchlistAllResponse getAllPublicWatchlists(Integer pageNumber, Integer pageSize, String order) {
+
+        Sort sortByAndOrder = order.equalsIgnoreCase("asc")
+                ? Sort.by("title").ascending() : Sort.by("title").descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Watchlist> page = this.watchlistRepository.findAllByIsPublicTrue(pageable);
+
+        return generateWatchlistAllResponse(page,pageNumber,pageSize);
+    }
+
+    @Override
+    public WatchlistDTO rateWatchlist(Long watchlistId, Long rating) {
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        if (!watchlist.getUser().equals(getCurrentUser())) {
+            throw new APIException("You do not have permission to rate this watchlist.");
+        }
+
+        watchlist.setRating(rating);
+        this.watchlistRepository.save(watchlist);
+        return this.modelMapper.map(watchlist, WatchlistDTO.class);
     }
 
     private User getCurrentUser() {
