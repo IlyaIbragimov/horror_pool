@@ -30,7 +30,7 @@ public class WatchlistController {
     )
     @PostMapping("/create")
     public ResponseEntity<WatchlistDTO> createWatchlist(@Valid @RequestBody WatchlistDTO watchlistDTO){
-        WatchlistDTO response = this.watchlistService.createWatchlist(watchlistDTO.getTitle());
+        WatchlistDTO response = this.watchlistService.createWatchlist(watchlistDTO.getTitle(), watchlistDTO.isPublic());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -38,7 +38,7 @@ public class WatchlistController {
             summary = "Get all watchlists of the current user",
             description = "Retrieve a paginated list of all watchlists for the currently logged-in user."
     )
-    @GetMapping("/all")
+    @GetMapping("/allByUser")
     public ResponseEntity<WatchlistAllResponse> getAllWatchlists(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
@@ -94,6 +94,15 @@ public class WatchlistController {
             @PathVariable Long watchlistItemId
     ) {
         WatchlistDTO response = this.watchlistService.removeMovieFromWatchlist(watchlistId, watchlistItemId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/{watchlistId}/rate/")
+    public ResponseEntity<WatchlistDTO> rateWatchlist(
+            @Valid @RequestBody WatchlistDTO watchlistDTO,
+            @PathVariable Long watchlistId
+    ) {
+        WatchlistDTO response = this.watchlistService.rateWatchlist(watchlistId, watchlistDTO.getRating());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
