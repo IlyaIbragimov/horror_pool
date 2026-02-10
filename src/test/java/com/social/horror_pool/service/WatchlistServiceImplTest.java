@@ -7,6 +7,7 @@ import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.*;
+import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.repository.WatchlistItemRepository;
@@ -21,6 +22,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,7 +53,7 @@ public class WatchlistServiceImplTest {
 
     private Watchlist watchlist1, watchlist2;
 
-    private WatchlistDTO watchlistDTO1, watchlistDTO2;
+    private WatchlistDTO watchlistDTO1;
 
     private Movie movie1, movie2;
 
@@ -62,7 +67,6 @@ public class WatchlistServiceImplTest {
         watchlist1 = createWatchlist(1L, "Favorite", user1);
         watchlist2 = createWatchlist(2L, "New", user2);
         watchlistDTO1 = createWatchlistDTO(watchlist1);
-        watchlistDTO2 = createWatchlistDTO(watchlist2);
         movie1 = createMovie(1L, "Alien");
         movie2 = createMovie(2L, "Friday the 13th");
         CustomUserDetails customUserDetails = new CustomUserDetails(user1);
@@ -84,7 +88,7 @@ public class WatchlistServiceImplTest {
         when(watchlistRepository.save(any(Watchlist.class))).thenReturn(newWatchlist);
         when(modelMapper.map(any(Watchlist.class), eq(WatchlistDTO.class))).thenReturn(newWatchlistDTO);
 
-        WatchlistDTO result = watchlistServiceImpl.createWatchlist("Test");
+        WatchlistDTO result = watchlistServiceImpl.createWatchlist("Test", true);
 
         assertNotNull(result);
         assertEquals(result, newWatchlistDTO);
@@ -96,7 +100,7 @@ public class WatchlistServiceImplTest {
 
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
 
-        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite"));
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite", false));
         assertEquals("You already have a watchlist with this title", exception.getMessage());
     }
 
@@ -104,7 +108,7 @@ public class WatchlistServiceImplTest {
     public void createWatchlist_UserIsNotLoggedIn_ReturnAPIException() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.empty());
 
-        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite"));
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite", true));
         assertEquals("Please, register sign in to create a watchlist", exception.getMessage());
     }
 
@@ -429,12 +433,64 @@ public class WatchlistServiceImplTest {
         assertEquals("Movie was not found in the watchlist", exception.getMessage());
     }
 
+    @Test
+    public void rateWatchlist_Success_ReturnsWatchlistDTO() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user1);
+
+        WatchlistDTO updatedWatchlistDTO = createWatchlistDTO(watchlist1);
+        when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(updatedWatchlistDTO);
+
+        WatchlistDTO result = watchlistServiceImpl.rateWatchlist(1L, 5L);
+
+        assertNotNull(result);
+        assertEquals(updatedWatchlistDTO, result);
+        assertEquals(5L, watchlist1.getRating());
+        verify(watchlistRepository).save(watchlist1);
+    }
+
+    @Test
+    public void rateWatchlist_NotAuthorisedUser_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user2);
+
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, 5L));
+        assertEquals("You do not have permission to rate this watchlist.", exception.getMessage());
+        verify(watchlistRepository, never()).save(any(Watchlist.class));
+    }
+
+    @Test
+    public void getAllPublicWatchlists_ReturnsPagedResponse() {
+        Watchlist public1 = createWatchlist(1L, "Public 1", user1);
+        public1.setPublic(true);
+        Watchlist public2 = createWatchlist(2L, "Public 2", user2);
+        public2.setPublic(true);
+
+        List<Watchlist> watchlists = Arrays.asList(public1, public2);
+        Page<Watchlist> page = new PageImpl<>(watchlists, PageRequest.of(0, 2), watchlists.size());
+
+        when(watchlistRepository.findAllByIsPublicTrue(any(Pageable.class))).thenReturn(page);
+        when(modelMapper.map(public1, WatchlistDTO.class)).thenReturn(createWatchlistDTO(public1));
+        when(modelMapper.map(public2, WatchlistDTO.class)).thenReturn(createWatchlistDTO(public2));
+
+        WatchlistAllResponse response = watchlistServiceImpl.getAllPublicWatchlists(0, 2, "asc");
+
+        assertNotNull(response);
+        assertEquals(2, response.getWatchlistDTOS().size());
+        assertEquals(2L, response.getTotalElements());
+        verify(watchlistRepository).findAllByIsPublicTrue(any(Pageable.class));
+    }
+
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
         watchlist.setWatchlistId(watchlistId);
         watchlist.setTitle(title);
         watchlist.setUser(user);
+        watchlist.setPublic(false);
+        watchlist.setRating(0L);
         watchlist.setWatchlistItems(new ArrayList<>());
         return watchlist;
     }
