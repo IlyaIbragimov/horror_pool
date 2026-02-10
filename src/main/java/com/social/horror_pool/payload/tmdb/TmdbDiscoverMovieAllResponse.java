@@ -1,7 +1,6 @@
 package com.social.horror_pool.payload.tmdb;
 
 import com.social.horror_pool.dto.tmdb.TmdbDiscoverMovieDTO;
-import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
