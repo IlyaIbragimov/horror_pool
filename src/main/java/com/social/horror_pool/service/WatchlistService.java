@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public interface WatchlistService {
-    WatchlistDTO createWatchlist(String title);
+    WatchlistDTO createWatchlist(String title, boolean isPublic);
 
     WatchlistAllResponse getAllWatchlists(Integer pageNumber, Integer pageSize, String order);
 
@@ -23,4 +23,8 @@ public interface WatchlistService {
     WatchlistByIdResponse getWatchlistById(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order);
 
     WatchlistItemDTO toggleWatchlistItemAsWatched(Long watchlistId, Long watchlistItemId);
+
+    WatchlistAllResponse getAllPublicWatchlists(Integer pageNumber, Integer pageSize, String order);
+
+    WatchlistDTO rateWatchlist(Long watchlistId, Long rating);
 }
