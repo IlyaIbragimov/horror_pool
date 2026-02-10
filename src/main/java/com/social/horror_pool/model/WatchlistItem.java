@@ -21,5 +21,4 @@ public class WatchlistItem {
     private Watchlist watchlist;
 
     private boolean watched;
-
 }

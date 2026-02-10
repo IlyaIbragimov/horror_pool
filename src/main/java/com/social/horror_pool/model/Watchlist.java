@@ -18,11 +18,14 @@ public class Watchlist {
 
     private String title;
 
+    private boolean isPublic;
+
+    private Long rating;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "watchlist", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WatchlistItem> watchlistItems;
-
 }

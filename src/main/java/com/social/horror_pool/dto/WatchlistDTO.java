@@ -18,5 +18,9 @@ public class WatchlistDTO {
     @Size(min = 3, max = 30, message = "Watchlist title must be 3-30 characters long" )
     private String title;
 
+    private boolean isPublic;
+
+    private Long rating;
+
     private List<WatchlistItemDTO> watchlistItemDTOS;
 }
