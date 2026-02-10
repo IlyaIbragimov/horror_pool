@@ -97,7 +97,7 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/{watchlistId}/rate/")
+    @PutMapping("/{watchlistId}/rate")
     public ResponseEntity<WatchlistDTO> rateWatchlist(
             @Valid @RequestBody WatchlistDTO watchlistDTO,
             @PathVariable Long watchlistId
