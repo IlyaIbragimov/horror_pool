@@ -1,5 +1,8 @@
 package com.social.horror_pool.dto;
 
+import com.social.horror_pool.model.User;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,7 +23,11 @@ public class WatchlistDTO {
 
     private boolean isPublic;
 
-    private Long rating;
+    @Max(10)
+    @Min(0)
+    private double rating;
+
+    private int rateCount;
 
     private List<WatchlistItemDTO> watchlistItemDTOS;
 }

@@ -50,6 +50,9 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    @ManyToMany(mappedBy = "raters")
+    private Set<Watchlist> ratedWatchlists = new HashSet<>();
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;

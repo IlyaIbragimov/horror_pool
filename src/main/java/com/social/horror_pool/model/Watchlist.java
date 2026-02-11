@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -20,7 +23,18 @@ public class Watchlist {
 
     private boolean isPublic;
 
-    private Long rating;
+    private double rating;
+
+    private int rateCount;
+
+    @ManyToMany
+    @JoinTable(
+    name = "watchlist_raters",
+    joinColumns = @JoinColumn(name = "watchlist_id"),
+    inverseJoinColumns = @JoinColumn(name = "user_id"),
+    uniqueConstraints = @UniqueConstraint(columnNames = {"watchlist_id", "user_id"})
+)
+    private Set<User> raters = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "user_id")
