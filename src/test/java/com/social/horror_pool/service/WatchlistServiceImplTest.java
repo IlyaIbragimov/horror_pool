@@ -437,27 +437,74 @@ public class WatchlistServiceImplTest {
     public void rateWatchlist_Success_ReturnsWatchlistDTO() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
-        watchlist1.setUser(user1);
+        watchlist1.setUser(user2);
+        watchlist1.setPublic(true);
+        watchlist1.setRating(8.0);
+        watchlist1.setRateCount(2);
 
         WatchlistDTO updatedWatchlistDTO = createWatchlistDTO(watchlist1);
         when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(updatedWatchlistDTO);
 
-        WatchlistDTO result = watchlistServiceImpl.rateWatchlist(1L, 5L);
+        WatchlistDTO result = watchlistServiceImpl.rateWatchlist(1L, 5);
 
         assertNotNull(result);
         assertEquals(updatedWatchlistDTO, result);
-        assertEquals(5L, watchlist1.getRating());
+        assertEquals(7.0, watchlist1.getRating());
+        assertEquals(3, watchlist1.getRateCount());
+        assertTrue(watchlist1.getRaters().contains(user1));
+        assertTrue(user1.getRatedWatchlists().contains(watchlist1));
         verify(watchlistRepository).save(watchlist1);
+        verify(userRepository).save(user1);
     }
 
     @Test
-    public void rateWatchlist_NotAuthorisedUser_ReturnAPIException() {
+    public void rateWatchlist_UserRatesOwnWatchlist_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user1);
+        watchlist1.setPublic(true);
+
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, 5L));
+        assertEquals("You can not rate your watchlist.", exception.getMessage());
+        verify(watchlistRepository, never()).save(any(Watchlist.class));
+    }
+
+    @Test
+    public void rateWatchlist_PrivateWatchlist_ReturnAPIException() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         watchlist1.setUser(user2);
+        watchlist1.setPublic(false);
 
-        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, 5L));
-        assertEquals("You do not have permission to rate this watchlist.", exception.getMessage());
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, 7L));
+        assertEquals("Private watchlist cannot be rated.", exception.getMessage());
+        verify(watchlistRepository, never()).save(any(Watchlist.class));
+    }
+
+    @Test
+    public void rateWatchlist_OutOfRangeHigh_ReturnAPIException() {
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, 10.1));
+        assertEquals("Rate value must be in the range 0-10.", exception.getMessage());
+        verify(watchlistRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    public void rateWatchlist_OutOfRangeLow_ReturnAPIException() {
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, -0.1));
+        assertEquals("Rate value must be in the range 0-10.", exception.getMessage());
+        verify(watchlistRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    public void rateWatchlist_AlreadyRated_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user2);
+        watchlist1.setPublic(true);
+        watchlist1.getRaters().add(user1);
+
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.rateWatchlist(1L, 6L));
+        assertEquals("You have already rated this watchlist.", exception.getMessage());
         verify(watchlistRepository, never()).save(any(Watchlist.class));
     }
 
@@ -510,6 +557,7 @@ public class WatchlistServiceImplTest {
         user.setUsername("username" + userId);
         user.setEmail("email" + userId);
         user.setWatchlist(new ArrayList<>());
+        user.setRatedWatchlists(new HashSet<>());
         Role role = new Role();
         role.setRoleId(1L);
         role.setRoleName(RoleName.ROLE_USER);
