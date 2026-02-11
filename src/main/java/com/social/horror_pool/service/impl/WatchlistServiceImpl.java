@@ -273,17 +273,37 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistDTO rateWatchlist(Long watchlistId, Long rating) {
+    @Transactional
+    public WatchlistDTO rateWatchlist(Long watchlistId, double rating) {
+        if (rating > 10 || rating < 0) {
+            throw new APIException("Rate value must be in the range 0-10.");
+        }
+
+        User user = getCurrentUser();
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
-        if (!watchlist.getUser().equals(getCurrentUser())) {
-            throw new APIException("You do not have permission to rate this watchlist.");
+        if (watchlist.getUser().equals(user)) {
+            throw new APIException("You can not rate your watchlist.");
         }
 
-        watchlist.setRating(rating);
+        if (watchlist.getRaters().contains(user)) {
+            throw new APIException("You have already rated this watchlist.");
+        }
+
+        if (!watchlist.isPublic()) {
+            throw new APIException("Private watchlist cannot be rated.");
+        }
+
+        watchlist.getRaters().add(user);
+        user.getRatedWatchlists().add(watchlist);
+        int newRateCount = watchlist.getRateCount() + 1;
+
+        watchlist.setRating((watchlist.getRating() * watchlist.getRateCount() + rating) / newRateCount);
+        watchlist.setRateCount(newRateCount);
         this.watchlistRepository.save(watchlist);
+        this.userRepository.save(user);
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
     }
 
