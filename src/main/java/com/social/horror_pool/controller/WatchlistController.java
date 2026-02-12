@@ -135,4 +135,18 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get rated watchlists by user",
+            description = "Get all watchlists rated by user. Only accessible to logged in user."
+    )
+    @GetMapping("/rated")
+    public ResponseEntity<WatchlistAllResponse> getRatedWatchlistsByUser(
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ){
+        WatchlistAllResponse response = this.watchlistService.getRatedWatchlistsByUser(pageNumber, pageSize, order);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
