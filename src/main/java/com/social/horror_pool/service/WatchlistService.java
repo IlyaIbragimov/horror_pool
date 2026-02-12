@@ -29,4 +29,6 @@ public interface WatchlistService {
     WatchlistDTO rateWatchlist(Long watchlistId, double rating);
 
     WatchlistAllResponse getRatedWatchlistsByUser(Integer pageNumber, Integer pageSize, String order);
+
+    WatchlistDTO addWatchlistToUser(Long watchlistId);
 }

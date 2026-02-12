@@ -321,10 +321,26 @@ public class WatchlistServiceImpl implements WatchlistService {
         return generateWatchlistAllResponse(page,pageNumber,pageSize);
     }
 
+    @Override
+    public WatchlistDTO addWatchlistToUser(Long watchlistId) {
+        User user = getCurrentUser();
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        user.getAddedWatchlists().add(watchlist);
+        watchlist.getFollowers().add(user);
+        this.userRepository.save(user);
+        this.watchlistRepository.save(watchlist);
+
+
+        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+    }
+
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByUsername(auth.getName())
-                .orElseThrow(() -> new APIException("Please, register sign in to create a watchlist"));
+                .orElseThrow(() -> new APIException("Please, sign in"));
     }
 
 
