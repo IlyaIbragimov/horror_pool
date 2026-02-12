@@ -36,6 +36,15 @@ public class Watchlist {
 )
     private Set<User> raters = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "watchlist_followers",
+            joinColumns = @JoinColumn(name = "watchlist_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"watchlist_id", "user_id"})
+    )
+    private Set<User> followers = new HashSet<>();
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

@@ -35,7 +35,7 @@ public class User {
 
     private boolean locked;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Watchlist> watchlist = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
@@ -52,6 +52,9 @@ public class User {
 
     @ManyToMany(mappedBy = "raters")
     private Set<Watchlist> ratedWatchlists = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followers")
+    private Set<Watchlist> addedWatchlists = new HashSet<>();
 
     public User(String username, String email, String password) {
         this.username = username;
