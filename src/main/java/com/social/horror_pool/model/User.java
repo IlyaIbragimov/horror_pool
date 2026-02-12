@@ -35,7 +35,7 @@ public class User {
 
     private boolean locked;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Watchlist> watchlist = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
