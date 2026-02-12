@@ -107,8 +107,8 @@ public class WatchlistController {
     }
 
     @Operation(
-            summary = "Get a watchlist by ID",
-            description = "Retrieve details of a watchlist by ID with optional filtering by watched status and pagination. Only accessible to user who created the watchlist."
+            summary = "Get a watchlist items by watchlist ID and return as them as page",
+            description = "Retrieve movies of a watchlist by ID with optional filtering by watched status and pagination. Only accessible to user who created the watchlist if watchlist is private, in case if it is public available for all logged users."
     )
     @GetMapping("/{watchlistId}")
     public ResponseEntity<WatchlistByIdResponse> getWatchlistById(
