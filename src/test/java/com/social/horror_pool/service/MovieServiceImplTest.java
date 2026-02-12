@@ -13,6 +13,7 @@ import com.social.horror_pool.service.impl.MovieServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,6 +28,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -316,7 +319,7 @@ public class MovieServiceImplTest {
 
     @Test
     public void getMoviesByKeyword_ValidParams_ReturnsMovieAllResponse() {
-        List<Movie> movies = Arrays.asList(movie1);
+        List<Movie> movies = Collections.singletonList(movie1);
         Page<Movie> moviePage = new PageImpl<>(movies);
         String sortBy = "title";
         String order = "asc";
@@ -327,7 +330,10 @@ public class MovieServiceImplTest {
         Double voteAverage = 8.0;
         Double popularity = 51.0;
 
-        when(movieRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(moviePage);
+        when(movieRepository.findAll(
+        ArgumentMatchers.<Specification<Movie>>any(),
+        any(Pageable.class)
+        )).thenReturn(moviePage);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
 
         MovieAllResponse response = movieService.getMoviesByKeyword(0, 10, sortBy, order, keyword, year, language, adult, voteAverage, popularity);
@@ -336,7 +342,10 @@ public class MovieServiceImplTest {
         assertEquals(1, response.getMovies().size());
         assertEquals("Alien", response.getMovies().getFirst().getTitle());
 
-        verify(movieRepository).findAll(any(Specification.class), any(Pageable.class));
+        verify(movieRepository).findAll(
+        ArgumentMatchers.<Specification<Movie>>any(),
+        any(Pageable.class)
+        );
     }
 
     @Test
