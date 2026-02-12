@@ -107,22 +107,6 @@ public class WatchlistController {
     }
 
     @Operation(
-            summary = "Get a watchlist items by watchlist ID and return as them as page",
-            description = "Retrieve movies of a watchlist by ID with optional filtering by watched status and pagination. Only accessible to user who created the watchlist if watchlist is private, in case if it is public available for all logged users."
-    )
-    @GetMapping("/{watchlistId}")
-    public ResponseEntity<WatchlistByIdResponse> getWatchlistById(
-            @PathVariable Long watchlistId,
-            @RequestParam(name = "watched", required = false) Boolean watched,
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
-            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
-    ){
-        WatchlistByIdResponse response = this.watchlistService.getWatchlistById(watchlistId, watched, pageNumber, pageSize, order);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @Operation(
             summary = "Toggle the watched status of a movie in a watchlist",
             description = "Mark a movie in a watchlist as watched or unwatched. Only accessible to user who created the watchlist."
     )
@@ -137,7 +121,7 @@ public class WatchlistController {
 
     @Operation(
             summary = "Get rated watchlists by user",
-            description = "Get all watchlists rated by user. Only accessible to logged in user."
+            description = "Get all watchlists rated by user. Only accessible to logged in user who rated those watchlists."
     )
     @GetMapping("/rated")
     public ResponseEntity<WatchlistAllResponse> getRatedWatchlistsByUser(
@@ -146,6 +130,18 @@ public class WatchlistController {
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
         WatchlistAllResponse response = this.watchlistService.getRatedWatchlistsByUser(pageNumber, pageSize, order);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Toggle the watched status of a movie in a watchlist",
+            description = "Mark a movie in a watchlist as watched or unwatched. Only accessible to user who created the watchlist."
+    )
+    @PutMapping("/{watchlistId}/add")
+    public ResponseEntity<WatchlistDTO> addWatchlistToUser(
+            @PathVariable Long watchlistId
+    ) {
+        WatchlistDTO response = this.watchlistService.addWatchlistToUser(watchlistId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
