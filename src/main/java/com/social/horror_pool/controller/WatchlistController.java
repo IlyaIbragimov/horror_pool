@@ -4,7 +4,6 @@ import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.payload.WatchlistAllResponse;
-import com.social.horror_pool.payload.WatchlistByIdResponse;
 import com.social.horror_pool.service.WatchlistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

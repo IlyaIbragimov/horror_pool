@@ -109,7 +109,7 @@ public class WatchlistServiceImplTest {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.empty());
 
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.createWatchlist("Favorite", true));
-        assertEquals("Please, register sign in to create a watchlist", exception.getMessage());
+        assertEquals("Please, sign in", exception.getMessage());
     }
 
     @Test
