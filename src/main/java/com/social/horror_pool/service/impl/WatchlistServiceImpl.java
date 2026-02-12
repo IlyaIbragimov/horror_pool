@@ -184,7 +184,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
-        if (!watchlist.getUser().equals(user)) {
+        if (!watchlist.getUser().equals(user) && !watchlist.isPublic()) {
             throw new APIException("You do not have permission to view this watchlist.");
         }
 
@@ -305,6 +305,20 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.watchlistRepository.save(watchlist);
         this.userRepository.save(user);
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
+    }
+
+    @Override
+    public WatchlistAllResponse getRatedWatchlistsByUser(Integer pageNumber, Integer pageSize, String order) {
+        User user = getCurrentUser();
+
+        Sort sortByAndOrder = order.equalsIgnoreCase("asc")
+                ? Sort.by("title").ascending() : Sort.by("title").descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Watchlist> page = this.watchlistRepository.findAllByRatersContaining(user, pageable);
+
+        return generateWatchlistAllResponse(page,pageNumber,pageSize);
     }
 
     private User getCurrentUser() {
