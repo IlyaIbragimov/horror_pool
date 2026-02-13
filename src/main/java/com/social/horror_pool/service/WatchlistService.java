@@ -7,6 +7,8 @@ import com.social.horror_pool.payload.WatchlistByIdResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public interface WatchlistService {
     WatchlistDTO createWatchlist(String title, boolean isPublic);
 
@@ -31,4 +33,8 @@ public interface WatchlistService {
     WatchlistAllResponse getRatedWatchlistsByUser(Integer pageNumber, Integer pageSize, String order);
 
     WatchlistDTO addWatchlistToUser(Long watchlistId);
+
+    List<String> getWatchlistFollowers(Long watchlistId);
+
+    WatchlistAllResponse getFollowedWatchlists(Integer pageNumber, Integer pageSize, String order);
 }
