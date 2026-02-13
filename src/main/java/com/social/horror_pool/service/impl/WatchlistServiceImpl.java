@@ -337,6 +337,30 @@ public class WatchlistServiceImpl implements WatchlistService {
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
     }
 
+    @Override
+    public List<String> getWatchlistFollowers(Long watchlistId) {
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        return watchlist.getFollowers().stream()
+                .map(User::getUsername)
+                .toList();
+    }
+
+    @Override
+    public WatchlistAllResponse getFollowedWatchlists(Integer pageNumber, Integer pageSize, String order) {
+        User user = getCurrentUser();
+
+        Sort sortByAndOrder = order.equalsIgnoreCase("asc")
+                ? Sort.by("title").ascending() : Sort.by("title").descending();
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Watchlist> page = this.watchlistRepository.findAllByFollowersContaining(user, pageable);
+
+        return generateWatchlistAllResponse(page, pageNumber, pageSize);
+    }
+
     private User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByUsername(auth.getName())
