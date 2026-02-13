@@ -144,4 +144,18 @@ public class WatchlistController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Get followed watchlists",
+            description = "Get all watchlists followed by currently logged-in user."
+    )
+    @GetMapping("/followed")
+    public ResponseEntity<WatchlistAllResponse> getFollowedWatchlists(
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+    ) {
+        WatchlistAllResponse response = this.watchlistService.getFollowedWatchlists(pageNumber, pageSize, order);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

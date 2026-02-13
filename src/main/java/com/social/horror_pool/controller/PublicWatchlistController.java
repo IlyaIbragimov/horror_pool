@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Watchlist", description = "Endpoints for managing public watchlists")
 @RestController
 @RequestMapping("/horrorpool/public/watchlist")
@@ -48,6 +50,16 @@ public class PublicWatchlistController {
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
         WatchlistByIdResponse response = this.watchlistService.getWatchlistById(watchlistId, watched, pageNumber, pageSize, order);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Get watchlist followers",
+            description = "Get usernames of users who added this watchlist."
+    )
+    @GetMapping("/{watchlistId}/followers")
+    public ResponseEntity<List<String>> getWatchlistFollowers(@PathVariable Long watchlistId) {
+        List<String> response = this.watchlistService.getWatchlistFollowers(watchlistId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
