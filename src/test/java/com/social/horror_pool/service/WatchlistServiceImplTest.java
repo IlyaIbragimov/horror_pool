@@ -530,6 +530,50 @@ public class WatchlistServiceImplTest {
         verify(watchlistRepository).findAllByIsPublicTrue(any(Pageable.class));
     }
 
+    @Test
+    public void getWatchlistFollowers_Success_ReturnsUsernames() {
+        watchlist1.getFollowers().add(user1);
+        watchlist1.getFollowers().add(user2);
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+
+        List<String> result = watchlistServiceImpl.getWatchlistFollowers(1L);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains("username1"));
+        assertTrue(result.contains("username2"));
+        verify(watchlistRepository).findById(1L);
+    }
+
+    @Test
+    public void getWatchlistFollowers_WatchlistNotFound_ReturnResourceNotFoundException() {
+        when(watchlistRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.getWatchlistFollowers(99L));
+
+        assertEquals("Watchlist was not found with id : 99", exception.getMessage());
+    }
+
+    @Test
+    public void getFollowedWatchlists_ReturnsPagedResponse() {
+        Watchlist followed1 = createWatchlist(10L, "Followed 1", user2);
+        Watchlist followed2 = createWatchlist(11L, "Followed 2", user2);
+        List<Watchlist> watchlists = Arrays.asList(followed1, followed2);
+        Page<Watchlist> page = new PageImpl<>(watchlists, PageRequest.of(0, 2), watchlists.size());
+
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findAllByFollowersContaining(eq(user1), any(Pageable.class))).thenReturn(page);
+        when(modelMapper.map(followed1, WatchlistDTO.class)).thenReturn(createWatchlistDTO(followed1));
+        when(modelMapper.map(followed2, WatchlistDTO.class)).thenReturn(createWatchlistDTO(followed2));
+
+        WatchlistAllResponse response = watchlistServiceImpl.getFollowedWatchlists(0, 2, "asc");
+
+        assertNotNull(response);
+        assertEquals(2, response.getWatchlistDTOS().size());
+        assertEquals(2L, response.getTotalElements());
+        verify(watchlistRepository).findAllByFollowersContaining(eq(user1), any(Pageable.class));
+    }
+
 
     private Watchlist createWatchlist(Long watchlistId, String title, User user) {
         Watchlist watchlist = new Watchlist();
