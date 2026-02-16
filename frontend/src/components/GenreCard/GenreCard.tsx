@@ -9,7 +9,7 @@ export function GenreCard({ genre }: Props) {
   const posterUrl = genre.posterPath ? `${PLACEHOLDER_IMG_BASE}${genre.posterPath}` : null;
 
   return (
-    <article className={styles.card}>
+    <div className={styles.card}>
       <div className={styles.posterWrap}>
         {posterUrl ? (
           <img className={styles.poster} src={posterUrl} alt={genre.name} />
@@ -24,6 +24,6 @@ export function GenreCard({ genre }: Props) {
           {genre.description ?? "No description"}
         </p>
       </div>
-    </article>
+    </div>
   );
 }
