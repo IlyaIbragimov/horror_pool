@@ -1,6 +1,5 @@
 package com.social.horror_pool.dto;
 
-import com.social.horror_pool.model.User;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
