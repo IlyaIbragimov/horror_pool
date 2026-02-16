@@ -52,8 +52,8 @@ export default function Header() {
           <Link className="header-menu-item" to="/genres">
             Genres
           </Link>
-          <Link className="header-menu-item" to="/genres">
-            Templates
+          <Link className="header-menu-item" to="/watchlistPublic">
+            Watchlists
           </Link>
         </nav>
 
@@ -118,9 +118,9 @@ export default function Header() {
         <Link to="/genres" onClick={() => setMobileOpen(false)}>
           Genres
         </Link>
-        <a href="#templates" onClick={() => setMobileOpen(false)}>
-          New popular
-        </a>
+        <Link to="/watchlistPublic" onClick={() => setMobileOpen(false)}>
+          Watchlists
+        </Link>
 
         <div className="mobile-actions">
           {loading ? null : user ? (
