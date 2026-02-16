@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,5 +51,5 @@ public class Watchlist {
     private User user;
 
     @OneToMany(mappedBy = "watchlist", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WatchlistItem> watchlistItems;
+    private List<WatchlistItem> watchlistItems = new ArrayList<>();
 }
