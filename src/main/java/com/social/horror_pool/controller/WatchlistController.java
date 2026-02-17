@@ -136,11 +136,23 @@ public class WatchlistController {
             summary = "Add watchlist to logged user's followed watchlists",
             description = "Add watchlist to logged user's followed watchlists. Only accessible to the logged-in user."
     )
-    @PutMapping("/{watchlistId}/add")
-    public ResponseEntity<WatchlistDTO> addWatchlistToUser(
+    @PutMapping("/{watchlistId}/follow")
+    public ResponseEntity<WatchlistDTO> followWatchlist(
             @PathVariable Long watchlistId
     ) {
-        WatchlistDTO response = this.watchlistService.addWatchlistToUser(watchlistId);
+        WatchlistDTO response = this.watchlistService.followWatchlist(watchlistId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Remove watchlist to logged user's followed watchlists",
+            description = "Remove watchlist to logged user's followed watchlists. Only accessible to the logged-in user."
+    )
+    @PutMapping("/{watchlistId}/unfollow")
+    public ResponseEntity<WatchlistDTO> unfollowWatchlist(
+            @PathVariable Long watchlistId
+    ) {
+        WatchlistDTO response = this.watchlistService.unfollowWatchlist(watchlistId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

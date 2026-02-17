@@ -68,7 +68,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.setUser(user);
         this.watchlistRepository.save(watchlist);
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
-
     }
 
     @Override
@@ -174,7 +173,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.watchlistItemRepository.delete(watchlistItemToRemove);
         this.watchlistRepository.save(watchlist);
         return getWatchlistDTO(watchlist);
-
     }
 
     @Override
@@ -231,7 +229,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlistByIdResponse.setLastPage(page.isLast());
 
         return watchlistByIdResponse;
-
     }
 
     @Override
@@ -322,7 +319,8 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistDTO addWatchlistToUser(Long watchlistId) {
+    @Transactional
+    public WatchlistDTO followWatchlist(Long watchlistId) {
         User user = getCurrentUser();
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
@@ -333,6 +331,25 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.userRepository.save(user);
         this.watchlistRepository.save(watchlist);
 
+        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+    }
+
+    @Override
+    @Transactional
+    public WatchlistDTO unfollowWatchlist(Long watchlistId) {
+        User user = getCurrentUser();
+
+        Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
+                .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        if (!watchlist.getFollowers().contains(user)) {
+            throw new APIException("You are not following this watchlist");
+        }
+
+        user.getAddedWatchlists().remove(watchlist);
+        watchlist.getFollowers().remove(user);
+        this.userRepository.save(user);
+        this.watchlistRepository.save(watchlist);
 
         return this.modelMapper.map(watchlist, WatchlistDTO.class);
     }

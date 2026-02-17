@@ -32,9 +32,11 @@ public interface WatchlistService {
 
     WatchlistAllResponse getRatedWatchlistsByUser(Integer pageNumber, Integer pageSize, String order);
 
-    WatchlistDTO addWatchlistToUser(Long watchlistId);
+    WatchlistDTO followWatchlist(Long watchlistId);
 
     List<String> getWatchlistFollowers(Long watchlistId);
 
     WatchlistAllResponse getFollowedWatchlists(Integer pageNumber, Integer pageSize, String order);
+
+    WatchlistDTO unfollowWatchlist(Long watchlistId);
 }
