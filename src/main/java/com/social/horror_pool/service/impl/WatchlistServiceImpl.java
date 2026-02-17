@@ -72,7 +72,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistAllResponse getAllWatchlists(Integer pageNumber, Integer pageSize, String order) {
+    public WatchlistAllResponse getAllUserWatchlists(Integer pageNumber, Integer pageSize, String order) {
         User user = getCurrentUser();
 
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
@@ -178,7 +178,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistByIdResponse getWatchlistById(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order) {
+    public WatchlistByIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order) {
         User user = getCurrentUser();
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)

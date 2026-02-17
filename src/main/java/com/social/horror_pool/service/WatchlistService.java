@@ -12,7 +12,7 @@ import java.util.List;
 public interface WatchlistService {
     WatchlistDTO createWatchlist(String title, boolean isPublic);
 
-    WatchlistAllResponse getAllWatchlists(Integer pageNumber, Integer pageSize, String order);
+    WatchlistAllResponse getAllUserWatchlists(Integer pageNumber, Integer pageSize, String order);
 
     WatchlistDTO updateWatchlist(Long watchlistId, @NotBlank @Size(min = 3, max = 30, message = "Watchlist title must be 3-30 characters long" ) String title);
 
@@ -22,7 +22,7 @@ public interface WatchlistService {
 
     WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId);
 
-    WatchlistByIdResponse getWatchlistById(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order);
+    WatchlistByIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order);
 
     WatchlistItemDTO toggleWatchlistItemAsWatched(Long watchlistId, Long watchlistItemId);
 

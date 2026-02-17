@@ -38,12 +38,12 @@ public class WatchlistController {
             description = "Retrieve a paginated list of all watchlists for the currently logged-in user."
     )
     @GetMapping("/allByUser")
-    public ResponseEntity<WatchlistAllResponse> getAllWatchlists(
+    public ResponseEntity<WatchlistAllResponse> getAllUserWatchlists(
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
-        WatchlistAllResponse response = this.watchlistService.getAllWatchlists(pageNumber, pageSize, order);
+        WatchlistAllResponse response = this.watchlistService.getAllUserWatchlists(pageNumber, pageSize, order);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -133,8 +133,8 @@ public class WatchlistController {
     }
 
     @Operation(
-            summary = "Toggle the watched status of a movie in a watchlist",
-            description = "Mark a movie in a watchlist as watched or unwatched. Only accessible to user who created the watchlist."
+            summary = "Add watchlist to logged user's followed watchlists",
+            description = "Add watchlist to logged user's followed watchlists. Only accessible to the logged-in user."
     )
     @PutMapping("/{watchlistId}/add")
     public ResponseEntity<WatchlistDTO> addWatchlistToUser(

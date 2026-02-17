@@ -42,14 +42,14 @@ public class PublicWatchlistController {
             description = "Retrieve movies of a watchlist by ID with optional filtering by watched status and pagination. Only accessible to user who created the watchlist if watchlist is private, in case if it is public available for all."
     )
     @GetMapping("/{watchlistId}")
-    public ResponseEntity<WatchlistByIdResponse> getWatchlistById(
+    public ResponseEntity<WatchlistByIdResponse> getWatchlistItemsByWatchlistId(
             @PathVariable Long watchlistId,
             @RequestParam(name = "watched", required = false) Boolean watched,
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
-        WatchlistByIdResponse response = this.watchlistService.getWatchlistById(watchlistId, watched, pageNumber, pageSize, order);
+        WatchlistByIdResponse response = this.watchlistService.getWatchlistItemsByWatchlistId(watchlistId, watched, pageNumber, pageSize, order);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

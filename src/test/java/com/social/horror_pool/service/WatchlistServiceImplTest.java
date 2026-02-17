@@ -342,21 +342,21 @@ public class WatchlistServiceImplTest {
     }
 
     @Test
-    public void getWatchlistById_WatchlistNotFound_ReturnResourceNotFoundException() {
+    public void getWatchlistById_WatchlistItemsNotFound_ReturnResourceNotFoundExceptionWatchlist() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.getWatchlistById(1L, false, 0,3,"asc"));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.getWatchlistItemsByWatchlistId(1L, false, 0,3,"asc"));
 
         assertEquals("Watchlist was not found with id : 1", exception.getMessage());
     }
 
     @Test
-    public void getWatchlistById_WatchlistBelongToAnotherUser_ReturnAPIException() {
+    public void getWatchlistById_WatchlistItemsBelongToAnotherUser_ReturnAPIExceptionWatchlist() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         watchlist1.setUser(user2);
-        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.getWatchlistById(1L, false, 0,3,"asc"));
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.getWatchlistItemsByWatchlistId(1L, false, 0,3,"asc"));
         assertEquals("You do not have permission to view this watchlist.", exception.getMessage());
     }
 
