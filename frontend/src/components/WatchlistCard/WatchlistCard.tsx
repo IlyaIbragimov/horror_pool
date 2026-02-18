@@ -36,16 +36,14 @@ export function WatchlistCard({ watchlist }: Props) {
         {loading ? null : user ? (
           <>
             <h3 className={styles.title}>{watchlist.title}</h3>
+
             <div className={styles.watchlist_total_items}>
               Containig {watchlistItemsCount} movies
             </div>
+
             <div className={styles.watchlist_rating}>
               Raiting: {watchlist.rating} Total {watchlist.rateCount} users have
               voted
-            </div>
-            <div className={styles.watchlist_actions}>
-              <button className={styles.watchlist_add}>Follow</button>
-              <button className={styles.watchlist_add}>Unfollow</button>
             </div>
 
             <div className={styles.watchlist_rate}>
@@ -55,8 +53,6 @@ export function WatchlistCard({ watchlist }: Props) {
                   <li key={i} className={styles.rate_item}>
                     <button type="button" className={styles.rate_btn}>
                       <svg
-                        width="30px"
-                        height="30px"
                         viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
                         className={styles.rate_img}
@@ -71,13 +67,20 @@ export function WatchlistCard({ watchlist }: Props) {
                 ))}
               </ul>
             </div>
+
+            <div className={styles.watchlist_actions}>
+              <button className={styles.watchlist_action_btn}>Follow</button>
+              <button className={styles.watchlist_action_btn}>Unfollow</button>
+            </div>
           </>
         ) : (
           <>
             <h3 className={styles.title}>{watchlist.title}</h3>
+
             <div className={styles.watchlist_total_items}>
               Containig {watchlistItemsCount} movies
             </div>
+
             <div className={styles.watchlist_rating}>
               {watchlist.rating} total {watchlist.rateCount} have voted
             </div>
