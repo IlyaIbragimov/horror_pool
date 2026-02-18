@@ -64,13 +64,53 @@
   margin-top: 0.35rem;
 }
 
-.watchlist_add,
-.watchlist_rate {
+.watchlist_add {
   min-width: 34px;
   min-height: 34px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.07);
+}
+
+.watchlist_rate{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rate_ul {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rate_item { width: 30px; }
+
+.rate_btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.rate_img{
+  width: 100%;
+  opacity: .35;
+  transition: 600ms ease;
+  fill: currentColor;
+}
+
+.rate_ul li:hover .rate_img{
+  opacity: 1;
+  fill: rgb(130, 1, 109) ;
+}
+
+.rate_ul li:has(~ li:hover) .rate_img{
+  opacity: 1;
+  fill: rgb(130, 1, 109);
 }
 
 .noPosters {
