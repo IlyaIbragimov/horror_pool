@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import "./Header.css";
 import tmdblogo from "../../assets/logos/tmdblogo.svg";
-import logo from "../../assets/logos/logo.svg";
+import logo from "../../assets/logos/main_logo.svg";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Header() {
@@ -29,8 +29,7 @@ export default function Header() {
         <div className="header-logo">
           <div className="logo">
             <a>
-              {" "}
-              <img src={logo} alt="" />{" "}
+              <img src={logo} alt="" />
             </a>
           </div>
           <div className="logo">
