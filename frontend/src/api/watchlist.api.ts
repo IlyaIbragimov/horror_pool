@@ -3,21 +3,39 @@ import type {
   WatchlistDTO,
   WatchlistItemDTO,
   WatchlistAllResponse,
-  WatchlistQuery
+  WatchlistQuery,
+  WatchlistItemsByWatchlistIdQuery,
+  WatchlistItemsByWatchlistIdResponse
 } from "../types/watchlist.types";
 
 export function getAllPublicWatchlists(
-  params: WatchlistQuery = {},
+  params: WatchlistQuery = {}
 ): Promise<WatchlistAllResponse> {
   const search = new URLSearchParams();
 
   if (params.page !== undefined) search.set("page", String(params.page));
   if (params.size !== undefined) search.set("size", String(params.size));
-  if (params.sort) search.set("sort", params.sort);
   if (params.order) search.set("order", params.order);
 
   const qs = search.toString();
   const url = `/public/watchlist/allPublic${qs ? `?${qs}` : ""}`;
 
   return http<WatchlistAllResponse>(url);
+}
+
+export function getWatchlistItemsByWatchlistId(
+  watchlistId: number,
+  params: WatchlistItemsByWatchlistIdQuery = {}
+): Promise<WatchlistItemsByWatchlistIdResponse> {
+  const search = new URLSearchParams();
+
+  if (params.watched !== undefined) search.set("watched", String(params.watched));
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.size !== undefined) search.set("size", String(params.size));
+  if (params.order) search.set("order", params.order);
+
+  const qs = search.toString();
+  const url = `/public/watchlist/${watchlistId}${qs ? `?${qs}` : ""}`;
+
+  return http<WatchlistItemsByWatchlistIdResponse>(url);
 }
