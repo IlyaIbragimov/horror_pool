@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WatchlistByIdResponse {
+public class WatchlistItemsByWatchlistIdResponse {
     private String title;
     private List<WatchlistItemDTO> items;
     private Integer pageNumber;

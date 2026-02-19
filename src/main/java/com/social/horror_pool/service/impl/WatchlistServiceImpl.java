@@ -10,7 +10,7 @@ import com.social.horror_pool.model.User;
 import com.social.horror_pool.model.Watchlist;
 import com.social.horror_pool.model.WatchlistItem;
 import com.social.horror_pool.payload.WatchlistAllResponse;
-import com.social.horror_pool.payload.WatchlistByIdResponse;
+import com.social.horror_pool.payload.WatchlistItemsByWatchlistIdResponse;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.repository.WatchlistItemRepository;
@@ -176,14 +176,16 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistByIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order) {
-        User user = getCurrentUser();
+    public WatchlistItemsByWatchlistIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order) {
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
-        if (!watchlist.getUser().equals(user) && !watchlist.isPublic()) {
-            throw new APIException("You do not have permission to view this watchlist.");
+        if (!watchlist.isPublic()) {
+            User user = getCurrentUser();
+            if (!watchlist.getUser().equals(user)) {
+                throw new APIException("You do not have permission to view this watchlist.");
+            }
         }
 
         List<WatchlistItem> watchlistItems = watchlist.getWatchlistItems();
@@ -219,16 +221,16 @@ public class WatchlistServiceImpl implements WatchlistService {
                     return watchlistItemDTO;
                 }).toList();
 
-        WatchlistByIdResponse watchlistByIdResponse = new WatchlistByIdResponse();
-        watchlistByIdResponse.setTitle(watchlist.getTitle());
-        watchlistByIdResponse.setItems(watchlistItemDTOS);
-        watchlistByIdResponse.setPageNumber(page.getNumber());
-        watchlistByIdResponse.setPageSize(page.getSize());
-        watchlistByIdResponse.setTotalElements(page.getTotalElements());
-        watchlistByIdResponse.setTotalPages(page.getTotalPages());
-        watchlistByIdResponse.setLastPage(page.isLast());
+        WatchlistItemsByWatchlistIdResponse watchlistItemsByWatchlistIdResponse = new WatchlistItemsByWatchlistIdResponse();
+        watchlistItemsByWatchlistIdResponse.setTitle(watchlist.getTitle());
+        watchlistItemsByWatchlistIdResponse.setItems(watchlistItemDTOS);
+        watchlistItemsByWatchlistIdResponse.setPageNumber(page.getNumber());
+        watchlistItemsByWatchlistIdResponse.setPageSize(page.getSize());
+        watchlistItemsByWatchlistIdResponse.setTotalElements(page.getTotalElements());
+        watchlistItemsByWatchlistIdResponse.setTotalPages(page.getTotalPages());
+        watchlistItemsByWatchlistIdResponse.setLastPage(page.isLast());
 
-        return watchlistByIdResponse;
+        return watchlistItemsByWatchlistIdResponse;
     }
 
     @Override

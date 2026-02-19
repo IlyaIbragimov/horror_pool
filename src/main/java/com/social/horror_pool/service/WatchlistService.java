@@ -3,7 +3,7 @@ package com.social.horror_pool.service;
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.payload.WatchlistAllResponse;
-import com.social.horror_pool.payload.WatchlistByIdResponse;
+import com.social.horror_pool.payload.WatchlistItemsByWatchlistIdResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -22,7 +22,7 @@ public interface WatchlistService {
 
     WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId);
 
-    WatchlistByIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order);
+    WatchlistItemsByWatchlistIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order);
 
     WatchlistItemDTO toggleWatchlistItemAsWatched(Long watchlistId, Long watchlistItemId);
 
