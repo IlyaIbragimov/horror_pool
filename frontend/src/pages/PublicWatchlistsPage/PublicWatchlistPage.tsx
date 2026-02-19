@@ -17,7 +17,7 @@ export function PublicWatchlistPage() {
     setLoading(true);
     setError(null);
 
-    getAllPublicWatchlists({ page: page - 1, size, order: "asc", sort: "name" })
+    getAllPublicWatchlists({ page: page - 1, size, order: "asc"})
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
