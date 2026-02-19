@@ -8,6 +8,7 @@ import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.*;
 import com.social.horror_pool.payload.WatchlistAllResponse;
+import com.social.horror_pool.payload.WatchlistItemsByWatchlistIdResponse;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.repository.WatchlistItemRepository;
@@ -342,8 +343,7 @@ public class WatchlistServiceImplTest {
     }
 
     @Test
-    public void getWatchlistById_WatchlistItemsNotFound_ReturnResourceNotFoundExceptionWatchlist() {
-        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+    public void getWatchlistItemsByWatchlistId_WatchlistNotFound_ReturnResourceNotFoundException() {
         when(watchlistRepository.findById(1L)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> watchlistServiceImpl.getWatchlistItemsByWatchlistId(1L, false, 0,3,"asc"));
@@ -352,12 +352,82 @@ public class WatchlistServiceImplTest {
     }
 
     @Test
-    public void getWatchlistById_WatchlistItemsBelongToAnotherUser_ReturnAPIExceptionWatchlist() {
+    public void getWatchlistItemsByWatchlistId_PrivateWatchlistBelongsToAnotherUser_ReturnAPIException() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         watchlist1.setUser(user2);
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.getWatchlistItemsByWatchlistId(1L, false, 0,3,"asc"));
         assertEquals("You do not have permission to view this watchlist.", exception.getMessage());
+    }
+
+    @Test
+    public void getWatchlistItemsByWatchlistId_Success_ReturnsPagedItems() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user1);
+
+        WatchlistItem item1 = new WatchlistItem();
+        item1.setWatchItemId(1L);
+        item1.setWatchlist(watchlist1);
+        item1.setMovie(movie1);
+        item1.setWatched(false);
+
+        WatchlistItem item2 = new WatchlistItem();
+        item2.setWatchItemId(2L);
+        item2.setWatchlist(watchlist1);
+        item2.setMovie(movie2);
+        item2.setWatched(true);
+
+        watchlist1.setWatchlistItems(new ArrayList<>(Arrays.asList(item1, item2)));
+
+        WatchlistItemDTO item1DTO = new WatchlistItemDTO();
+        item1DTO.setWatchItemId(1L);
+        item1DTO.setWatchlistId(1L);
+        item1DTO.setWatched(false);
+
+        WatchlistItemDTO item2DTO = new WatchlistItemDTO();
+        item2DTO.setWatchItemId(2L);
+        item2DTO.setWatchlistId(1L);
+        item2DTO.setWatched(true);
+
+        when(modelMapper.map(item1, WatchlistItemDTO.class)).thenReturn(item1DTO);
+        when(modelMapper.map(item2, WatchlistItemDTO.class)).thenReturn(item2DTO);
+        when(modelMapper.map(movie1, MovieDTO.class)).thenReturn(createMovieDTO(movie1));
+        when(modelMapper.map(movie2, MovieDTO.class)).thenReturn(createMovieDTO(movie2));
+
+        WatchlistItemsByWatchlistIdResponse result = watchlistServiceImpl.getWatchlistItemsByWatchlistId(1L, null, 0, 10, "asc");
+
+        assertNotNull(result);
+        assertEquals("Favorite", result.getTitle());
+        assertEquals(2, result.getItems().size());
+        assertEquals(2L, result.getTotalElements());
+        assertEquals(0, result.getPageNumber());
+    }
+
+    @Test
+    public void getWatchlistItemsByWatchlistId_PublicWatchlistBelongsToAnotherUser_ReturnsItems() {
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user2);
+        watchlist1.setPublic(true);
+
+        WatchlistItem item = new WatchlistItem();
+        item.setWatchItemId(1L);
+        item.setWatchlist(watchlist1);
+        item.setMovie(movie1);
+        item.setWatched(false);
+        watchlist1.setWatchlistItems(new ArrayList<>(Collections.singletonList(item)));
+
+        WatchlistItemDTO itemDTO = new WatchlistItemDTO();
+        itemDTO.setWatchItemId(1L);
+        itemDTO.setWatchlistId(1L);
+        itemDTO.setWatched(false);
+        when(modelMapper.map(item, WatchlistItemDTO.class)).thenReturn(itemDTO);
+        when(modelMapper.map(movie1, MovieDTO.class)).thenReturn(createMovieDTO(movie1));
+
+        WatchlistItemsByWatchlistIdResponse result = watchlistServiceImpl.getWatchlistItemsByWatchlistId(1L, null, 0, 10, "asc");
+
+        assertNotNull(result);
+        assertEquals(1, result.getItems().size());
     }
 
     @Test
