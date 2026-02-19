@@ -1,0 +1,74 @@
+.watchlistItem_card {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  width: 100%;
+  min-height: 160px;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(12, 16, 26, 0.72);
+}
+
+.watchlistItem_card_posterWrap {
+  width: 96px;
+  min-width: 96px;
+  height: 144px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.watchlistItem_card_poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.watchlistItem_card_content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.watchlistItem_card_title {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.watchlistItem_card_isWatched {
+  display: flex;
+  align-items: center;
+}
+
+.watchlistItem_checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.watchlistItem_checkboxLabel input {
+  width: 16px;
+  height: 16px;
+  accent-color: #2ec27e;
+}
+
+.noPoster {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.5rem;
+}
