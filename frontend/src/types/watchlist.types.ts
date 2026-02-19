@@ -28,6 +28,22 @@ export type WatchlistAllResponse = {
 export type WatchlistQuery = {
   page?: number;
   size?: number;
-  sort?: string;
+  order?: string;
+};
+
+export type WatchlistItemsByWatchlistIdResponse = {
+    title: string;
+    items: WatchlistItemDTO[];
+    pageNumber: number;
+    pageSize: number;
+    totalElements?: number;
+    totalPages: number;
+    lastPage: boolean
+}
+
+export type WatchlistItemsByWatchlistIdQuery = {
+  watched?: boolean;
+  page?: number;
+  size?: number;
   order?: string;
 };
