@@ -329,7 +329,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
         if (user.getAddedWatchlists().contains(watchlist)) {
-            throw new APIException("You are already following this wathchlist");
+            throw new APIException("You are already following this watchlist");
         }
 
         user.getAddedWatchlists().add(watchlist);
