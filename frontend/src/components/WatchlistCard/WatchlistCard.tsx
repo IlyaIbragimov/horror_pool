@@ -1,5 +1,7 @@
+import { useState } from "react";
 import type { WatchlistDTO } from "../../types/watchlist.types";
 import { useAuth } from "../../auth/AuthContext";
+import { followWatchlist, unfollowWatchlist } from "../../api/watchlist.api";
 import styles from "./WatchlistCard.module.css";
 
 type Props = { watchlist: WatchlistDTO };
@@ -8,11 +10,32 @@ const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
 export function WatchlistCard({ watchlist }: Props) {
   const { user, loading } = useAuth();
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const watchlistItemsCount = watchlist.watchlistItemDTOS.length ?? 0;
   const posters = watchlist.watchlistItemDTOS
     .map((i) => i.movieDTO.posterPath)
     .filter((p): p is string => Boolean(p))
     .slice(0, 7);
+
+  const handleFollowToggle = async () => {
+    if (followLoading) return;
+
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        await unfollowWatchlist(watchlist.watchlistId);
+        setIsFollowing(false);
+      } else {
+        await followWatchlist(watchlist.watchlistId);
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   return (
     <div className={styles.watchlist_card}>
@@ -69,8 +92,14 @@ export function WatchlistCard({ watchlist }: Props) {
             </div>
 
             <div className={styles.watchlist_actions}>
-              <button className={styles.watchlist_action_btn}>Follow</button>
-              <button className={styles.watchlist_action_btn}>Unfollow</button>
+              <button
+                type="button"
+                className={styles.watchlist_action_btn}
+                onClick={handleFollowToggle}
+                disabled={followLoading}
+              >
+                {followLoading ? "Loading..." : isFollowing ? "Unfollow" : "Follow"}
+              </button>
             </div>
           </>
         ) : (
