@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { WatchlistDTO } from "../../types/watchlist.types";
 import { useAuth } from "../../auth/AuthContext";
 import { followWatchlist, unfollowWatchlist } from "../../api/watchlist.api";
+import { Link } from "react-router-dom";
 import styles from "./WatchlistCard.module.css";
 
 type Props = { watchlist: WatchlistDTO };
@@ -39,7 +40,10 @@ export function WatchlistCard({ watchlist }: Props) {
 
   return (
     <div className={styles.watchlist_card}>
-      <div className={styles.watchlist_posters}>
+      <Link
+        className={styles.watchlist_posters}
+        to={`/watchlist/${watchlist.watchlistId}`}
+      >
         {posters.length ? (
           posters.map((p, idx) => (
             <img
@@ -53,12 +57,14 @@ export function WatchlistCard({ watchlist }: Props) {
         ) : (
           <div className={styles.noPosters}>No posters</div>
         )}
-      </div>
+      </Link>
 
       <div className={styles.watchlist_content}>
         {loading ? null : user ? (
           <>
-            <h3 className={styles.title}>{watchlist.title}</h3>
+            <Link to={`/watchlist/${watchlist.watchlistId}`}>
+              <h3 className={styles.title}>{watchlist.title}</h3>
+            </Link>
 
             <div className={styles.watchlist_total_items}>
               Containig {watchlistItemsCount} movies
@@ -98,13 +104,19 @@ export function WatchlistCard({ watchlist }: Props) {
                 onClick={handleFollowToggle}
                 disabled={followLoading}
               >
-                {followLoading ? "Loading..." : isFollowing ? "Unfollow" : "Follow"}
+                {followLoading
+                  ? "Loading..."
+                  : isFollowing
+                    ? "Unfollow"
+                    : "Follow"}
               </button>
             </div>
           </>
         ) : (
           <>
-            <h3 className={styles.title}>{watchlist.title}</h3>
+            <Link to={`/watchlist/${watchlist.watchlistId}`}>
+              <h3 className={styles.title}>{watchlist.title}</h3>
+            </Link>
 
             <div className={styles.watchlist_total_items}>
               Containig {watchlistItemsCount} movies
