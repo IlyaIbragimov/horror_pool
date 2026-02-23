@@ -328,6 +328,10 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
+        if (user.getAddedWatchlists().contains(watchlist)) {
+            throw new APIException("You are already following this wathchlist");
+        }
+
         user.getAddedWatchlists().add(watchlist);
         watchlist.getFollowers().add(user);
         this.userRepository.save(user);
