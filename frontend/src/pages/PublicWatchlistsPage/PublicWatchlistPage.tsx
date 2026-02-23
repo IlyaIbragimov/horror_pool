@@ -3,7 +3,6 @@ import { getAllPublicWatchlists } from "../../api/watchlist.api";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import styles from "./PublicWatchlistPage.module.css";
-import { Link } from "react-router-dom";
 
 export function PublicWatchlistPage() {
   const [page, setPage] = useState(1);
@@ -52,13 +51,12 @@ export function PublicWatchlistPage() {
 
       <div className={styles.list}>
         {data?.watchlistDTOS.map((w) => (
-          <Link
+          <div
             key={w.watchlistId}
-            to={`/watchlist/${w.watchlistId}`}
             className={styles.cardLink}
           >
             <WatchlistCard key={w.watchlistId} watchlist={w} />
-          </Link>
+          </div>
         ))}
       </div>
     </div>
