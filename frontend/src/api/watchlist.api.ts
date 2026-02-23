@@ -39,3 +39,15 @@ export function getWatchlistItemsByWatchlistId(
 
   return http<WatchlistItemsByWatchlistIdResponse>(url);
 }
+
+export function followWatchlist(watchlistId: number): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/follow`, {
+    method: "PUT"
+  });
+}
+
+export function unfollowWatchlist(watchlistId: number): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/unfollow`, {
+    method: "PUT"
+  });
+}
