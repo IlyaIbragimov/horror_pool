@@ -31,4 +31,8 @@ public class WatchlistDTO {
     private int rateCount;
 
     private List<WatchlistItemDTO> watchlistItemDTOS = new ArrayList<>();
+
+    private int followersCount;
+
+    private boolean followedByMe;
 }

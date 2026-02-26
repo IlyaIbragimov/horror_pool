@@ -14,6 +14,8 @@ export type WatchlistDTO = {
   rating: number | null;
   rateCount: number | null;
   watchlistItemDTOS: WatchlistItemDTO[];
+  followersCount: number;
+  followedByMe: boolean
 }
 
 export type WatchlistAllResponse = {
