@@ -83,7 +83,7 @@ export function getFollowedWatchlists(params: WatchlistQuery = {}): Promise<Watc
   if (params.size !== undefined) search.set("size", String(params.size));
   if (params.order) search.set("order", params.order);
   const qs = search.toString();
-  const url = `/user/watchlist/rated${qs ? `?${qs}` : ""}`;
+  const url = `/user/watchlist/followed${qs ? `?${qs}` : ""}`;
 
   return http<WatchlistAllResponse>(url);
 }
