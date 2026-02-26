@@ -51,3 +51,39 @@ export function unfollowWatchlist(watchlistId: number): Promise<WatchlistDTO> {
     method: "PUT"
   });
 }
+
+export function getAllUserWatchlists(params: WatchlistQuery = {}): Promise<WatchlistAllResponse> {
+  const search = new URLSearchParams();
+
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.size !== undefined) search.set("size", String(params.size));
+  if (params.order) search.set("order", params.order);
+  const qs = search.toString();
+  const url = `/user/watchlist/allByUser${qs ? `?${qs}` : ""}`;
+
+  return http<WatchlistAllResponse>(url);
+}
+
+export function getRatedWatchlistsByUser(params: WatchlistQuery = {}): Promise<WatchlistAllResponse> {
+  const search = new URLSearchParams();
+
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.size !== undefined) search.set("size", String(params.size));
+  if (params.order) search.set("order", params.order);
+  const qs = search.toString();
+  const url = `/user/watchlist/rated${qs ? `?${qs}` : ""}`;
+
+  return http<WatchlistAllResponse>(url);
+}
+
+export function getFollowedWatchlists(params: WatchlistQuery = {}): Promise<WatchlistAllResponse> {
+  const search = new URLSearchParams();
+
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.size !== undefined) search.set("size", String(params.size));
+  if (params.order) search.set("order", params.order);
+  const qs = search.toString();
+  const url = `/user/watchlist/rated${qs ? `?${qs}` : ""}`;
+
+  return http<WatchlistAllResponse>(url);
+}
