@@ -45,15 +45,34 @@ export default function Header() {
         </div>
 
         <nav className="header-menu desktop-menu" aria-label="Main navigation">
-          <Link className="header-menu-item" to="/movies">
-            Movies
-          </Link>
-          <Link className="header-menu-item" to="/genres">
-            Genres
-          </Link>
-          <Link className="header-menu-item" to="/watchlistPublic">
-            Watchlists
-          </Link>
+          {loading ? null : user ? (
+            <>
+              <Link className="header-menu-item" to="/movies">
+                Movies
+              </Link>
+              <Link className="header-menu-item" to="/genres">
+                Genres
+              </Link>
+              <Link className="header-menu-item" to="/watchlistPublic">
+                Watchlists
+              </Link>
+              <Link className="header-menu-item" to="/watchlistUser">
+                My Page
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link className="header-menu-item" to="/movies">
+                Movies
+              </Link>
+              <Link className="header-menu-item" to="/genres">
+                Genres
+              </Link>
+              <Link className="header-menu-item" to="/watchlistPublic">
+                Watchlists
+              </Link>
+            </>
+          )}
         </nav>
 
         <div className="search-wrapper">
@@ -111,15 +130,34 @@ export default function Header() {
       </div>
 
       <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
-        <Link to="/movies" onClick={() => setMobileOpen(false)}>
-          Movies
-        </Link>
-        <Link to="/genres" onClick={() => setMobileOpen(false)}>
-          Genres
-        </Link>
-        <Link to="/watchlistPublic" onClick={() => setMobileOpen(false)}>
-          Watchlists
-        </Link>
+        {loading ? null : user ? (
+          <>
+            <Link to="/movies" onClick={() => setMobileOpen(false)}>
+              Movies
+            </Link>
+            <Link to="/genres" onClick={() => setMobileOpen(false)}>
+              Genres
+            </Link>
+            <Link to="/watchlistPublic" onClick={() => setMobileOpen(false)}>
+              Watchlists
+            </Link>
+            <Link to="/watchlistUser" onClick={() => setMobileOpen(false)}>
+              My Page
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link to="/movies" onClick={() => setMobileOpen(false)}>
+              Movies
+            </Link>
+            <Link to="/genres" onClick={() => setMobileOpen(false)}>
+              Genres
+            </Link>
+            <Link to="/watchlistPublic" onClick={() => setMobileOpen(false)}>
+              Watchlists
+            </Link>
+          </>
+        )}
 
         <div className="mobile-actions">
           {loading ? null : user ? (
