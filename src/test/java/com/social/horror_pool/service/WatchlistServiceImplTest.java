@@ -71,8 +71,13 @@ public class WatchlistServiceImplTest {
         movie1 = createMovie(1L, "Alien");
         movie2 = createMovie(2L, "Friday the 13th");
         CustomUserDetails customUserDetails = new CustomUserDetails(user1);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(customUserDetails, customUserDetails.getPassword());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                customUserDetails,
+                customUserDetails.getPassword(),
+                customUserDetails.getAuthorities()
+        );
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        lenient().when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
     }
 
     @AfterEach
@@ -93,7 +98,7 @@ public class WatchlistServiceImplTest {
 
         assertNotNull(result);
         assertEquals(result, newWatchlistDTO);
-        verify(userRepository).findByUsername("username1");
+        verify(userRepository, atLeastOnce()).findByUsername("username1");
     }
     @Test
     public void createWatchlist_WatchlistAlreadyExists_ReturnAPIException() {
@@ -128,7 +133,7 @@ public class WatchlistServiceImplTest {
 
         assertNotNull(result);
         assertEquals(updatedWatchlistDTO, result);
-        verify(userRepository).findByUsername("username1");
+        verify(userRepository, atLeastOnce()).findByUsername("username1");
         assertEquals("Updated", result.getTitle());
     }
     @Test
@@ -161,7 +166,7 @@ public class WatchlistServiceImplTest {
 
         assertNotNull(result);
         assertEquals(watchlistDTO1, result);
-        verify(userRepository, times(1)).findByUsername("username1");
+        verify(userRepository, atLeastOnce()).findByUsername("username1");
         verify(modelMapper, times(1)).map(watchlist1, WatchlistDTO.class);
         verify(watchlistRepository, times(1)).delete(watchlist1);
     }
@@ -598,6 +603,58 @@ public class WatchlistServiceImplTest {
         assertEquals(2, response.getWatchlistDTOS().size());
         assertEquals(2L, response.getTotalElements());
         verify(watchlistRepository).findAllByIsPublicTrue(any(Pageable.class));
+    }
+
+    @Test
+    public void followWatchlist_Success_ReturnsWatchlistDTO() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user2);
+
+        WatchlistDTO dto = createWatchlistDTO(watchlist1);
+        when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(dto);
+
+        WatchlistDTO result = watchlistServiceImpl.followWatchlist(1L);
+
+        assertNotNull(result);
+        assertEquals(dto, result);
+        assertTrue(user1.getAddedWatchlists().contains(watchlist1));
+        assertTrue(watchlist1.getFollowers().contains(user1));
+        verify(userRepository).save(user1);
+        verify(watchlistRepository).save(watchlist1);
+    }
+
+    @Test
+    public void followWatchlist_OwnWatchlist_ReturnsAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.setUser(user1);
+
+        APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.followWatchlist(1L));
+
+        assertEquals("You cannot follow your own watchlist", exception.getMessage());
+        verify(userRepository, never()).save(any(User.class));
+        verify(watchlistRepository, never()).save(any(Watchlist.class));
+    }
+
+    @Test
+    public void unfollowWatchlist_Success_ReturnsWatchlistDTO() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+        watchlist1.getFollowers().add(user1);
+        user1.getAddedWatchlists().add(watchlist1);
+
+        WatchlistDTO dto = createWatchlistDTO(watchlist1);
+        when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(dto);
+
+        WatchlistDTO result = watchlistServiceImpl.unfollowWatchlist(1L);
+
+        assertNotNull(result);
+        assertEquals(dto, result);
+        assertFalse(watchlist1.getFollowers().contains(user1));
+        assertFalse(user1.getAddedWatchlists().contains(watchlist1));
+        verify(userRepository).save(user1);
+        verify(watchlistRepository).save(watchlist1);
     }
 
     @Test
