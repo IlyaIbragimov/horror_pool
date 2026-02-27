@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -67,7 +68,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.setRating(0L);
         watchlist.setUser(user);
         this.watchlistRepository.save(watchlist);
-        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+        return getWatchlistDTO(watchlist);
     }
 
     @Override
@@ -96,7 +97,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         watchlist.setTitle(title);
         this.watchlistRepository.save(watchlist);
-        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+        return getWatchlistDTO(watchlist);
     }
 
     @Override
@@ -110,7 +111,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         }
 
         this.watchlistRepository.delete(watchlist);
-        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+        return getWatchlistDTO(watchlist);
     }
 
     @Override
@@ -303,7 +304,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.setRateCount(newRateCount);
         this.watchlistRepository.save(watchlist);
         this.userRepository.save(user);
-        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+        return getWatchlistDTO(watchlist);
     }
 
     @Override
@@ -328,6 +329,10 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
+        if (watchlist.getUser().equals(user)) {
+            throw new APIException("You cannot follow your own watchlist");
+        }
+
         if (user.getAddedWatchlists().contains(watchlist)) {
             throw new APIException("You are already following this watchlist");
         }
@@ -337,7 +342,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.userRepository.save(user);
         this.watchlistRepository.save(watchlist);
 
-        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+        return getWatchlistDTO(watchlist);
     }
 
     @Override
@@ -357,7 +362,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.userRepository.save(user);
         this.watchlistRepository.save(watchlist);
 
-        return this.modelMapper.map(watchlist, WatchlistDTO.class);
+        return getWatchlistDTO(watchlist);
     }
 
     @Override
@@ -384,9 +389,23 @@ public class WatchlistServiceImpl implements WatchlistService {
         return generateWatchlistAllResponse(page, pageNumber, pageSize);
     }
 
-    private User getCurrentUser() {
+    private Optional<User> getCurrentUserOptional() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userRepository.findByUsername(auth.getName())
+
+        if (auth == null || !auth.isAuthenticated()) {
+            return Optional.empty();
+        }
+
+        String username = auth.getName();
+        if (username == null || username.equals("anonymousUser")) {
+            return Optional.empty();
+        }
+
+        return userRepository.findByUsername(username);
+    }
+
+    private User getCurrentUser() {
+        return getCurrentUserOptional()
                 .orElseThrow(() -> new APIException("Please, sign in"));
     }
 
@@ -421,6 +440,12 @@ public class WatchlistServiceImpl implements WatchlistService {
                 }).toList();
 
         watchlistDTO.setWatchlistItemDTOS(watchlistItemDTOS);
+        watchlistDTO.setFollowersCount(watchlist.getFollowers().size());
+        boolean followedByMe = getCurrentUserOptional()
+                .map(u -> watchlist.getFollowers().contains(u))
+                .orElse(false);
+
+        watchlistDTO.setFollowedByMe(followedByMe);
         return watchlistDTO;
     }
 }
