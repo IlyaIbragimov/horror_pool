@@ -12,14 +12,17 @@ export function PublicWatchlistPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refresh = () => {
     setLoading(true);
     setError(null);
-
-    getAllPublicWatchlists({ page: page - 1, size, order: "asc"})
+    getAllPublicWatchlists({ page: page - 1, size, order: "asc" })
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    refresh();
   }, [page, size]);
 
   return (
@@ -51,11 +54,13 @@ export function PublicWatchlistPage() {
 
       <div className={styles.list}>
         {data?.watchlistDTOS.map((w) => (
-          <div
-            key={w.watchlistId}
-            className={styles.cardLink}
-          >
-            <WatchlistCard key={w.watchlistId} watchlist={w} />
+          <div key={w.watchlistId} className={styles.cardLink}>
+            <WatchlistCard
+              watchlist={w}
+              onChanged={() => {
+                refresh();
+              }}
+            />
           </div>
         ))}
       </div>

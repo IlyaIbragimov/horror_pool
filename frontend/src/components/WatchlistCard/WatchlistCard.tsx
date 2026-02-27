@@ -5,13 +5,12 @@ import { followWatchlist, unfollowWatchlist } from "../../api/watchlist.api";
 import { Link } from "react-router-dom";
 import styles from "./WatchlistCard.module.css";
 
-type Props = { watchlist: WatchlistDTO };
+type Props = { watchlist: WatchlistDTO; onChanged?: () => void };
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-export function WatchlistCard({ watchlist }: Props) {
+export function WatchlistCard({ watchlist, onChanged }: Props) {
   const { user, loading } = useAuth();
-  const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const watchlistItemsCount = watchlist.watchlistItemDTOS.length ?? 0;
   const posters = watchlist.watchlistItemDTOS
@@ -21,18 +20,18 @@ export function WatchlistCard({ watchlist }: Props) {
 
   const handleFollowToggle = async () => {
     if (followLoading) return;
-
     setFollowLoading(true);
+
     try {
-      if (isFollowing) {
+      if (watchlist.followedByMe) {
         await unfollowWatchlist(watchlist.watchlistId);
-        setIsFollowing(false);
       } else {
         await followWatchlist(watchlist.watchlistId);
-        setIsFollowing(true);
       }
-    } catch (error) {
-      console.error(error);
+
+      onChanged?.();
+    } catch (e) {
+      console.error(e);
     } finally {
       setFollowLoading(false);
     }
@@ -106,7 +105,7 @@ export function WatchlistCard({ watchlist }: Props) {
               >
                 {followLoading
                   ? "Loading..."
-                  : isFollowing
+                  : watchlist.followedByMe
                     ? "Unfollow"
                     : "Follow"}
               </button>

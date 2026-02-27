@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   getAllUserWatchlists,
-  getFollowedWatchlists
+  getFollowedWatchlists,
 } from "../../api/watchlist.api";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
@@ -16,28 +16,38 @@ export function UserWatchlistPage() {
   const [myError, setMyError] = useState<string | null>(null);
 
   const [followedPage, setFollowedPage] = useState(1);
-  const [followedData, setFollowedData] = useState<WatchlistAllResponse | null>(null);
+  const [followedData, setFollowedData] = useState<WatchlistAllResponse | null>(
+    null,
+  );
   const [followedLoading, setFollowedLoading] = useState(false);
   const [followedError, setFollowedError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refreshMy = () => {
     setMyLoading(true);
     setMyError(null);
-
     getAllUserWatchlists({ page: myPage - 1, size, order: "asc" })
       .then(setMyData)
       .catch((e) => setMyError(e instanceof Error ? e.message : String(e)))
       .finally(() => setMyLoading(false));
+  };
+
+  const refreshFollowed = () => {
+    setFollowedLoading(true);
+    setFollowedError(null);
+    getFollowedWatchlists({ page: followedPage - 1, size, order: "asc" })
+      .then(setFollowedData)
+      .catch((e) =>
+        setFollowedError(e instanceof Error ? e.message : String(e)),
+      )
+      .finally(() => setFollowedLoading(false));
+  };
+
+  useEffect(() => {
+    refreshMy();
   }, [myPage, size]);
 
   useEffect(() => {
-    setFollowedLoading(true);
-    setFollowedError(null);
-
-    getFollowedWatchlists({ page: followedPage - 1, size, order: "asc" })
-      .then(setFollowedData)
-      .catch((e) => setFollowedError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setFollowedLoading(false));
+    refreshFollowed();
   }, [followedPage, size]);
 
   return (
@@ -69,8 +79,14 @@ export function UserWatchlistPage() {
 
         <div className={styles.list}>
           {myData?.watchlistDTOS.map((w) => (
-            <div key={w.watchlistId} className={styles.card}>
-              <WatchlistCard watchlist={w} />
+            <div className={styles.card} key={w.watchlistId}>
+              <WatchlistCard
+                watchlist={w}
+                onChanged={() => {
+                  refreshMy();
+                  refreshFollowed();
+                }}
+              />
             </div>
           ))}
         </div>
@@ -104,7 +120,13 @@ export function UserWatchlistPage() {
         <div className={styles.list}>
           {followedData?.watchlistDTOS.map((w) => (
             <div key={w.watchlistId} className={styles.card}>
-              <WatchlistCard watchlist={w} />
+              <WatchlistCard
+                watchlist={w}
+                onChanged={() => {
+                  refreshMy();
+                  refreshFollowed();
+                }}
+              />
             </div>
           ))}
         </div>
