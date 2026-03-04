@@ -87,3 +87,11 @@ export function getFollowedWatchlists(params: WatchlistQuery = {}): Promise<Watc
 
   return http<WatchlistAllResponse>(url);
 }
+
+export function rateWatchlist(watchlistId: number, rating: number): Promise<WatchlistDTO> {
+    return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/rate`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rating }),
+  });
+}
