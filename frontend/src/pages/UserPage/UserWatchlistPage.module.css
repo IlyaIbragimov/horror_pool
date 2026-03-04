@@ -48,3 +48,31 @@
 .card {
   width: 100%;
 }
+
+@media (max-width: 640px) {
+  .page {
+    gap: 20px;
+    padding: 12px;
+  }
+
+  .section {
+    gap: 10px;
+  }
+
+  .sectionTitle {
+    font-size: 1.15rem;
+  }
+
+  .pager {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pager button {
+    padding: 7px 10px;
+  }
+
+  .list {
+    gap: 12px;
+  }
+}
