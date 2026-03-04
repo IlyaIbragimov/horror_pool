@@ -3,6 +3,7 @@ package com.social.horror_pool.controller;
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.dto.WatchlistItemDTO;
+import com.social.horror_pool.payload.RateWatchlistRequest;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.service.WatchlistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -98,10 +99,10 @@ public class WatchlistController {
 
     @PutMapping("/{watchlistId}/rate")
     public ResponseEntity<WatchlistDTO> rateWatchlist(
-            @Valid @RequestBody WatchlistDTO watchlistDTO,
+            @Valid @RequestBody RateWatchlistRequest rateWatchlistRequest,
             @PathVariable Long watchlistId
     ) {
-        WatchlistDTO response = this.watchlistService.rateWatchlist(watchlistId, watchlistDTO.getRating());
+        WatchlistDTO response = this.watchlistService.rateWatchlist(watchlistId, rateWatchlistRequest.getRating());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
