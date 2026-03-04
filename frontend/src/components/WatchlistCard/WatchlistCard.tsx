@@ -18,6 +18,21 @@ export function WatchlistCard({ watchlist, onChanged }: Props) {
   const [followLoading, setFollowLoading] = useState(false);
   const [rateLoading, setRateLoading] = useState(false);
   const watchlistItemsCount = watchlist.watchlistItemDTOS.length ?? 0;
+
+  const avg = Math.max(0, Math.min(10, watchlist.rating ?? 0));
+  const savedDisplay = Math.round(avg * 2) / 2;
+
+  const [hoveredRating, setHoveredRating] = useState<number | null>(null);
+
+  const display = hoveredRating ?? savedDisplay;
+
+  const fillForIndex = (index: number) => {
+    const diff = display - index;
+    if (diff >= 1) return 1;
+    if (diff >= 0.5) return 0.5;
+    return 0;
+  };
+
   const posters = watchlist.watchlistItemDTOS
     .map((i) => i.movieDTO.posterPath)
     .filter((p): p is string => Boolean(p))
@@ -94,29 +109,53 @@ export function WatchlistCard({ watchlist, onChanged }: Props) {
 
             <div className={styles.watchlist_rate}>
               <p>Rate watchlist:</p>
-              <ul className={styles.rate_ul}>
+              <ul
+                className={styles.rate_ul}
+                onMouseLeave={() => setHoveredRating(null)}
+              >
                 {Array.from({ length: 10 }, (_, i) => {
                   const ratingValue = i + 1;
+                  const fill = fillForIndex(i);
                   return (
                     <li key={ratingValue} className={styles.rate_item}>
                       <button
                         type="button"
                         className={styles.rate_btn}
                         onClick={() => handleRate(ratingValue)}
+                        onMouseEnter={() => setHoveredRating(ratingValue)}
+                        onMouseLeave={() => setHoveredRating(null)}
                       >
-                        <svg
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className={styles.rate_img}
-                        >
-                          <g>
-                            <path fill="none" d="M0 0h24v24H0z" />
-                            <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                          </g>
-                        </svg>
+                        <span className={styles.iconWrap}>
+                          <svg
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className={styles.iconEmpty}
+                          >
+                            <g>
+                              <path fill="none" d="M0 0h24v24H0z" />
+                              <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                            </g>
+                          </svg>
+
+                          <span
+                            className={styles.iconFill}
+                            style={{ width: `${fill * 100}%` }}
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                              className={styles.iconFull}
+                            >
+                              <g>
+                                <path fill="none" d="M0 0h24v24H0z" />
+                                <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                              </g>
+                            </svg>
+                          </span>
+                        </span>
                       </button>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             </div>
