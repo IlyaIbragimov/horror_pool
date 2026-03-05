@@ -3,6 +3,7 @@ package com.social.horror_pool.controller;
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.dto.WatchlistItemDTO;
+import com.social.horror_pool.payload.CreateWatchlistRequest;
 import com.social.horror_pool.payload.RateWatchlistRequest;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.service.WatchlistService;
@@ -29,8 +30,8 @@ public class WatchlistController {
             description = "Create a new watchlist for the currently logged-in user."
     )
     @PostMapping("/create")
-    public ResponseEntity<WatchlistDTO> createWatchlist(@Valid @RequestBody WatchlistDTO watchlistDTO){
-        WatchlistDTO response = this.watchlistService.createWatchlist(watchlistDTO.getTitle(), watchlistDTO.isPublic());
+    public ResponseEntity<WatchlistDTO> createWatchlist(@Valid @RequestBody CreateWatchlistRequest createWatchlistRequest){
+        WatchlistDTO response = this.watchlistService.createWatchlist(createWatchlistRequest.getTitle(), createWatchlistRequest.isPublic());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
