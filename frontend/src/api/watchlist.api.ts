@@ -5,11 +5,11 @@ import type {
   WatchlistAllResponse,
   WatchlistQuery,
   WatchlistItemsByWatchlistIdQuery,
-  WatchlistItemsByWatchlistIdResponse
+  WatchlistItemsByWatchlistIdResponse,
 } from "../types/watchlist.types";
 
 export function getAllPublicWatchlists(
-  params: WatchlistQuery = {}
+  params: WatchlistQuery = {},
 ): Promise<WatchlistAllResponse> {
   const search = new URLSearchParams();
 
@@ -25,11 +25,12 @@ export function getAllPublicWatchlists(
 
 export function getWatchlistItemsByWatchlistId(
   watchlistId: number,
-  params: WatchlistItemsByWatchlistIdQuery = {}
+  params: WatchlistItemsByWatchlistIdQuery = {},
 ): Promise<WatchlistItemsByWatchlistIdResponse> {
   const search = new URLSearchParams();
 
-  if (params.watched !== undefined) search.set("watched", String(params.watched));
+  if (params.watched !== undefined)
+    search.set("watched", String(params.watched));
   if (params.page !== undefined) search.set("page", String(params.page));
   if (params.size !== undefined) search.set("size", String(params.size));
   if (params.order) search.set("order", params.order);
@@ -42,17 +43,19 @@ export function getWatchlistItemsByWatchlistId(
 
 export function followWatchlist(watchlistId: number): Promise<WatchlistDTO> {
   return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/follow`, {
-    method: "PUT"
+    method: "PUT",
   });
 }
 
 export function unfollowWatchlist(watchlistId: number): Promise<WatchlistDTO> {
   return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/unfollow`, {
-    method: "PUT"
+    method: "PUT",
   });
 }
 
-export function getAllUserWatchlists(params: WatchlistQuery = {}): Promise<WatchlistAllResponse> {
+export function getAllUserWatchlists(
+  params: WatchlistQuery = {},
+): Promise<WatchlistAllResponse> {
   const search = new URLSearchParams();
 
   if (params.page !== undefined) search.set("page", String(params.page));
@@ -64,7 +67,9 @@ export function getAllUserWatchlists(params: WatchlistQuery = {}): Promise<Watch
   return http<WatchlistAllResponse>(url);
 }
 
-export function getRatedWatchlistsByUser(params: WatchlistQuery = {}): Promise<WatchlistAllResponse> {
+export function getRatedWatchlistsByUser(
+  params: WatchlistQuery = {},
+): Promise<WatchlistAllResponse> {
   const search = new URLSearchParams();
 
   if (params.page !== undefined) search.set("page", String(params.page));
@@ -76,7 +81,9 @@ export function getRatedWatchlistsByUser(params: WatchlistQuery = {}): Promise<W
   return http<WatchlistAllResponse>(url);
 }
 
-export function getFollowedWatchlists(params: WatchlistQuery = {}): Promise<WatchlistAllResponse> {
+export function getFollowedWatchlists(
+  params: WatchlistQuery = {},
+): Promise<WatchlistAllResponse> {
   const search = new URLSearchParams();
 
   if (params.page !== undefined) search.set("page", String(params.page));
@@ -88,10 +95,25 @@ export function getFollowedWatchlists(params: WatchlistQuery = {}): Promise<Watc
   return http<WatchlistAllResponse>(url);
 }
 
-export function rateWatchlist(watchlistId: number, rating: number): Promise<WatchlistDTO> {
-    return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/rate`, {
+export function rateWatchlist(
+  watchlistId: number,
+  rating: number,
+): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/rate`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ rating }),
   });
+}
+
+export function toggleWatchlistItem(
+  watchlistId: number,
+  watchlistItemId: number,
+): Promise<WatchlistItemDTO> {
+  return http<WatchlistItemDTO>(
+    `/user/watchlist/${watchlistId}/toggle/${watchlistItemId}`,
+    {
+      method: "PUT",
+    },
+  );
 }
