@@ -5,16 +5,10 @@ import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
-import com.social.horror_pool.model.Movie;
-import com.social.horror_pool.model.User;
-import com.social.horror_pool.model.Watchlist;
-import com.social.horror_pool.model.WatchlistItem;
+import com.social.horror_pool.model.*;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.payload.WatchlistItemsByWatchlistIdResponse;
-import com.social.horror_pool.repository.MovieRepository;
-import com.social.horror_pool.repository.UserRepository;
-import com.social.horror_pool.repository.WatchlistItemRepository;
-import com.social.horror_pool.repository.WatchlistRepository;
+import com.social.horror_pool.repository.*;
 import com.social.horror_pool.service.WatchlistService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -25,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -39,13 +34,16 @@ public class WatchlistServiceImpl implements WatchlistService {
 
     private final MovieRepository movieRepository;
 
+    private final UserMovieWatchedStateRepository userMovieWatchedStateRepository;
+
     private final ModelMapper modelMapper;
 
-    public WatchlistServiceImpl(WatchlistRepository watchlistRepository, WatchlistItemRepository watchlistItemRepository, UserRepository userRepository, MovieRepository movieRepository, ModelMapper modelMapper) {
+    public WatchlistServiceImpl(WatchlistRepository watchlistRepository, WatchlistItemRepository watchlistItemRepository, UserRepository userRepository, MovieRepository movieRepository, UserMovieWatchedStateRepository userMovieWatchedStateRepository, ModelMapper modelMapper) {
         this.watchlistRepository = watchlistRepository;
         this.watchlistItemRepository = watchlistItemRepository;
         this.userRepository = userRepository;
         this.movieRepository = movieRepository;
+        this.userMovieWatchedStateRepository = userMovieWatchedStateRepository;
         this.modelMapper = modelMapper;
     }
 
@@ -68,7 +66,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.setRating(0L);
         watchlist.setUser(user);
         this.watchlistRepository.save(watchlist);
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -82,7 +80,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         Page<Watchlist> page = this.watchlistRepository.findAllByUser(user, pageable);
 
-        return generateWatchlistAllResponse(page,pageNumber,pageSize);
+        return generateWatchlistAllResponse(page, pageNumber, pageSize, Optional.of(user));
     }
 
     @Override
@@ -91,13 +89,14 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
-        if (!watchlist.getUser().equals(getCurrentUser())) {
+        User user = getCurrentUser();
+        if (!watchlist.getUser().equals(user)) {
             throw new APIException("You do not have permission to modify this watchlist.");
         }
 
         watchlist.setTitle(title);
         this.watchlistRepository.save(watchlist);
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -106,12 +105,13 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
-        if (!watchlist.getUser().equals(getCurrentUser())) {
+        User user = getCurrentUser();
+        if (!watchlist.getUser().equals(user)) {
             throw new APIException("You do not have permission to modify this watchlist.");
         }
 
         this.watchlistRepository.delete(watchlist);
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -137,14 +137,13 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         WatchlistItem watchlistItem = new WatchlistItem();
         watchlistItem.setMovie(movie);
-        watchlistItem.setWatched(false);
         watchlistItem.setWatchlist(watchlist);
 
         watchlist.getWatchlistItems().add(watchlistItem);
 
         this.watchlistRepository.save(watchlist);
 
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -171,7 +170,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         this.watchlistItemRepository.delete(watchlistItemToRemove);
         this.watchlistRepository.save(watchlist);
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -180,8 +179,9 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
+        Optional<User> currentUser = getCurrentUserOptional();
         if (!watchlist.isPublic()) {
-            User user = getCurrentUser();
+            User user = currentUser.orElseThrow(() -> new APIException("Please, sign in"));
             if (!watchlist.getUser().equals(user)) {
                 throw new APIException("You do not have permission to view this watchlist.");
             }
@@ -189,14 +189,33 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         List<WatchlistItem> watchlistItems = watchlist.getWatchlistItems();
 
+        Map<Long, Boolean> watchedByMovieIdTmp = Map.of();
+        if (currentUser.isPresent() && !watchlistItems.isEmpty()) {
+            List<Long> movieIds = watchlistItems.stream()
+                    .map(item -> item.getMovie().getMovieId())
+                    .distinct()
+                    .toList();
+
+            watchedByMovieIdTmp = userMovieWatchedStateRepository
+                    .findAllByUser_UserIdAndMovie_MovieIdIn(currentUser.get().getUserId(), movieIds)
+                    .stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            state -> state.getMovie().getMovieId(),
+                            UserMovieWatchedState::isWatched,
+                            (left, right) -> left
+                    ));
+        }
+
+        final Map<Long, Boolean> watchedByMovieId = watchedByMovieIdTmp;
+
         Stream<WatchlistItem> watchlistItemStream = watchlistItems.stream();
 
         if (Boolean.TRUE.equals(watched)) {
-            watchlistItemStream = watchlistItemStream.filter(WatchlistItem::isWatched);
+            watchlistItemStream = watchlistItemStream.filter(item -> watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
         }
 
         if (Boolean.FALSE.equals(watched)) {
-            watchlistItemStream = watchlistItemStream.filter(watchlistItem -> !watchlistItem.isWatched());
+            watchlistItemStream = watchlistItemStream.filter(item -> !watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
         }
 
         Comparator<WatchlistItem> comparator = Comparator.comparing(watchlistItem -> watchlistItem.getMovie().getTitle().toLowerCase());
@@ -216,6 +235,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         List<WatchlistItemDTO> watchlistItemDTOS = page.getContent().stream()
                 .map(item -> {
                     WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
+                    watchlistItemDTO.setWatched(watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
                     watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
                     return watchlistItemDTO;
                 }).toList();
@@ -241,19 +261,35 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
-        if (!watchlist.getUser().equals(user)) {
+        WatchlistItem watchlistItem = this.watchlistItemRepository.findById(watchlistItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("WatchlistItem", "id", watchlistItemId));
+
+        if (!watchlistItem.getWatchlist().getWatchlistId().equals(watchlistId)) {
+            throw new APIException("This movie does not belong to the specified watchlist.");
+        }
+
+        boolean isOwner = watchlist.getUser().equals(user);
+        boolean isFollower = watchlist.getFollowers().contains(user);
+        if (!isOwner && (!watchlist.isPublic() || !isFollower)) {
             throw new APIException("You do not have permission to modify this watchlist.");
         }
 
-        WatchlistItem watchlistItem = this.watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(watchlistId, watchlistItemId)
-                        .orElseThrow(() -> new APIException("Movie was not found in the watchlist"));
+        UserMovieWatchedState state = userMovieWatchedStateRepository
+                .findByUser_UserIdAndMovie_MovieId(user.getUserId(), watchlistItem.getMovie().getMovieId())
+                .orElseGet(() -> {
+                    UserMovieWatchedState s = new UserMovieWatchedState();
+                    s.setUser(user);
+                    s.setMovie(watchlistItem.getMovie());
+                    s.setWatched(false);
+                    return s;
+                });
 
+        state.setWatched(!state.isWatched());
+        userMovieWatchedStateRepository.save(state);
 
-        watchlistItem.setWatched(!watchlistItem.isWatched());
-        this.watchlistItemRepository.save(watchlistItem);
-
-        WatchlistItemDTO response = this.modelMapper.map(watchlistItem, WatchlistItemDTO.class);
-        response.setMovieDTO(this.modelMapper.map(watchlistItem.getMovie(), MovieDTO.class));
+        WatchlistItemDTO response = modelMapper.map(watchlistItem, WatchlistItemDTO.class);
+        response.setWatched(state.isWatched());
+        response.setMovieDTO(modelMapper.map(watchlistItem.getMovie(), MovieDTO.class));
         return response;
     }
 
@@ -267,7 +303,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         Page<Watchlist> page = this.watchlistRepository.findAllByIsPublicTrue(pageable);
 
-        return generateWatchlistAllResponse(page,pageNumber,pageSize);
+        return generateWatchlistAllResponse(page, pageNumber, pageSize, getCurrentUserOptional());
     }
 
     @Override
@@ -302,7 +338,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         watchlist.setRateCount(newRateCount);
         this.watchlistRepository.save(watchlist);
         this.userRepository.save(user);
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -316,7 +352,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         Page<Watchlist> page = this.watchlistRepository.findAllByRatersContaining(user, pageable);
 
-        return generateWatchlistAllResponse(page,pageNumber,pageSize);
+        return generateWatchlistAllResponse(page, pageNumber, pageSize, Optional.of(user));
     }
 
     @Override
@@ -340,7 +376,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.userRepository.save(user);
         this.watchlistRepository.save(watchlist);
 
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -360,7 +396,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         this.userRepository.save(user);
         this.watchlistRepository.save(watchlist);
 
-        return getWatchlistDTO(watchlist);
+        return getWatchlistDTO(watchlist, Optional.of(user));
     }
 
     @Override
@@ -384,7 +420,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         Page<Watchlist> page = this.watchlistRepository.findAllByFollowersContaining(user, pageable);
 
-        return generateWatchlistAllResponse(page, pageNumber, pageSize);
+        return generateWatchlistAllResponse(page, pageNumber, pageSize, Optional.of(user));
     }
 
     private Optional<User> getCurrentUserOptional() {
@@ -408,12 +444,12 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
 
-    private WatchlistAllResponse generateWatchlistAllResponse(Page<Watchlist> page, Integer pageNumber, Integer pageSize) {
+    private WatchlistAllResponse generateWatchlistAllResponse(Page<Watchlist> page, Integer pageNumber, Integer pageSize, Optional<User> currentUser) {
         List<Watchlist> watchlists = page.getContent();
 
 
         List<WatchlistDTO> watchlistDTOS = watchlists.stream()
-                .map(this::getWatchlistDTO).toList();
+                .map(watchlist -> getWatchlistDTO(watchlist, currentUser)).toList();
 
         WatchlistAllResponse watchlistAllResponse = new WatchlistAllResponse();
         watchlistAllResponse.setPageNumber(pageNumber);
@@ -426,20 +462,40 @@ public class WatchlistServiceImpl implements WatchlistService {
 
     }
 
-    private WatchlistDTO getWatchlistDTO(Watchlist watchlist) {
+    private WatchlistDTO getWatchlistDTO(Watchlist watchlist, Optional<User> currentUser) {
 
         WatchlistDTO watchlistDTO = this.modelMapper.map(watchlist, WatchlistDTO.class);
+
+        Map<Long, Boolean> watchedByMovieIdTmp = Map.of();
+        if (currentUser.isPresent() && !watchlist.getWatchlistItems().isEmpty()) {
+            List<Long> movieIds = watchlist.getWatchlistItems().stream()
+                    .map(item -> item.getMovie().getMovieId())
+                    .distinct()
+                    .toList();
+
+            watchedByMovieIdTmp = userMovieWatchedStateRepository
+                    .findAllByUser_UserIdAndMovie_MovieIdIn(currentUser.get().getUserId(), movieIds)
+                    .stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            state -> state.getMovie().getMovieId(),
+                            UserMovieWatchedState::isWatched,
+                            (left, right) -> left
+                    ));
+        }
+
+        final Map<Long, Boolean> watchedByMovieId = watchedByMovieIdTmp;
 
         List<WatchlistItemDTO> watchlistItemDTOS = watchlist.getWatchlistItems().stream()
                 .map(item -> {
                     WatchlistItemDTO watchlistItemDTO = this.modelMapper.map(item, WatchlistItemDTO.class);
+                    watchlistItemDTO.setWatched(watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
                     watchlistItemDTO.setMovieDTO(this.modelMapper.map(item.getMovie(), MovieDTO.class));
                     return watchlistItemDTO;
                 }).toList();
 
         watchlistDTO.setWatchlistItemDTOS(watchlistItemDTOS);
         watchlistDTO.setFollowersCount(watchlist.getFollowers().size());
-        boolean followedByMe = getCurrentUserOptional()
+        boolean followedByMe = currentUser
                 .map(u -> watchlist.getFollowers().contains(u))
                 .orElse(false);
 
