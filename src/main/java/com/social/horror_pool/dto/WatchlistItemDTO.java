@@ -15,6 +15,5 @@ public class WatchlistItemDTO {
 
     private Long watchlistId;
 
-    private boolean watched;
-
+    private boolean isWatched;
 }
