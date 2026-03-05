@@ -10,6 +10,7 @@ import com.social.horror_pool.model.*;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.payload.WatchlistItemsByWatchlistIdResponse;
 import com.social.horror_pool.repository.MovieRepository;
+import com.social.horror_pool.repository.UserMovieWatchedStateRepository;
 import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.repository.WatchlistItemRepository;
 import com.social.horror_pool.repository.WatchlistRepository;
@@ -48,6 +49,8 @@ public class WatchlistServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserMovieWatchedStateRepository userMovieWatchedStateRepository;
+    @Mock
     private ModelMapper modelMapper;
     @InjectMocks
     private WatchlistServiceImpl watchlistServiceImpl;
@@ -78,6 +81,10 @@ public class WatchlistServiceImplTest {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         lenient().when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        lenient().when(userMovieWatchedStateRepository.findAllByUser_UserIdAndMovie_MovieIdIn(anyLong(), anyList()))
+                .thenReturn(Collections.emptyList());
+        lenient().when(userMovieWatchedStateRepository.findByUser_UserIdAndMovie_MovieId(anyLong(), anyLong()))
+                .thenReturn(Optional.empty());
     }
 
     @AfterEach
@@ -447,8 +454,10 @@ public class WatchlistServiceImplTest {
         item.setWatchItemId(1L);
         item.setWatched(false);
 
-        when(watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(1L,1L)).thenReturn(Optional.of(item));
-        when(watchlistItemRepository.save(any(WatchlistItem.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(userMovieWatchedStateRepository.findByUser_UserIdAndMovie_MovieId(1L, 1L)).thenReturn(Optional.empty());
+        when(userMovieWatchedStateRepository.save(any(UserMovieWatchedState.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
         MovieDTO movie1DTO = createMovieDTO(movie1);
         when(modelMapper.map(eq(item.getMovie()), eq(MovieDTO.class))).thenReturn(movie1DTO);
@@ -468,14 +477,13 @@ public class WatchlistServiceImplTest {
 
         assertNotNull(result);
         assertTrue(result.isWatched());
-        assertTrue(item.isWatched());
         assertEquals(1L, result.getWatchItemId());
         assertEquals(1L, result.getWatchlistId());
         assertEquals(movie1.getTitle(), movie1DTO.getTitle());
 
         verify(watchlistRepository).findById(1L);
-        verify(watchlistItemRepository).findByWatchlist_WatchlistIdAndWatchItemId(1L, 1L);
-        verify(watchlistItemRepository).save(item);
+        verify(watchlistItemRepository).findById(1L);
+        verify(userMovieWatchedStateRepository).save(any(UserMovieWatchedState.class));
         verify(modelMapper).map(item, WatchlistItemDTO.class);
         verify(modelMapper).map(movie1, MovieDTO.class);
     }
@@ -495,17 +503,41 @@ public class WatchlistServiceImplTest {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         watchlist1.setUser(user2);
+        watchlist1.setPublic(false);
+
+        WatchlistItem item = new WatchlistItem();
+        item.setMovie(movie1);
+        item.setWatchlist(watchlist1);
+        item.setWatchItemId(1L);
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(item));
+
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.toggleWatchlistItemAsWatched(1L,1L));
         assertEquals("You do not have permission to modify this watchlist.", exception.getMessage());
     }
 
     @Test
-    public void toggleWatchlistItemAsWatched_MovieIsNotInWatchlist_ReturnAPIException() {
+    public void toggleWatchlistItemAsWatched_WatchlistItemNotFound_ReturnResourceNotFoundException() {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
-        when(watchlistItemRepository.findByWatchlist_WatchlistIdAndWatchItemId(1L,1L)).thenReturn(Optional.empty());
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.empty());
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> watchlistServiceImpl.toggleWatchlistItemAsWatched(1L,1L));
+        assertEquals("WatchlistItem was not found with id : 1", exception.getMessage());
+    }
+
+    @Test
+    public void toggleWatchlistItemAsWatched_ItemDoesNotBelongToWatchlist_ReturnAPIException() {
+        when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
+        when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
+
+        WatchlistItem item = new WatchlistItem();
+        item.setMovie(movie1);
+        item.setWatchlist(watchlist2);
+        item.setWatchItemId(1L);
+        when(watchlistItemRepository.findById(1L)).thenReturn(Optional.of(item));
+
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.toggleWatchlistItemAsWatched(1L,1L));
-        assertEquals("Movie was not found in the watchlist", exception.getMessage());
+        assertEquals("This movie does not belong to the specified watchlist.", exception.getMessage());
     }
 
     @Test
