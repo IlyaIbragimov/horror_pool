@@ -4,7 +4,7 @@ export type WatchlistItemDTO = {
   watchItemId: number;
   movieDTO: MovieDTO;
   watchlistId: number;
-  watched: boolean | null;
+  watched: boolean;
 }
 
 export type WatchlistDTO = {
