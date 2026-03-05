@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getWatchlistItemsByWatchlistId } from "../../api/watchlist.api";
 import { WatchlistItemCard } from "../../components/WatchlistItemCard/WatchlistItemCard";
-import type { WatchlistItemsByWatchlistIdResponse, WatchlistDTO } from "../../types/watchlist.types";
+import type {
+  WatchlistItemsByWatchlistIdResponse,
+  WatchlistDTO,
+} from "../../types/watchlist.types";
 import styles from "./WatchlistPage.module.css";
 
 export function WatchlistPage() {
@@ -17,7 +20,7 @@ export function WatchlistPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refresh = () => {
     setLoading(true);
     setError(null);
 
@@ -33,6 +36,10 @@ export function WatchlistPage() {
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    refresh();
   }, [page, size]);
 
   return (
@@ -68,8 +75,14 @@ export function WatchlistPage() {
 
       <div className={styles.list}>
         {data?.items.map((i) => (
-          <div className={styles.card}>
-            <WatchlistItemCard key={i.movieDTO.movieId} watchlistItem={i} />
+          
+          <div className={styles.card} key={i.movieDTO.movieId}>
+            <WatchlistItemCard
+              watchlistItem={i}
+              onChanged={() => {
+                refresh();
+              }}
+            />
           </div>
         ))}
       </div>
