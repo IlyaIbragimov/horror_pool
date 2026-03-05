@@ -147,8 +147,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         return getWatchlistDTO(watchlist);
     }
 
-
-
     @Override
     @Transactional
     public WatchlistDTO removeMovieFromWatchlist(Long watchlistId, Long watchlistItemId) {
@@ -235,6 +233,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
+    @Transactional
     public WatchlistItemDTO toggleWatchlistItemAsWatched(Long watchlistId, Long watchlistItemId) {
 
         User user = getCurrentUser();
@@ -256,7 +255,6 @@ public class WatchlistServiceImpl implements WatchlistService {
         WatchlistItemDTO response = this.modelMapper.map(watchlistItem, WatchlistItemDTO.class);
         response.setMovieDTO(this.modelMapper.map(watchlistItem.getMovie(), MovieDTO.class));
         return response;
-
     }
 
     @Override
