@@ -266,6 +266,17 @@ export function MoviePage() {
               <div className={styles.k}>Popularity</div>
               <div>{movie.popularity ?? "-"}</div>
             </div>
+
+            <div className={styles.movie_page_actions}>
+              <Link
+                className={styles.action_add}
+                state={{ backgroundLocation: location }}
+                to="/addMovieToWatchlist"
+              >
+                Add to watchlist
+              </Link>
+            </div>
+
           </div>
         </div>
       </div>
