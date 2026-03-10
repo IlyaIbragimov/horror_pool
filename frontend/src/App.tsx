@@ -7,6 +7,7 @@ import { UserWatchlistPage } from "./pages/UserPage/UserWatchlistPage.tsx";
 import { WatchlistPage } from "./pages/WatchlistPage/WatchlistPage.tsx";
 import SignUpPage from "./pages/SignUpPage/SignUpPage.tsx";
 import SignInPage from "./pages/SignInPage/SignInPage";
+import { AddWatchlistPage } from "./pages/AddWatchlistPage/AddWatchlistPage.tsx";
 import { AppLayout } from "./components/AppLayout.tsx";
 import "./App.css";
 
@@ -30,12 +31,14 @@ export function App() {
 
         <Route path="/login" element={<SignInPage />} />
         <Route path="/register" element={<SignUpPage />} />
+        <Route path="/addMovieToWatchlist" element={<AddWatchlistPage />} />
       </Routes>
 
       {backgroundLocation && (
         <Routes>
           <Route path="/login" element={<SignInPage />} />
           <Route path="/register" element={<SignUpPage />} />
+          <Route path="/addMovieToWatchlist" element={<AddWatchlistPage />} />
         </Routes>
       )}
     </>
