@@ -117,3 +117,14 @@ export function toggleWatchlistItem(
     },
   );
 }
+
+export function createWatchlist(
+  title: string,
+  isPublic: boolean,
+): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, public: isPublic }),
+  });
+}
