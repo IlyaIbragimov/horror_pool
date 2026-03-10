@@ -92,103 +92,87 @@ export function WatchlistCard({ watchlist, onChanged }: Props) {
       </Link>
 
       <div className={styles.watchlist_content}>
-        {loading ? null : user ? (
-          <>
-            <Link to={`/watchlist/${watchlist.watchlistId}`}>
-              <h3 className={styles.title}>{watchlist.title}</h3>
-            </Link>
+        <Link to={`/watchlist/${watchlist.watchlistId}`}>
+          <h3 className={styles.title}>{watchlist.title}</h3>
+        </Link>
 
-            <div className={styles.watchlist_total_items}>
-              Containig {watchlistItemsCount} movies
-            </div>
+        <div className={styles.watchlist_total_items}>
+          Containig {watchlistItemsCount} movies
+        </div>
 
-            <div className={styles.watchlist_rating}>
-              Raiting: {watchlist.rating} Total {watchlist.rateCount} users have
-              voted
-            </div>
+        <div className={styles.watchlist_rating}>
+          Raiting: {watchlist.rating} Total {watchlist.rateCount} users have
+          voted
+        </div>
 
-            <div className={styles.watchlist_rate}>
-              <p>Rate watchlist:</p>
-              <ul
-                className={styles.rate_ul}
-                onMouseLeave={() => setHoveredRating(null)}
-              >
-                {Array.from({ length: 10 }, (_, i) => {
-                  const ratingValue = i + 1;
-                  const fill = fillForIndex(i);
-                  return (
-                    <li key={ratingValue} className={styles.rate_item}>
-                      <button
-                        type="button"
-                        className={styles.rate_btn}
-                        onClick={() => handleRate(ratingValue)}
-                        onMouseEnter={() => setHoveredRating(ratingValue)}
-                        onMouseLeave={() => setHoveredRating(null)}
+        <div className={styles.watchlist_rate}>
+          <p>Rate watchlist:</p>
+          <ul
+            className={styles.rate_ul}
+            onMouseLeave={() => setHoveredRating(null)}
+          >
+            {Array.from({ length: 10 }, (_, i) => {
+              const ratingValue = i + 1;
+              const fill = fillForIndex(i);
+              return (
+                <li key={ratingValue} className={styles.rate_item}>
+                  <button
+                    type="button"
+                    className={styles.rate_btn}
+                    onClick={() => handleRate(ratingValue)}
+                    onMouseEnter={() => setHoveredRating(ratingValue)}
+                    onMouseLeave={() => setHoveredRating(null)}
+                  >
+                    <span className={styles.iconWrap}>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={styles.iconEmpty}
                       >
-                        <span className={styles.iconWrap}>
-                          <svg
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className={styles.iconEmpty}
-                          >
-                            <g>
-                              <path fill="none" d="M0 0h24v24H0z" />
-                              <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                            </g>
-                          </svg>
+                        <g>
+                          <path fill="none" d="M0 0h24v24H0z" />
+                          <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                        </g>
+                      </svg>
 
-                          <span
-                            className={styles.iconFill}
-                            style={{ width: `${fill * 100}%` }}
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className={styles.iconFull}
-                            >
-                              <g>
-                                <path fill="none" d="M0 0h24v24H0z" />
-                                <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                              </g>
-                            </svg>
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                      <span
+                        className={styles.iconFill}
+                        style={{ width: `${fill * 100}%` }}
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={styles.iconFull}
+                        >
+                          <g>
+                            <path fill="none" d="M0 0h24v24H0z" />
+                            <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
+                          </g>
+                        </svg>
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
 
-            <div className={styles.watchlist_actions}>
-              <button
-                type="button"
-                className={styles.watchlist_action_btn}
-                onClick={handleFollowToggle}
-                disabled={followLoading}
-              >
-                {followLoading
-                  ? "Loading..."
-                  : watchlist.followedByMe
-                    ? "Unfollow"
-                    : "Follow"}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <Link to={`/watchlist/${watchlist.watchlistId}`}>
-              <h3 className={styles.title}>{watchlist.title}</h3>
-            </Link>
-
-            <div className={styles.watchlist_total_items}>
-              Containig {watchlistItemsCount} movies
-            </div>
-
-            <div className={styles.watchlist_rating}>
-              {watchlist.rating} total {watchlist.rateCount} have voted
-            </div>
-          </>
+        {!loading && user && (
+          <div className={styles.watchlist_actions}>
+            <button
+              type="button"
+              className={styles.watchlist_action_btn}
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+            >
+              {followLoading
+                ? "Loading..."
+                : watchlist.followedByMe
+                  ? "Unfollow"
+                  : "Follow"}
+            </button>
+          </div>
         )}
       </div>
     </div>
