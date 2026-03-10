@@ -16,9 +16,7 @@ export function UserWatchlistPage() {
   const [myError, setMyError] = useState<string | null>(null);
 
   const [followedPage, setFollowedPage] = useState(1);
-  const [followedData, setFollowedData] = useState<WatchlistAllResponse | null>(
-    null,
-  );
+  const [followedData, setFollowedData] = useState<WatchlistAllResponse | null>(null);
   const [followedLoading, setFollowedLoading] = useState(false);
   const [followedError, setFollowedError] = useState<string | null>(null);
 
