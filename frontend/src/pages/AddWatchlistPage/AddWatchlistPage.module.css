@@ -1,0 +1,205 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.modal {
+  width: min(1200px, 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(22, 35, 50, 0.92);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.closeBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.user_watchlist {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.add_btn {
+  width: 84px;
+  min-width: 84px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(245, 248, 252, 0.9), rgba(191, 210, 223, 0.82));
+  color: rgba(16, 22, 29, 0.96);
+  font-size: 2rem;
+  font-weight: 700;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.add_btn:hover {
+  cursor: pointer;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(215, 227, 236, 0.9));
+}
+
+.new_watchlist {
+  margin: 0 20px 18px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(217, 88, 147, 0.16), transparent 42%),
+    linear-gradient(180deg, rgba(34, 48, 66, 0.92), rgba(17, 24, 34, 0.92));
+}
+
+.new_watchlist_form {
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.input {
+  width: 90%;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.92);
+  outline: none;
+}
+
+.input:focus {
+  border-color: rgba(255, 255, 255, 0.30);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.watchlistItem_isWatched_btn {
+  min-width: 108px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.94);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.watchlistItem_isWatched_btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+.submit {
+  min-width: 120px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(220, 229, 235, 0.88));
+  color: rgba(10, 20, 30, 0.95);
+  font-weight: 700;
+  cursor: pointer;
+  margin: 0;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.submit:hover:enabled {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.16);
+}
+
+.submit:disabled,
+.watchlistItem_isWatched_btn:disabled,
+.add_btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.error {
+  margin: 0;
+  color: #ff9b9b;
+  white-space: pre-line;
+}
+
+@media (max-width: 760px) {
+  .new_watchlist {
+    margin: 0 12px 16px;
+    padding: 14px;
+  }
+
+  .new_watchlist_form {
+    grid-template-columns: 1fr;
+  }
+
+  .watchlistItem_isWatched_btn,
+  .submit {
+    width: 100%;
+  }
+
+  .card {
+    flex-direction: column;
+  }
+
+  .add_btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+  }
+
+  .pager {
+    flex-wrap: wrap;
+    padding: 16px 12px;
+  }
+}
