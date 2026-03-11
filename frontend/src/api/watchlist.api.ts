@@ -111,11 +111,9 @@ export function toggleWatchlistItem(
   watchlistItemId: number,
 ): Promise<WatchlistItemDTO> {
   return http<WatchlistItemDTO>(
-    `/user/watchlist/${watchlistId}/toggle/${watchlistItemId}`,
-    {
-      method: "PUT",
-    },
-  );
+    `/user/watchlist/${watchlistId}/toggle/${watchlistItemId}`, {
+      method: "PUT"
+    });
 }
 
 export function createWatchlist(
@@ -126,5 +124,14 @@ export function createWatchlist(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, public: isPublic }),
+  });
+}
+
+export function addMovieToWatchlist(
+  watchlistId: number,
+  movieId: number,
+): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/add/${movieId}`, {
+    method: "POST"
   });
 }
