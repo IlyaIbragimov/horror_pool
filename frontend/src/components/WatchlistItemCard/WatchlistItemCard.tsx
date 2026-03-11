@@ -1,7 +1,10 @@
 import type { WatchlistItemDTO } from "../../types/watchlist.types";
 import styles from "./WatchlistItemCard.module.css";
 import { Link } from "react-router-dom";
-import { toggleWatchlistItem } from "../../api/watchlist.api";
+import {
+  toggleWatchlistItem,
+  removeMovieFromWatchlist,
+} from "../../api/watchlist.api";
 import { useState } from "react";
 import { useAuth } from "../../auth/AuthContext";
 
@@ -15,6 +18,7 @@ export function WatchlistItemCard({ watchlistItem, onChanged }: Props) {
     : null;
   const { user, loading } = useAuth();
   const [itemWatchedLoading, setItemWatchedLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleItemToggle = async () => {
     if (itemWatchedLoading) return;
@@ -26,7 +30,23 @@ export function WatchlistItemCard({ watchlistItem, onChanged }: Props) {
       );
       onChanged?.();
     } catch (e) {
-      console.error(e);
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setItemWatchedLoading(false);
+    }
+  };
+
+  const removeItem = async () => {
+    if (itemWatchedLoading) return;
+    setItemWatchedLoading(true);
+    try {
+      await removeMovieFromWatchlist(
+        watchlistItem.watchlistId,
+        watchlistItem.watchItemId,
+      );
+      onChanged?.();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setItemWatchedLoading(false);
     }
@@ -61,8 +81,11 @@ export function WatchlistItemCard({ watchlistItem, onChanged }: Props) {
           <p>{watchlistItem.movieDTO.overview}</p>
         </div>
 
-        {loading ? null : user ? (
-          <>
+        {error && <div className={styles.error}>{error}</div>}
+        {loading && <div>Loading...</div>}
+
+        {!loading && user && (
+          <div className={styles.watchlistItem_actions}>
             <div className={styles.watchlistItem_card_isWatched}>
               <button
                 type="button"
@@ -77,8 +100,19 @@ export function WatchlistItemCard({ watchlistItem, onChanged }: Props) {
                     : "Unseen"}
               </button>
             </div>
-          </>
-        ) : null}
+
+            <div className={styles.watchlistItem_remove}>
+              <button
+                className={styles.watchlistItem_remove_btn}
+                type="button"
+                disabled={itemWatchedLoading}
+                onClick={removeItem}
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

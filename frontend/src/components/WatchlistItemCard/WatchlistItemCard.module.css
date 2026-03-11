@@ -42,23 +42,19 @@
   color: #fff;
 }
 
-.watchlistItem_card_isWatched {
+.watchlistItem_actions {
   display: flex;
-  align-items: center;
+  gap: 8px;
 }
 
-.watchlistItem_checkboxLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
+.watchlistItem_card_isWatched {
+  
 }
 
-.watchlistItem_checkboxLabel input {
-  width: 16px;
-  height: 16px;
-  accent-color: #2ec27e;
+.error {
+  color: #ff9b9b;
+  white-space: pre-line;
+  margin: 0;
 }
 
 .noPoster {
