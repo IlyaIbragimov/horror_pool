@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { getAllUserWatchlists, createWatchlist } from "../../api/watchlist.api";
+import {
+  getAllUserWatchlists,
+  createWatchlist,
+  addMovieToWatchlist,
+} from "../../api/watchlist.api";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./AddWatchlistPage.module.css";
 
 export function AddWatchlistPage() {
@@ -15,7 +19,14 @@ export function AddWatchlistPage() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const bg = (location.state as any)?.backgroundLocation;
+
+  const state = location.state as {
+    backgroundLocation?: Location;
+    movieId?: number;
+  } | null;
+
+  const bg = state?.backgroundLocation;
+  const movieId = state?.movieId;
 
   const close = () => {
     if (bg) navigate(bg.pathname + bg.search, { replace: true });
@@ -61,6 +72,22 @@ export function AddWatchlistPage() {
     }
   };
 
+  const handleAddMovie = async (watchlistId: number) => {
+    if (!movieId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await addMovieToWatchlist(watchlistId, movieId);
+      await refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Adding movie failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className={styles.overlay}
@@ -101,9 +128,6 @@ export function AddWatchlistPage() {
             </button>
           </div>
 
-          {error && <div className={styles.error}>{error}</div>}
-          {loading && <div>Loading...</div>}
-
           <div className={styles.list}>
             <div className={styles.new_watchlist}>
               <form className={styles.new_watchlist_form} onSubmit={onSubmit}>
@@ -133,6 +157,9 @@ export function AddWatchlistPage() {
               </form>
             </div>
 
+            {error && <div className={styles.error}>{error}</div>}
+            {loading && <div>Loading...</div>}
+
             <div className={styles.user_watchlist}>
               {data?.watchlistDTOS.map((w) => (
                 <div className={styles.card} key={w.watchlistId}>
@@ -142,7 +169,12 @@ export function AddWatchlistPage() {
                       refresh();
                     }}
                   />
-                  <button className={styles.add_btn}>+</button>
+                  <button
+                    className={styles.add_btn}
+                    onClick={() => handleAddMovie(w.watchlistId)}
+                  >
+                    +
+                  </button>
                 </div>
               ))}
             </div>
