@@ -179,14 +179,14 @@ export function MoviePage() {
                   ? () => openEdit(node.commentId, node.commentContent)
                   : undefined
               }
-            onDelete={
-              canEdit
-                ? () => {
-                    if (!window.confirm("Delete this comment?")) return;
-                    submitDeleteComment(node.commentId);
-                  }
-                : undefined
-            }
+              onDelete={
+                canEdit
+                  ? () => {
+                      if (!window.confirm("Delete this comment?")) return;
+                      submitDeleteComment(node.commentId);
+                    }
+                  : undefined
+              }
               onFormClose={closeForm}
               onFormSubmit={handleSubmit}
               disabled={submitLoading}
@@ -270,13 +270,15 @@ export function MoviePage() {
             <div className={styles.movie_page_actions}>
               <Link
                 className={styles.action_add}
-                state={{ backgroundLocation: location }}
+                state={{
+                  backgroundLocation: location,
+                  movieId: Number(movieId),
+                }}
                 to="/addMovieToWatchlist"
               >
                 Add to watchlist
               </Link>
             </div>
-
           </div>
         </div>
       </div>
