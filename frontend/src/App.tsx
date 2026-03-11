@@ -3,7 +3,7 @@ import { MoviesPage } from "./pages/MoviesPage/MoviesPage";
 import { MoviePage } from "./pages/MoviePage/MoviePage";
 import { GenresPage } from "./pages/GenresPage/GenresPage";
 import { PublicWatchlistPage } from "./pages/PublicWatchlistsPage/PublicWatchlistPage.tsx";
-import { UserWatchlistPage } from "./pages/UserPage/UserWatchlistPage.tsx";
+import { UserWatchlistPage } from "./pages/UserWatchlistPage/UserWatchlistPage.tsx";
 import { WatchlistPage } from "./pages/WatchlistPage/WatchlistPage.tsx";
 import SignUpPage from "./pages/SignUpPage/SignUpPage.tsx";
 import SignInPage from "./pages/SignInPage/SignInPage";
