@@ -135,3 +135,12 @@ export function addMovieToWatchlist(
     method: "POST"
   });
 }
+
+export function removeMovieFromWatchlist(
+  watchlistId: number,
+  watchlistItemId: number,
+): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/remove/${watchlistItemId}`, {
+    method: "DELETE"
+  });
+}
