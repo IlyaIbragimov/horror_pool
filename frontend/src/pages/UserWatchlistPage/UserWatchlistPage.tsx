@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
   getAllUserWatchlists,
   getFollowedWatchlists,
+  deleteWatchlist,
 } from "../../api/watchlist.api";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
@@ -16,7 +17,9 @@ export function UserWatchlistPage() {
   const [myError, setMyError] = useState<string | null>(null);
 
   const [followedPage, setFollowedPage] = useState(1);
-  const [followedData, setFollowedData] = useState<WatchlistAllResponse | null>(null);
+  const [followedData, setFollowedData] = useState<WatchlistAllResponse | null>(
+    null,
+  );
   const [followedLoading, setFollowedLoading] = useState(false);
   const [followedError, setFollowedError] = useState<string | null>(null);
 
@@ -47,6 +50,21 @@ export function UserWatchlistPage() {
   useEffect(() => {
     refreshFollowed();
   }, [followedPage, size]);
+
+  const handleDeleteWatchlist = async (watchlistId: number) => {
+    if (!watchlistId) return;
+    setMyLoading(true);
+    setMyError(null);
+    try {
+      await deleteWatchlist(watchlistId);
+      await Promise.all([refreshMy(), refreshFollowed()]);
+    } catch (e) {
+      setMyError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setMyLoading(false)
+      setFollowedLoading(false)
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -85,6 +103,16 @@ export function UserWatchlistPage() {
                   refreshFollowed();
                 }}
               />
+              <div className={styles.list_actions_owner}>
+                <button
+                  className={styles.owner_actions_delete}
+                  onClick={() => 
+                    handleDeleteWatchlist(w.watchlistId)
+                  }
+                >
+                  Delete Watchlist
+                </button>
+              </div>
             </div>
           ))}
         </div>
