@@ -144,3 +144,11 @@ export function removeMovieFromWatchlist(
     method: "DELETE"
   });
 }
+
+export function deleteWatchlist(
+  watchlistId: number,
+): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/delete`, {
+    method: "DELETE"
+  });
+}
