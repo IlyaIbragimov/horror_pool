@@ -110,8 +110,10 @@ public class WatchlistServiceImpl implements WatchlistService {
             throw new APIException("You do not have permission to modify this watchlist.");
         }
 
+        WatchlistDTO result = getWatchlistDTO(watchlist, Optional.of(user));
+
         this.watchlistRepository.delete(watchlist);
-        return getWatchlistDTO(watchlist, Optional.of(user));
+        return result;
     }
 
     @Override
