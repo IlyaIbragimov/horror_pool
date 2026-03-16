@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { WatchlistDTO } from "../../types/watchlist.types";
 import { useAuth } from "../../auth/AuthContext";
 import {
@@ -8,12 +8,23 @@ import {
 } from "../../api/watchlist.api";
 import { Link } from "react-router-dom";
 import styles from "./WatchlistCard.module.css";
+import { PencilIcon, SkullIcon } from "../Icons/icons";
 
-type Props = { watchlist: WatchlistDTO; onChanged?: () => void };
+type Props = {
+  watchlist: WatchlistDTO;
+  onChanged?: () => void;
+  canRename?: boolean;
+  onRename?: (title: string) => void;
+};
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-export function WatchlistCard({ watchlist, onChanged }: Props) {
+export function WatchlistCard({
+  watchlist,
+  onChanged,
+  canRename,
+  onRename,
+}: Props) {
   const { user, loading } = useAuth();
   const [followLoading, setFollowLoading] = useState(false);
   const [rateLoading, setRateLoading] = useState(false);
@@ -70,6 +81,35 @@ export function WatchlistCard({ watchlist, onChanged }: Props) {
     }
   };
 
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(watchlist.title);
+
+  useEffect(() => {
+    setDraftTitle(watchlist.title);
+  }, [watchlist.title]);
+
+  const handleTitleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const nextTitle = draftTitle.trim();
+    if (!nextTitle || nextTitle === watchlist.title) {
+      setIsEditingTitle(false);
+      setDraftTitle(watchlist.title);
+      return;
+    }
+    await onRename?.(nextTitle);
+    setIsEditingTitle(false);
+  };
+
+  const openEdit = () => {
+    setDraftTitle(watchlist.title);
+    setIsEditingTitle(true);
+  };
+
+  const handleCancelOrSubmit = () => {
+    setDraftTitle(watchlist.title);
+    setIsEditingTitle(false);
+  };
+
   return (
     <div className={styles.watchlist_card}>
       <Link
@@ -92,9 +132,32 @@ export function WatchlistCard({ watchlist, onChanged }: Props) {
       </Link>
 
       <div className={styles.watchlist_content}>
-        <Link to={`/watchlist/${watchlist.watchlistId}`}>
-          <h3 className={styles.title}>{watchlist.title}</h3>
-        </Link>
+        {!isEditingTitle ? (
+          <div className={styles.titleRow}>
+            <Link to={`/watchlist/${watchlist.watchlistId}`}>
+              <h3 className={styles.title}>{watchlist.title}</h3>
+            </Link>
+            {canRename && (
+              <button
+                type="button"
+                onClick={openEdit}
+                className={styles.renameBtn}
+              >
+                <PencilIcon className={styles.renameIcon} />
+              </button>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleTitleSubmit} className={styles.titleEditForm}>
+            <input
+              value={draftTitle}
+              onChange={(e) => setDraftTitle(e.target.value)}
+              onBlur={handleCancelOrSubmit}
+              autoFocus
+              className={styles.titleInput}
+            />
+          </form>
+        )}
 
         <div className={styles.watchlist_total_items}>
           Containig {watchlistItemsCount} movies
@@ -124,31 +187,12 @@ export function WatchlistCard({ watchlist, onChanged }: Props) {
                     onMouseLeave={() => setHoveredRating(null)}
                   >
                     <span className={styles.iconWrap}>
-                      <svg
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={styles.iconEmpty}
-                      >
-                        <g>
-                          <path fill="none" d="M0 0h24v24H0z" />
-                          <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                        </g>
-                      </svg>
-
+                      <SkullIcon className={styles.iconEmpty} />{" "}
                       <span
                         className={styles.iconFill}
                         style={{ width: `${fill * 100}%` }}
                       >
-                        <svg
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className={styles.iconFull}
-                        >
-                          <g>
-                            <path fill="none" d="M0 0h24v24H0z" />
-                            <path d="M12 2c5.523 0 10 4.477 10 10v3.764a2 2 0 0 1-1.106 1.789L18 19v1a3 3 0 0 1-2.824 2.995L14.95 23a2.5 2.5 0 0 0 .044-.33L15 22.5V22a2 2 0 0 0-1.85-1.995L13 20h-2a2 2 0 0 0-1.995 1.85L9 22v.5c0 .171.017.339.05.5H9a3 3 0 0 1-3-3v-1l-2.894-1.447A2 2 0 0 1 2 15.763V12C2 6.477 6.477 2 12 2zm-4 9a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" />
-                          </g>
-                        </svg>
+                        <SkullIcon className={styles.iconFull} />
                       </span>
                     </span>
                   </button>
