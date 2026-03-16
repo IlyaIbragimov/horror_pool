@@ -3,6 +3,7 @@ import {
   getAllUserWatchlists,
   getFollowedWatchlists,
   deleteWatchlist,
+  renameWatchlist,
 } from "../../api/watchlist.api";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
@@ -61,8 +62,26 @@ export function UserWatchlistPage() {
     } catch (e) {
       setMyError(e instanceof Error ? e.message : String(e));
     } finally {
-      setMyLoading(false)
-      setFollowedLoading(false)
+      setMyLoading(false);
+      setFollowedLoading(false);
+    }
+  };
+
+  const handleRenameWatchlist = async (
+    watchlistId: number,
+    updatedTitle: string,
+  ) => {
+    if (!watchlistId) return;
+    setMyLoading(true);
+    setMyError(null);
+    try {
+      await renameWatchlist(watchlistId, updatedTitle);
+      await Promise.all([refreshMy(), refreshFollowed()]);
+    } catch (e) {
+      setMyError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setMyLoading(false);
+      setFollowedLoading(false);
     }
   };
 
@@ -102,13 +121,15 @@ export function UserWatchlistPage() {
                   refreshMy();
                   refreshFollowed();
                 }}
+                canRename={true}
+                onRename={(updatedTitle) =>
+                  handleRenameWatchlist(w.watchlistId, updatedTitle)
+                }
               />
               <div className={styles.list_actions_owner}>
                 <button
                   className={styles.owner_actions_delete}
-                  onClick={() => 
-                    handleDeleteWatchlist(w.watchlistId)
-                  }
+                  onClick={() => handleDeleteWatchlist(w.watchlistId)}
                 >
                   Delete Watchlist
                 </button>
