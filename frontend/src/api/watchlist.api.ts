@@ -152,3 +152,14 @@ export function deleteWatchlist(
     method: "DELETE"
   });
 }
+
+export function renameWatchlist(
+  watchlistId: number,
+  title: string
+): Promise<WatchlistDTO> {
+  return http<WatchlistDTO>(`/user/watchlist/${watchlistId}/update`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title }),
+  });
+}
