@@ -48,6 +48,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
+    @Transactional
     public WatchlistDTO createWatchlist(String title, boolean isPublic) {
         User user = getCurrentUser();
 
@@ -84,6 +85,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
+    @Transactional
     public WatchlistDTO updateWatchlist(Long watchlistId, String title) {
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
@@ -100,6 +102,7 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
+    @Transactional
     public WatchlistDTO deleteWatchlist(Long watchlistId) {
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
