@@ -5,6 +5,7 @@ import com.social.horror_pool.dto.WatchlistDTO;
 import com.social.horror_pool.dto.WatchlistItemDTO;
 import com.social.horror_pool.payload.CreateWatchlistRequest;
 import com.social.horror_pool.payload.RateWatchlistRequest;
+import com.social.horror_pool.payload.RenameWatchlistRequest;
 import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.service.WatchlistService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,10 +56,10 @@ public class WatchlistController {
     )
     @PutMapping("/{watchlistId}/update")
     public ResponseEntity<WatchlistDTO> renameWatchlist(
-           @Valid @RequestBody WatchlistDTO watchlistDTO,
+           @Valid @RequestBody RenameWatchlistRequest request,
             @PathVariable Long watchlistId
     ){
-        WatchlistDTO response = this.watchlistService.updateWatchlist(watchlistId ,watchlistDTO.getTitle());
+        WatchlistDTO response = this.watchlistService.updateWatchlist(watchlistId ,request.getTitle());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
