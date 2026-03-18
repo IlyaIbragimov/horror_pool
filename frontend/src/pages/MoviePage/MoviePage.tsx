@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { MovieDTO, CommentNode } from "../../types/movie.types";
+import type {
+  AdminMovieFormState,
+  AdminMoviePayload,
+} from "../../types/admin.types";
 import {
   fetchMovieById,
   addCommentToMovie,
@@ -8,6 +12,7 @@ import {
   editComment,
   deleteComment,
 } from "../../api/movie.api";
+import { deleteMovie, editMovie } from "../../api/admin.api";
 import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
 import { useAuth } from "../../auth/AuthContext";
@@ -15,6 +20,55 @@ import { buildCommentsTree } from "../../mappers/CommentTreeMapper";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
+
+function parseOptionalNumber(value: string): number | null | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const parsed = Number(trimmed);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function parseOptionalBoolean(value: string): boolean | null | undefined {
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed) return undefined;
+  if (trimmed === "true") return true;
+  if (trimmed === "false") return false;
+  return null;
+}
+
+function buildInitialEditForm(movie: MovieDTO): AdminMovieFormState {
+  return {
+    title: movie.title ?? "",
+    originalTitle: movie.originalTitle ?? "",
+    description: movie.description ?? "",
+    overview: movie.overview ?? "",
+    releaseDate: movie.releaseDate ?? "",
+    releaseYear:
+      movie.releaseYear === null || movie.releaseYear === undefined
+        ? ""
+        : String(movie.releaseYear),
+    posterPath: movie.posterPath ?? "",
+    backdropPath: movie.backdropPath ?? "",
+    voteAverage:
+      movie.voteAverage === null || movie.voteAverage === undefined
+        ? ""
+        : String(movie.voteAverage),
+    voteCount:
+      movie.voteCount === null || movie.voteCount === undefined
+        ? ""
+        : String(movie.voteCount),
+    popularity:
+      movie.popularity === null || movie.popularity === undefined
+        ? ""
+        : String(movie.popularity),
+    originalLanguage: movie.originalLanguage ?? "",
+    adult:
+      movie.adult === null || movie.adult === undefined ? "" : String(movie.adult),
+    video:
+      movie.video === null || movie.video === undefined ? "" : String(movie.video),
+    genreIds: movie.genres?.map((genre) => genre.genreId).join(", ") ?? "",
+  };
+}
 
 export function MoviePage() {
   const { movieId } = useParams();
@@ -24,12 +78,17 @@ export function MoviePage() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [commentContent, setCommentContent] = useState("");
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [activeForm, setActiveForm] = useState<{
     type: "reply" | "edit";
     commentId: number;
   } | null>(null);
   const [formText, setFormText] = useState("");
+  const [showMovieEditForm, setShowMovieEditForm] = useState(false);
+  const [movieActionLoading, setMovieActionLoading] = useState(false);
+  const [movieEditForm, setMovieEditForm] = useState<AdminMovieFormState | null>(
+    null,
+  );
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -134,10 +193,135 @@ export function MoviePage() {
     setError(null);
 
     fetchMovieById(id)
-      .then(setMovie)
+      .then((data) => {
+        setMovie(data);
+        setMovieEditForm(buildInitialEditForm(data));
+      })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setPageLoading(false));
   }, [movieId]);
+
+  const openMovieEditForm = () => {
+    if (!movie) return;
+    setMovieEditForm(buildInitialEditForm(movie));
+    setShowMovieEditForm(true);
+    setError(null);
+  };
+
+  const closeMovieEditForm = () => {
+    if (!movie) {
+      setShowMovieEditForm(false);
+      return;
+    }
+    setMovieEditForm(buildInitialEditForm(movie));
+    setShowMovieEditForm(false);
+  };
+
+  const handleMovieEditChange = (
+    field: keyof AdminMovieFormState,
+    value: string,
+  ) => {
+    setMovieEditForm((current) =>
+      current ? { ...current, [field]: value } : current,
+    );
+  };
+
+  const submitDeleteMovie = async () => {
+    if (!movieId || !isAdmin) return;
+    const numericMovieId = Number(movieId);
+    if (Number.isNaN(numericMovieId)) return;
+    if (!window.confirm("Delete this movie?")) return;
+
+    setMovieActionLoading(true);
+    setError(null);
+    try {
+      await deleteMovie(numericMovieId);
+      navigate("/movies", { replace: true });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete movie failed");
+    } finally {
+      setMovieActionLoading(false);
+    }
+  };
+
+  const submitMovieEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!movieId || !movieEditForm || !isAdmin) return;
+
+    const numericMovieId = Number(movieId);
+    if (Number.isNaN(numericMovieId)) return;
+
+    const releaseYear = parseOptionalNumber(movieEditForm.releaseYear);
+    const voteAverage = parseOptionalNumber(movieEditForm.voteAverage);
+    const voteCount = parseOptionalNumber(movieEditForm.voteCount);
+    const popularity = parseOptionalNumber(movieEditForm.popularity);
+    const adult = parseOptionalBoolean(movieEditForm.adult);
+    const video = parseOptionalBoolean(movieEditForm.video);
+
+    if (
+      releaseYear === null ||
+      voteAverage === null ||
+      voteCount === null ||
+      popularity === null
+    ) {
+      setError("Numeric fields must contain valid numbers.");
+      return;
+    }
+
+    if (adult === null || video === null) {
+      setError('Boolean fields must be either "true" or "false".');
+      return;
+    }
+
+    const genreIdValues = movieEditForm.genreIds.trim();
+    const genreIds = !genreIdValues
+      ? undefined
+      : genreIdValues
+          .split(",")
+          .map((value) => Number(value.trim()))
+          .filter((value) => !Number.isNaN(value));
+
+    if (genreIdValues && (!genreIds || genreIds.length === 0)) {
+      setError("Genre IDs must be comma-separated numbers.");
+      return;
+    }
+
+    const payload: AdminMoviePayload = {
+      title: movieEditForm.title.trim(),
+      originalTitle: movieEditForm.originalTitle.trim() || undefined,
+      description: movieEditForm.description.trim() || undefined,
+      overview: movieEditForm.overview.trim() || undefined,
+      releaseDate: movieEditForm.releaseDate || undefined,
+      releaseYear: releaseYear ?? undefined,
+      posterPath: movieEditForm.posterPath.trim() || undefined,
+      backdropPath: movieEditForm.backdropPath.trim() || undefined,
+      voteAverage: voteAverage ?? undefined,
+      voteCount: voteCount ?? undefined,
+      popularity: popularity ?? undefined,
+      originalLanguage: movieEditForm.originalLanguage.trim() || undefined,
+      adult: adult ?? undefined,
+      video: video ?? undefined,
+      genres: genreIds?.map((genreId) => ({
+        genreId,
+        name: "",
+        description: null,
+        posterPath: null,
+      })),
+    };
+
+    setMovieActionLoading(true);
+    setError(null);
+    try {
+      const updatedMovie = await editMovie(numericMovieId, payload);
+      setMovie(updatedMovie);
+      setMovieEditForm(buildInitialEditForm(updatedMovie));
+      setShowMovieEditForm(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Edit movie failed");
+    } finally {
+      setMovieActionLoading(false);
+    }
+  };
 
   if (pageLoading) return <div className={styles.page}>Loading...</div>;
   if (error)
@@ -278,7 +462,229 @@ export function MoviePage() {
               >
                 Add to watchlist
               </Link>
+              {isAdmin && (
+                <>
+                  <button
+                    type="button"
+                    className={styles.action_edit}
+                    onClick={openMovieEditForm}
+                    disabled={movieActionLoading}
+                  >
+                    Edit movie
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.action_delete}
+                    onClick={submitDeleteMovie}
+                    disabled={movieActionLoading}
+                  >
+                    Delete movie
+                  </button>
+                </>
+              )}
             </div>
+
+            {isAdmin && showMovieEditForm && movieEditForm && (
+              <form className={styles.movie_edit_form} onSubmit={submitMovieEdit}>
+                <div className={styles.movie_edit_grid}>
+                  <label className={styles.movie_edit_field}>
+                    <span>Title</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.title}
+                      onChange={(e) =>
+                        handleMovieEditChange("title", e.target.value)
+                      }
+                      required
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Original title</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.originalTitle}
+                      onChange={(e) =>
+                        handleMovieEditChange("originalTitle", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Release date</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      type="date"
+                      value={movieEditForm.releaseDate}
+                      onChange={(e) =>
+                        handleMovieEditChange("releaseDate", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Release year</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.releaseYear}
+                      onChange={(e) =>
+                        handleMovieEditChange("releaseYear", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Poster path</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.posterPath}
+                      onChange={(e) =>
+                        handleMovieEditChange("posterPath", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Backdrop path</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.backdropPath}
+                      onChange={(e) =>
+                        handleMovieEditChange("backdropPath", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Vote average</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.voteAverage}
+                      onChange={(e) =>
+                        handleMovieEditChange("voteAverage", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Vote count</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.voteCount}
+                      onChange={(e) =>
+                        handleMovieEditChange("voteCount", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Popularity</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.popularity}
+                      onChange={(e) =>
+                        handleMovieEditChange("popularity", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Original language</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.originalLanguage}
+                      onChange={(e) =>
+                        handleMovieEditChange("originalLanguage", e.target.value)
+                      }
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Adult</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.adult}
+                      onChange={(e) =>
+                        handleMovieEditChange("adult", e.target.value)
+                      }
+                      placeholder="true or false"
+                    />
+                  </label>
+
+                  <label className={styles.movie_edit_field}>
+                    <span>Video</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.video}
+                      onChange={(e) =>
+                        handleMovieEditChange("video", e.target.value)
+                      }
+                      placeholder="true or false"
+                    />
+                  </label>
+
+                  <label
+                    className={`${styles.movie_edit_field} ${styles.movie_edit_field_full}`}
+                  >
+                    <span>Overview</span>
+                    <textarea
+                      className={styles.movie_edit_textarea}
+                      value={movieEditForm.overview}
+                      onChange={(e) =>
+                        handleMovieEditChange("overview", e.target.value)
+                      }
+                      rows={4}
+                    />
+                  </label>
+
+                  <label
+                    className={`${styles.movie_edit_field} ${styles.movie_edit_field_full}`}
+                  >
+                    <span>Description</span>
+                    <textarea
+                      className={styles.movie_edit_textarea}
+                      value={movieEditForm.description}
+                      onChange={(e) =>
+                        handleMovieEditChange("description", e.target.value)
+                      }
+                      rows={5}
+                    />
+                  </label>
+
+                  <label
+                    className={`${styles.movie_edit_field} ${styles.movie_edit_field_full}`}
+                  >
+                    <span>Genre IDs</span>
+                    <input
+                      className={styles.movie_edit_input}
+                      value={movieEditForm.genreIds}
+                      onChange={(e) =>
+                        handleMovieEditChange("genreIds", e.target.value)
+                      }
+                      placeholder="1, 2, 3"
+                    />
+                  </label>
+                </div>
+
+                <div className={styles.movie_edit_actions}>
+                  <button
+                    type="submit"
+                    className={styles.movie_edit_submit}
+                    disabled={movieActionLoading}
+                  >
+                    {movieActionLoading ? "Saving..." : "Save changes"}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.movie_edit_cancel}
+                    onClick={closeMovieEditForm}
+                    disabled={movieActionLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>

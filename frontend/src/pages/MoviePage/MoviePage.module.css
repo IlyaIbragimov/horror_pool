@@ -131,3 +131,139 @@
 .k {
   opacity: 0.7;
 }
+
+.movie_page_actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.action_add,
+.action_edit,
+.action_delete,
+.movie_edit_submit,
+.movie_edit_cancel {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.action_add,
+.action_edit,
+.movie_edit_submit {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.action_delete {
+  background: rgba(126, 25, 25, 0.35);
+  color: rgba(255, 232, 232, 0.96);
+}
+
+.action_add:hover,
+.action_edit:hover,
+.action_delete:hover,
+.movie_edit_submit:hover,
+.movie_edit_cancel:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
+.movie_edit_cancel {
+  background: transparent;
+}
+
+.action_edit:disabled,
+.action_delete:disabled,
+.movie_edit_submit:disabled,
+.movie_edit_cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.movie_edit_form {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at top right, rgba(183, 55, 55, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(23, 30, 41, 0.96), rgba(13, 18, 27, 0.98));
+}
+
+.movie_edit_grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.movie_edit_field {
+  display: grid;
+  gap: 8px;
+}
+
+.movie_edit_field span {
+  color: rgba(255, 239, 239, 0.84);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.movie_edit_field_full {
+  grid-column: 1 / -1;
+}
+
+.movie_edit_input,
+.movie_edit_textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.94);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.movie_edit_input:focus,
+.movie_edit_textarea:focus {
+  border-color: rgba(255, 214, 214, 0.42);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.movie_edit_textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.movie_edit_actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+@media (max-width: 820px) {
+  .header {
+    grid-template-columns: 1fr;
+  }
+
+  .poster {
+    width: min(260px, 100%);
+  }
+
+  .movie_edit_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .movie_page_actions,
+  .movie_edit_actions {
+    flex-direction: column;
+  }
+}
