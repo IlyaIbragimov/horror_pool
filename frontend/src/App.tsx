@@ -9,6 +9,7 @@ import SignUpPage from "./pages/SignUpPage/SignUpPage.tsx";
 import SignInPage from "./pages/SignInPage/SignInPage";
 import { AddWatchlistPage } from "./pages/AddWatchlistPage/AddWatchlistPage.tsx";
 import { AppLayout } from "./components/AppLayout.tsx";
+import { AdminPage } from "./pages/AdminPage/AdminPage.tsx"
 import "./App.css";
 
 export function App() {
@@ -27,6 +28,7 @@ export function App() {
           <Route path="/watchlistPublic" element={<PublicWatchlistPage />} />
           <Route path="/watchlist/:watchlistId" element={<WatchlistPage />} />
           <Route path="/watchlistUser" element={<UserWatchlistPage />} />
+          <Route path="/adminPanel" element={<AdminPage />} />
         </Route>
 
         <Route path="/login" element={<SignInPage />} />
