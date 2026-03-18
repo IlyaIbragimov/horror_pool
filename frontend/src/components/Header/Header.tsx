@@ -10,7 +10,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
   const toggleMobileMenu = () => setMobileOpen((prev) => !prev);
-  const { user, loading, logout } = useAuth();
+  const { user, isAdmin, loading, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const onSubmitSearch = (e: React.FormEvent) => {
@@ -59,6 +59,11 @@ export default function Header() {
               <Link className="header-menu-item" to="/watchlistUser">
                 My Page
               </Link>
+              {isAdmin && (
+                <Link className="header-menu-item" to="/adminPanel">
+                  Admin Panel
+                </Link>
+              )}
             </>
           ) : (
             <>
@@ -144,6 +149,11 @@ export default function Header() {
             <Link to="/watchlistUser" onClick={() => setMobileOpen(false)}>
               My Page
             </Link>
+            {isAdmin && (
+              <Link to="/adminPanel" onClick={() => setMobileOpen(false)}>
+                Admin Panel
+              </Link>
+            )}
           </>
         ) : (
           <>
