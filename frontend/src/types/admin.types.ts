@@ -32,3 +32,21 @@ export type AdminGenrePayload = {
   description: string;
   posterPath?: string | null;
 };
+
+export type AdminMovieFormState = {
+  title: string;
+  originalTitle: string;
+  description: string;
+  overview: string;
+  releaseDate: string;
+  releaseYear: string;
+  posterPath: string;
+  backdropPath: string;
+  voteAverage: string;
+  voteCount: string;
+  popularity: string;
+  originalLanguage: string;
+  adult: string;
+  video: string;
+  genreIds: string;
+};

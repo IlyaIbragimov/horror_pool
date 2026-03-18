@@ -7,29 +7,12 @@ import {
 } from "../../api/admin.api";
 import type {
   AdminGenrePayload,
+  AdminMovieFormState,
   AdminMoviePayload,
 } from "../../types/admin.types";
 import styles from "./AdminPage.module.css";
 
 type AdminPanel = "user" | "movie" | "genre";
-
-type MovieFormState = {
-  title: string;
-  originalTitle: string;
-  description: string;
-  overview: string;
-  releaseDate: string;
-  releaseYear: string;
-  posterPath: string;
-  backdropPath: string;
-  voteAverage: string;
-  voteCount: string;
-  popularity: string;
-  originalLanguage: string;
-  adult: string;
-  video: string;
-  genreIds: string;
-};
 
 type GenreFormState = {
   name: string;
@@ -37,7 +20,7 @@ type GenreFormState = {
   posterPath: string;
 };
 
-const initialMovieForm: MovieFormState = {
+const initialMovieForm: AdminMovieFormState = {
   title: "",
   originalTitle: "",
   description: "",
@@ -103,7 +86,7 @@ export function AdminPage() {
   const [userMessage, setUserMessage] = useState<string | null>(null);
   const [userError, setUserError] = useState<string | null>(null);
 
-  const [movieForm, setMovieForm] = useState<MovieFormState>(initialMovieForm);
+  const [movieForm, setMovieForm] = useState<AdminMovieFormState>(initialMovieForm);
   const [movieLoading, setMovieLoading] = useState(false);
   const [movieMessage, setMovieMessage] = useState<string | null>(null);
   const [movieError, setMovieError] = useState<string | null>(null);
@@ -147,7 +130,7 @@ export function AdminPage() {
   };
 
   const handleMovieChange = (
-    field: keyof MovieFormState,
+    field: keyof AdminMovieFormState,
     value: string,
   ) => {
     setMovieForm((current) => ({ ...current, [field]: value }));
