@@ -21,3 +21,14 @@ export function signUp(payload: SignUpRequest) {
 export async function getUsername() {
   return http<{ username: string }>("/username", { method: "GET" });
 }
+
+export async function getCurrentUserInfo() {
+  return http<{
+    userId: number;
+    username: string;
+    email: string;
+    roles: string[];
+    enabled: boolean;
+    locked: boolean;
+  }>("/user", { method: "GET" });
+}
