@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getUsername, signOut as apiSignOut } from "../api/auth.api";
+import { getCurrentUserInfo, signOut as apiSignOut } from "../api/auth.api";
 
 type AuthState = {
   user: string | null;
+  roles: string[];
+  isAdmin: boolean;
   loading: boolean;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
@@ -13,14 +15,17 @@ const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<string | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
     try {
-      const data = await getUsername();
+      const data = await getCurrentUserInfo();
       setUser(data.username);
+      setRoles(data.roles ?? []);
     } catch {
       setUser(null);
+      setRoles([]);
     } finally {
       setLoading(false);
     }
@@ -31,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await apiSignOut();
     } finally {
       setUser(null);
+      setRoles([]);
     }
   };
 
@@ -38,7 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refresh();
   }, []);
 
-  const value = useMemo(() => ({ user, loading, refresh, logout, setUser }), [user, loading]);
+  const isAdmin = roles.includes("ROLE_ADMIN");
+
+  const value = useMemo(
+    () => ({ user, roles, isAdmin, loading, refresh, logout, setUser }),
+    [user, roles, isAdmin, loading],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
