@@ -41,8 +41,4 @@ public class AdminController {
         UserInfoResponse response = this.adminService.disableUser(userId);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
-
-
-
-
 }

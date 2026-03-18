@@ -49,6 +49,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public MovieDTO addMovie(MovieDTO movieDTO) {
         Movie movieExistingWithSameTitle = this.movieRepository.findByTitle(movieDTO.getTitle());
         if (movieExistingWithSameTitle != null && movieExistingWithSameTitle.getReleaseDate().equals(movieDTO.getReleaseDate()))
