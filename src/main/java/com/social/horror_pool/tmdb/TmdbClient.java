@@ -63,7 +63,7 @@ public class TmdbClient {
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl)
                 .path("/discover/movie")
-                .queryParam("with_genre", 27)
+                .queryParam("with_genres", 27)
                 .queryParam("page", page)
                 .queryParam("language", language)
                 .toUriString();
