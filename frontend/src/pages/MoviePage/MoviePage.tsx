@@ -63,9 +63,13 @@ function buildInitialEditForm(movie: MovieDTO): AdminMovieFormState {
         : String(movie.popularity),
     originalLanguage: movie.originalLanguage ?? "",
     adult:
-      movie.adult === null || movie.adult === undefined ? "" : String(movie.adult),
+      movie.adult === null || movie.adult === undefined
+        ? ""
+        : String(movie.adult),
     video:
-      movie.video === null || movie.video === undefined ? "" : String(movie.video),
+      movie.video === null || movie.video === undefined
+        ? ""
+        : String(movie.video),
     genreIds: movie.genres?.map((genre) => genre.genreId).join(", ") ?? "",
   };
 }
@@ -86,9 +90,8 @@ export function MoviePage() {
   const [formText, setFormText] = useState("");
   const [showMovieEditForm, setShowMovieEditForm] = useState(false);
   const [movieActionLoading, setMovieActionLoading] = useState(false);
-  const [movieEditForm, setMovieEditForm] = useState<AdminMovieFormState | null>(
-    null,
-  );
+  const [movieEditForm, setMovieEditForm] =
+    useState<AdminMovieFormState | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -485,7 +488,10 @@ export function MoviePage() {
             </div>
 
             {isAdmin && showMovieEditForm && movieEditForm && (
-              <form className={styles.movie_edit_form} onSubmit={submitMovieEdit}>
+              <form
+                className={styles.movie_edit_form}
+                onSubmit={submitMovieEdit}
+              >
                 <div className={styles.movie_edit_grid}>
                   <label className={styles.movie_edit_field}>
                     <span>Title</span>
@@ -594,7 +600,10 @@ export function MoviePage() {
                       className={styles.movie_edit_input}
                       value={movieEditForm.originalLanguage}
                       onChange={(e) =>
-                        handleMovieEditChange("originalLanguage", e.target.value)
+                        handleMovieEditChange(
+                          "originalLanguage",
+                          e.target.value,
+                        )
                       }
                     />
                   </label>
