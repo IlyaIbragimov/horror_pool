@@ -4,6 +4,16 @@ import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import styles from "./PublicWatchlistPage.module.css";
 
+const publicWatchlistsCache = new Map<string, WatchlistAllResponse>();
+
+function buildCacheKey(params: {
+  page: number;
+  size: number;
+  order: "asc" | "desc";
+}) {
+  return JSON.stringify(params);
+}
+
 export function PublicWatchlistPage() {
   const [page, setPage] = useState(1);
   const [size] = useState(18);
@@ -12,11 +22,27 @@ export function PublicWatchlistPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = () => {
+  const refresh = (force = false) => {
+    const params = { page: page - 1, size, order: "asc" as const };
+    const cacheKey = buildCacheKey(params);
+
+    if (!force) {
+      const cachedData = publicWatchlistsCache.get(cacheKey);
+      if (cachedData) {
+        setData(cachedData);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
-    getAllPublicWatchlists({ page: page - 1, size, order: "asc" })
-      .then(setData)
+    getAllPublicWatchlists(params)
+      .then((result) => {
+        publicWatchlistsCache.set(cacheKey, result);
+        setData(result);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   };
@@ -58,7 +84,7 @@ export function PublicWatchlistPage() {
             <WatchlistCard
               watchlist={w}
               onChanged={() => {
-                refresh();
+                refresh(true);
               }}
             />
           </div>

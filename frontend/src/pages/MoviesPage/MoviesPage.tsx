@@ -5,13 +5,23 @@ import { MovieCard } from "../../components/MovieCard/MovieCard";
 import styles from "./MoviesPage.module.css";
 import { Link, useSearchParams } from "react-router-dom";
 
+const moviesCache = new Map<string, MovieAllResponse>();
+
+function buildCacheKey(params: {
+  page: number;
+  size: number;
+  sort: "title" | "popularity" | "releaseDate" | "voteAverage";
+  order: "asc" | "desc";
+  keyword?: string;
+}) {
+  return JSON.stringify(params);
+}
+
 export function MoviesPage() {
   
   const [data, setData] = useState<MovieAllResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sort] = useState<"title" | "popularity" | "releaseDate" | "voteAverage">("title");
-  const [order] = useState<"asc" | "desc">("asc");
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -31,17 +41,29 @@ export function MoviesPage() {
   const goToPage = (p: number) => setQuery({ page: String(p) });
 
   useEffect(() => {
+    const paramsBase = { page: pageParam - 1, size: sizeParam, sort: sortParam, order: orderParam };
+    const cacheKey = buildCacheKey({ ...paramsBase, keyword });
+    const cachedData = moviesCache.get(cacheKey);
+
+    if (cachedData) {
+      setData(cachedData);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
-
-    const paramsBase = { page: pageParam - 1, size: sizeParam, sort: sortParam, order: orderParam };
 
     const promise = keyword
       ? searchMovie({ ...paramsBase, keyword })
       : fetchMovies(paramsBase);
 
     promise
-      .then(setData)
+      .then((result) => {
+        moviesCache.set(cacheKey, result);
+        setData(result);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, [keyword, pageParam, sizeParam, sortParam, orderParam]);
@@ -52,21 +74,21 @@ export function MoviesPage() {
 
         <nav className={styles.nav}>
         <button
-            className={`${styles.navItem} ${sort === "releaseDate" && order === "desc" ? styles.active : ""}`}
+            className={`${styles.navItem} ${sortParam === "releaseDate" && orderParam === "desc" ? styles.active : ""}`}
             onClick={() => setQuery({ sort: "releaseDate", order: "desc", page: "1" })}
             >
             Newest
         </button>
 
         <button
-            className={`${styles.navItem} ${sort === "popularity" && order === "desc" ? styles.active : ""}`}
+            className={`${styles.navItem} ${sortParam === "popularity" && orderParam === "desc" ? styles.active : ""}`}
             onClick={() => setQuery({ sort: "popularity", order: "desc", page: "1" })}
             >
            Popular
         </button>
 
         <button
-            className={`${styles.navItem} ${sort === "voteAverage" && order === "desc" ? styles.active : ""}`}
+            className={`${styles.navItem} ${sortParam === "voteAverage" && orderParam === "desc" ? styles.active : ""}`}
             onClick={() => setQuery({ sort: "voteAverage", order: "desc", page: "1" })}
             >
            Most Rated
@@ -97,7 +119,7 @@ export function MoviesPage() {
       <div className={styles.grid}>
         {data?.movies.map((m) => (
          <Link key={m.movieId} to={`/movies/${m.movieId}`} className={styles.cardLink}>
-            <MovieCard key={m.movieId} movie={m} />
+            <MovieCard movie={m} />
          </Link>
         ))}
       </div>
