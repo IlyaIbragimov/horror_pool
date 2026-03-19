@@ -16,6 +16,7 @@ export function AddWatchlistPage() {
   const [data, setData] = useState<WatchlistAllResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,6 +55,16 @@ export function AddWatchlistPage() {
     refresh();
   }, [page, size]);
 
+  useEffect(() => {
+    if (!successMessage) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setSuccessMessage(null);
+    }, 2500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [successMessage]);
+
   const [watchlist_title, setWatchlistTitle] = useState("");
   const [isPublic, setPublic] = useState(true);
 
@@ -61,6 +72,7 @@ export function AddWatchlistPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       await createWatchlist(watchlist_title, isPublic);
@@ -77,10 +89,15 @@ export function AddWatchlistPage() {
 
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     try {
       await addMovieToWatchlist(watchlistId, movieId);
       await refresh();
+      const watchlistTitle =
+        data?.watchlistDTOS.find((w) => w.watchlistId === watchlistId)?.title ??
+        "watchlist";
+      setSuccessMessage(`Movie added to "${watchlistTitle}"`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Adding movie failed");
     } finally {
@@ -97,6 +114,11 @@ export function AddWatchlistPage() {
       role="dialog"
     >
       <div className={styles.modal}>
+        {successMessage && (
+          <div className={styles.successToast} role="status" aria-live="polite">
+            {successMessage}
+          </div>
+        )}
         <div className={styles.header}>
           <h1 className={styles.title}>Add to watchlist...</h1>
           <button
