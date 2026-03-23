@@ -9,13 +9,28 @@ import SignUpPage from "./pages/SignUpPage/SignUpPage.tsx";
 import SignInPage from "./pages/SignInPage/SignInPage";
 import { AddWatchlistPage } from "./pages/AddWatchlistPage/AddWatchlistPage.tsx";
 import { AppLayout } from "./components/AppLayout.tsx";
-import { AdminPage } from "./pages/AdminPage/AdminPage.tsx"
+import { AdminPage } from "./pages/AdminPage/AdminPage.tsx";
+import { useAuth } from "./auth/AuthContext";
 import "./App.css";
 
 export function App() {
   const location = useLocation();
   const state = location.state as { backgroundLocation?: Location } | null;
   const backgroundLocation = state?.backgroundLocation;
+
+  function ProtectedRoute({ children }: { children: React.ReactNode }) {
+    const { user, loading } = useAuth();
+    if (loading) return null;
+    if (!user) return <Navigate to="/movies" replace />;
+    return <>{children}</>;
+  }
+
+  function AdminRoute({ children }: { children: React.ReactNode }) {
+    const { user, isAdmin, loading } = useAuth();
+    if (loading) return null;
+    if (!user || !isAdmin) return <Navigate to="/movies" replace />;
+    return <>{children}</>;
+  }
 
   return (
     <>
@@ -27,8 +42,22 @@ export function App() {
           <Route path="/genres" element={<GenresPage />} />
           <Route path="/watchlistPublic" element={<PublicWatchlistPage />} />
           <Route path="/watchlist/:watchlistId" element={<WatchlistPage />} />
-          <Route path="/watchlistUser" element={<UserWatchlistPage />} />
-          <Route path="/adminPanel" element={<AdminPage />} />
+          <Route
+            path="/watchlistUser"
+            element={
+              <ProtectedRoute>
+                <UserWatchlistPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/adminPanel"
+            element={
+              <AdminRoute>
+                <AdminPage />
+              </AdminRoute>
+            }
+          />
         </Route>
 
         <Route path="/login" element={<SignInPage />} />
