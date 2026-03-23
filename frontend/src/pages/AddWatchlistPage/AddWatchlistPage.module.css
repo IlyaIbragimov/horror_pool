@@ -20,12 +20,12 @@
 }
 
 .successToast {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
-  max-width: min(320px, calc(100% - 32px));
-  padding: 12px 14px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2100;
+  width: min(440px, calc(100% - 40px));
+  padding: 14px 18px;
   border-radius: 14px;
   border: 1px solid rgba(163, 255, 214, 0.28);
   background:
@@ -197,7 +197,7 @@
     top: 12px;
     right: 12px;
     left: 12px;
-    max-width: none;
+    width: auto;
   }
 
   .new_watchlist {
