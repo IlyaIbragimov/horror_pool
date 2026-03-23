@@ -4,6 +4,8 @@ import {
   createWatchlist,
   addMovieToWatchlist,
 } from "../../api/watchlist.api";
+import { invalidatePublicWatchlistsCache } from "../../cache/publicWatchlistsCache";
+import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -76,6 +78,10 @@ export function AddWatchlistPage() {
 
     try {
       await createWatchlist(watchlist_title, isPublic);
+      invalidateUserWatchlists();
+      if (isPublic) {
+        invalidatePublicWatchlistsCache();
+      }
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Watchlist creation failed");
@@ -93,6 +99,8 @@ export function AddWatchlistPage() {
 
     try {
       await addMovieToWatchlist(watchlistId, movieId);
+      invalidateUserWatchlists();
+      invalidatePublicWatchlistsCache();
       await refresh();
       const watchlistTitle =
         data?.watchlistDTOS.find((w) => w.watchlistId === watchlistId)?.title ??

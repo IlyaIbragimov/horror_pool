@@ -12,6 +12,9 @@ import {
   editComment,
   deleteComment,
 } from "../../api/movie.api";
+import { invalidateMoviesCache } from "../../cache/moviesCache";
+import { invalidatePublicWatchlistsCache } from "../../cache/publicWatchlistsCache";
+import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation";
 import { deleteMovie, editMovie } from "../../api/admin.api";
 import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
@@ -239,6 +242,9 @@ export function MoviePage() {
     setError(null);
     try {
       await deleteMovie(numericMovieId);
+      invalidateMoviesCache();
+      invalidatePublicWatchlistsCache();
+      invalidateUserWatchlists();
       navigate("/movies", { replace: true });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete movie failed");
@@ -316,6 +322,9 @@ export function MoviePage() {
     setError(null);
     try {
       const updatedMovie = await editMovie(numericMovieId, payload);
+      invalidateMoviesCache();
+      invalidatePublicWatchlistsCache();
+      invalidateUserWatchlists();
       setMovie(updatedMovie);
       setMovieEditForm(buildInitialEditForm(updatedMovie));
       setShowMovieEditForm(false);

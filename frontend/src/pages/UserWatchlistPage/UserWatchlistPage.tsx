@@ -5,6 +5,9 @@ import {
   deleteWatchlist,
   renameWatchlist,
 } from "../../api/watchlist.api";
+import { subscribeUserWatchlistsInvalidation } from "../../cache/cacheInvalidation";
+import { invalidatePublicWatchlistsCache } from "../../cache/publicWatchlistsCache";
+import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import styles from "./UserWatchlistPage.module.css";
@@ -27,7 +30,7 @@ export function UserWatchlistPage() {
   const refreshMy = () => {
     setMyLoading(true);
     setMyError(null);
-    getAllUserWatchlists({ page: myPage - 1, size, order: "asc" })
+    return getAllUserWatchlists({ page: myPage - 1, size, order: "asc" })
       .then(setMyData)
       .catch((e) => setMyError(e instanceof Error ? e.message : String(e)))
       .finally(() => setMyLoading(false));
@@ -36,7 +39,7 @@ export function UserWatchlistPage() {
   const refreshFollowed = () => {
     setFollowedLoading(true);
     setFollowedError(null);
-    getFollowedWatchlists({ page: followedPage - 1, size, order: "asc" })
+    return getFollowedWatchlists({ page: followedPage - 1, size, order: "asc" })
       .then(setFollowedData)
       .catch((e) =>
         setFollowedError(e instanceof Error ? e.message : String(e)),
@@ -52,12 +55,21 @@ export function UserWatchlistPage() {
     refreshFollowed();
   }, [followedPage, size]);
 
+  useEffect(() => {
+    return subscribeUserWatchlistsInvalidation(() => {
+      refreshMy();
+      refreshFollowed();
+    });
+  }, [myPage, followedPage, size]);
+
   const handleDeleteWatchlist = async (watchlistId: number) => {
     if (!watchlistId) return;
     setMyLoading(true);
     setMyError(null);
     try {
       await deleteWatchlist(watchlistId);
+      invalidateUserWatchlists();
+      invalidatePublicWatchlistsCache();
       await Promise.all([refreshMy(), refreshFollowed()]);
     } catch (e) {
       setMyError(e instanceof Error ? e.message : String(e));
@@ -76,6 +88,8 @@ export function UserWatchlistPage() {
     setMyError(null);
     try {
       await renameWatchlist(watchlistId, updatedTitle);
+      invalidateUserWatchlists();
+      invalidatePublicWatchlistsCache();
       await Promise.all([refreshMy(), refreshFollowed()]);
     } catch (e) {
       setMyError(e instanceof Error ? e.message : String(e));

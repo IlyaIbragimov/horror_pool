@@ -1,21 +1,10 @@
 import { useEffect, useState } from "react";
 import { fetchMovies, searchMovie } from "../../api/movie.api";
+import { getCachedMovies, setCachedMovies } from "../../cache/moviesCache";
 import type { MovieAllResponse } from "../../types/movie.types";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
 import styles from "./MoviesPage.module.css";
 import { Link, useSearchParams } from "react-router-dom";
-
-const moviesCache = new Map<string, MovieAllResponse>();
-
-function buildCacheKey(params: {
-  page: number;
-  size: number;
-  sort: "title" | "popularity" | "releaseDate" | "voteAverage";
-  order: "asc" | "desc";
-  keyword?: string;
-}) {
-  return JSON.stringify(params);
-}
 
 export function MoviesPage() {
   
@@ -42,8 +31,8 @@ export function MoviesPage() {
 
   useEffect(() => {
     const paramsBase = { page: pageParam - 1, size: sizeParam, sort: sortParam, order: orderParam };
-    const cacheKey = buildCacheKey({ ...paramsBase, keyword });
-    const cachedData = moviesCache.get(cacheKey);
+    const cacheParams = { ...paramsBase, keyword };
+    const cachedData = getCachedMovies(cacheParams);
 
     if (cachedData) {
       setData(cachedData);
@@ -61,7 +50,7 @@ export function MoviesPage() {
 
     promise
       .then((result) => {
-        moviesCache.set(cacheKey, result);
+        setCachedMovies(cacheParams, result);
         setData(result);
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))

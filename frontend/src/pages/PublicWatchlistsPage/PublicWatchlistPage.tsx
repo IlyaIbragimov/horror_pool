@@ -1,18 +1,13 @@
 import { useEffect, useState } from "react";
 import { getAllPublicWatchlists } from "../../api/watchlist.api";
+import {
+  getCachedPublicWatchlists,
+  setCachedPublicWatchlists,
+} from "../../cache/publicWatchlistsCache";
+import { subscribePublicWatchlistsInvalidation } from "../../cache/cacheInvalidation";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import styles from "./PublicWatchlistPage.module.css";
-
-const publicWatchlistsCache = new Map<string, WatchlistAllResponse>();
-
-function buildCacheKey(params: {
-  page: number;
-  size: number;
-  order: "asc" | "desc";
-}) {
-  return JSON.stringify(params);
-}
 
 export function PublicWatchlistPage() {
   const [page, setPage] = useState(1);
@@ -24,10 +19,9 @@ export function PublicWatchlistPage() {
 
   const refresh = (force = false) => {
     const params = { page: page - 1, size, order: "asc" as const };
-    const cacheKey = buildCacheKey(params);
 
     if (!force) {
-      const cachedData = publicWatchlistsCache.get(cacheKey);
+      const cachedData = getCachedPublicWatchlists(params);
       if (cachedData) {
         setData(cachedData);
         setError(null);
@@ -40,7 +34,7 @@ export function PublicWatchlistPage() {
     setError(null);
     getAllPublicWatchlists(params)
       .then((result) => {
-        publicWatchlistsCache.set(cacheKey, result);
+        setCachedPublicWatchlists(params, result);
         setData(result);
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
@@ -49,6 +43,12 @@ export function PublicWatchlistPage() {
 
   useEffect(() => {
     refresh();
+  }, [page, size]);
+
+  useEffect(() => {
+    return subscribePublicWatchlistsInvalidation(() => {
+      refresh(true);
+    });
   }, [page, size]);
 
   return (
