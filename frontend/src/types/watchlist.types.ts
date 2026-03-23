@@ -5,7 +5,7 @@ export type WatchlistItemDTO = {
   movieDTO: MovieDTO;
   watchlistId: number;
   watched: boolean;
-}
+};
 
 export type WatchlistDTO = {
   watchlistId: number;
@@ -15,17 +15,18 @@ export type WatchlistDTO = {
   rateCount: number | null;
   watchlistItemDTOS: WatchlistItemDTO[];
   followersCount: number;
-  followedByMe: boolean
-}
+  followedByMe: boolean;
+  ownedByMe: boolean;
+};
 
 export type WatchlistAllResponse = {
-    watchlistDTOS: WatchlistDTO[];
-    pageNumber: number;
-    pageSize: number;
-    totalElements?: number;
-    totalPages: number;
-    lastPage: boolean
-}
+  watchlistDTOS: WatchlistDTO[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements?: number;
+  totalPages: number;
+  lastPage: boolean;
+};
 
 export type WatchlistQuery = {
   page?: number;
@@ -34,14 +35,14 @@ export type WatchlistQuery = {
 };
 
 export type WatchlistItemsByWatchlistIdResponse = {
-    title: string;
-    items: WatchlistItemDTO[];
-    pageNumber: number;
-    pageSize: number;
-    totalElements?: number;
-    totalPages: number;
-    lastPage: boolean
-}
+  title: string;
+  items: WatchlistItemDTO[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements?: number;
+  totalPages: number;
+  lastPage: boolean;
+};
 
 export type WatchlistItemsByWatchlistIdQuery = {
   watched?: boolean;

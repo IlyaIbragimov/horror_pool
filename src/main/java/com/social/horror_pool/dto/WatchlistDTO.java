@@ -35,4 +35,6 @@ public class WatchlistDTO {
     private int followersCount;
 
     private boolean followedByMe;
+
+    private boolean ownedByMe;
 }
