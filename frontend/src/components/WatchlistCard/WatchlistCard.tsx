@@ -202,7 +202,7 @@ export function WatchlistCard({
           </ul>
         </div>
 
-        {!loading && user && (
+        {!loading && user && !watchlist.ownedByMe && (
           <div className={styles.watchlist_actions}>
             <button
               type="button"
