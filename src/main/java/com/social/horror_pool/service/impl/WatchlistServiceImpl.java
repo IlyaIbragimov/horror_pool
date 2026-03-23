@@ -38,7 +38,10 @@ public class WatchlistServiceImpl implements WatchlistService {
 
     private final ModelMapper modelMapper;
 
-    public WatchlistServiceImpl(WatchlistRepository watchlistRepository, WatchlistItemRepository watchlistItemRepository, UserRepository userRepository, MovieRepository movieRepository, UserMovieWatchedStateRepository userMovieWatchedStateRepository, ModelMapper modelMapper) {
+    public WatchlistServiceImpl(WatchlistRepository watchlistRepository,
+            WatchlistItemRepository watchlistItemRepository, UserRepository userRepository,
+            MovieRepository movieRepository, UserMovieWatchedStateRepository userMovieWatchedStateRepository,
+            ModelMapper modelMapper) {
         this.watchlistRepository = watchlistRepository;
         this.watchlistItemRepository = watchlistItemRepository;
         this.userRepository = userRepository;
@@ -56,7 +59,8 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         if (!usersWatchlist.isEmpty()) {
             for (Watchlist watchlist : usersWatchlist) {
-                if (watchlist.getTitle().equals(title)) throw new APIException("You already have a watchlist with this title");
+                if (watchlist.getTitle().equals(title))
+                    throw new APIException("You already have a watchlist with this title");
             }
         }
 
@@ -75,7 +79,8 @@ public class WatchlistServiceImpl implements WatchlistService {
         User user = getCurrentUser();
 
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
-                ? Sort.by("title").ascending() : Sort.by("title").descending();
+                ? Sort.by("title").ascending()
+                : Sort.by("title").descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
@@ -179,7 +184,8 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public WatchlistItemsByWatchlistIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched, Integer pageNumber, Integer pageSize, String order) {
+    public WatchlistItemsByWatchlistIdResponse getWatchlistItemsByWatchlistId(Long watchlistId, Boolean watched,
+            Integer pageNumber, Integer pageSize, String order) {
 
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
@@ -207,8 +213,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                     .collect(java.util.stream.Collectors.toMap(
                             state -> state.getMovie().getMovieId(),
                             UserMovieWatchedState::isWatched,
-                            (left, right) -> left
-                    ));
+                            (left, right) -> left));
         }
 
         final Map<Long, Boolean> watchedByMovieId = watchedByMovieIdTmp;
@@ -216,14 +221,17 @@ public class WatchlistServiceImpl implements WatchlistService {
         Stream<WatchlistItem> watchlistItemStream = watchlistItems.stream();
 
         if (Boolean.TRUE.equals(watched)) {
-            watchlistItemStream = watchlistItemStream.filter(item -> watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
+            watchlistItemStream = watchlistItemStream
+                    .filter(item -> watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
         }
 
         if (Boolean.FALSE.equals(watched)) {
-            watchlistItemStream = watchlistItemStream.filter(item -> !watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
+            watchlistItemStream = watchlistItemStream
+                    .filter(item -> !watchedByMovieId.getOrDefault(item.getMovie().getMovieId(), false));
         }
 
-        Comparator<WatchlistItem> comparator = Comparator.comparing(watchlistItem -> watchlistItem.getMovie().getTitle().toLowerCase());
+        Comparator<WatchlistItem> comparator = Comparator
+                .comparing(watchlistItem -> watchlistItem.getMovie().getTitle().toLowerCase());
 
         if (!order.equals("asc")) {
             comparator = comparator.reversed();
@@ -302,7 +310,8 @@ public class WatchlistServiceImpl implements WatchlistService {
     public WatchlistAllResponse getAllPublicWatchlists(Integer pageNumber, Integer pageSize, String order) {
 
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
-                ? Sort.by("title").ascending() : Sort.by("title").descending();
+                ? Sort.by("title").ascending()
+                : Sort.by("title").descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
@@ -351,7 +360,8 @@ public class WatchlistServiceImpl implements WatchlistService {
         User user = getCurrentUser();
 
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
-                ? Sort.by("title").ascending() : Sort.by("title").descending();
+                ? Sort.by("title").ascending()
+                : Sort.by("title").descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
@@ -419,7 +429,8 @@ public class WatchlistServiceImpl implements WatchlistService {
         User user = getCurrentUser();
 
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
-                ? Sort.by("title").ascending() : Sort.by("title").descending();
+                ? Sort.by("title").ascending()
+                : Sort.by("title").descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
 
@@ -448,10 +459,9 @@ public class WatchlistServiceImpl implements WatchlistService {
                 .orElseThrow(() -> new APIException("Please, sign in"));
     }
 
-
-    private WatchlistAllResponse generateWatchlistAllResponse(Page<Watchlist> page, Integer pageNumber, Integer pageSize, Optional<User> currentUser) {
+    private WatchlistAllResponse generateWatchlistAllResponse(Page<Watchlist> page, Integer pageNumber,
+            Integer pageSize, Optional<User> currentUser) {
         List<Watchlist> watchlists = page.getContent();
-
 
         List<WatchlistDTO> watchlistDTOS = watchlists.stream()
                 .map(watchlist -> getWatchlistDTO(watchlist, currentUser)).toList();
@@ -484,8 +494,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                     .collect(java.util.stream.Collectors.toMap(
                             state -> state.getMovie().getMovieId(),
                             UserMovieWatchedState::isWatched,
-                            (left, right) -> left
-                    ));
+                            (left, right) -> left));
         }
 
         final Map<Long, Boolean> watchedByMovieId = watchedByMovieIdTmp;
@@ -505,6 +514,11 @@ public class WatchlistServiceImpl implements WatchlistService {
                 .orElse(false);
 
         watchlistDTO.setFollowedByMe(followedByMe);
+        boolean ownedByMe = currentUser
+                .map(u -> watchlist.getUser() != null && u.getUserId().equals(watchlist.getUser().getUserId()))
+                .orElse(false);
+
+        watchlistDTO.setOwnedByMe(ownedByMe);
         return watchlistDTO;
     }
 }
