@@ -245,6 +245,18 @@ public class MovieServiceImpl implements MovieService {
         return response;
     }
 
+    @Override
+    public MovieAllResponse getMoviesByGenre(Long genreId, Integer pageNumber, Integer pageSize, String sortBy,  String order) {
+        Genre genre= this.genreRepository.findById(genreId)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre", "genre", genreId));
+
+        Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
+        Page<Movie> page = this.movieRepository.findByGenres_GenreId(genreId, pageable);
+
+        return generateMovieAllResponse(page, pageNumber, pageSize);
+    }
+
     private MovieAllResponse generateMovieAllResponse(Page<Movie> page, Integer pageNumber, Integer pageSize){
         List<Movie> moviesSorted = page.getContent();
 
