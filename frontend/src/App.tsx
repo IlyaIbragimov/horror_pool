@@ -10,6 +10,7 @@ import SignInPage from "./pages/SignInPage/SignInPage";
 import { AddWatchlistPage } from "./pages/AddWatchlistPage/AddWatchlistPage.tsx";
 import { AppLayout } from "./components/AppLayout.tsx";
 import { AdminPage } from "./pages/AdminPage/AdminPage.tsx";
+import { GenrePage } from "./pages/GenrePage/GenrePage.tsx";
 import { useAuth } from "./auth/AuthContext";
 import "./App.css";
 
@@ -42,6 +43,7 @@ export function App() {
           <Route path="/genres" element={<GenresPage />} />
           <Route path="/watchlistPublic" element={<PublicWatchlistPage />} />
           <Route path="/watchlist/:watchlistId" element={<WatchlistPage />} />
+          <Route path="/genre/:genreId" element={<GenrePage />} />
           <Route
             path="/watchlistUser"
             element={
