@@ -67,7 +67,6 @@ public class MovieController {
             @RequestParam(name = "adult", required = false) Boolean adult,
             @RequestParam(name = "voteAverage", required = false) Double voteAverage,
             @RequestParam(name = "popularity", required = false) Double popularity
-
             ) {
         MovieAllResponse result = this.movieService.getMoviesByKeyword(pageNumber, pageSize, sort, order, keyword,  year, language,  adult, voteAverage, popularity);
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
@@ -165,6 +164,22 @@ public class MovieController {
     public ResponseEntity<MovieDTO> getMovieByTmdbId(@PathVariable Long tmdbId){
         MovieDTO response = this.movieService.getMovieByTmdbId(tmdbId);
         return new ResponseEntity<MovieDTO>(response, HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Return the movies by it's genre",
+            description = "Return the movies by it's genre. Available for public"
+    )
+    @GetMapping("public/movie/genre/{genreId}")
+    public ResponseEntity<MovieAllResponse> getMoviesByGenre(
+            @PathVariable Long genreId,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam (name = "sort", defaultValue = AppConstants.SORT_TYPE_MOVIE_DEFAULT, required = false) String sort,
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+        ) {
+        MovieAllResponse response = this.movieService.getMoviesByGenre(genreId, pageNumber, pageSize, sort, order);
+        return new ResponseEntity<MovieAllResponse>(response, HttpStatus.OK);
     }
 
     @Operation(
