@@ -88,3 +88,19 @@ export function deleteComment(
   });
 }
 
+export function fetchMoviesByGenre(
+  genreId: number,
+  params: MoviesQuery = {},
+): Promise<MovieAllResponse> {
+  const search = new URLSearchParams();
+
+  if (params.page !== undefined) search.set("page", String(params.page));
+  if (params.size !== undefined) search.set("size", String(params.size));
+  if (params.sort) search.set("sort", params.sort);
+  if (params.order) search.set("order", params.order);
+
+  const qs = search.toString();
+  const url = `/public/movie/genre/${genreId}${qs ? `?${qs}` : ""}`;
+
+  return http<MovieAllResponse>(url);
+}
