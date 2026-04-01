@@ -5,9 +5,6 @@ import { useAuth } from "../../auth/AuthContext";
 import type { Genre } from "../../types/genre.types";
 import styles from "./GenreCard.module.css";
 
-const PLACEHOLDER_IMG_BASE =
-  "https://firstbenefits.org/workers-compensation-wholesale-and-retail-trade/placeholder/";
-
 type Props = { genre: Genre };
 
 type GenreFormState = {
@@ -34,10 +31,7 @@ export function GenreCard({ genre }: Props) {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deleted, setDeleted] = useState(false);
-
-  const posterUrl = genreData.posterPath
-    ? `${PLACEHOLDER_IMG_BASE}${genreData.posterPath}`
-    : null;
+  const posterUrl = genreData.posterPath?.trim() || null;
 
   const openEditForm = () => {
     setFormState(buildInitialGenreForm(genreData));
@@ -108,7 +102,11 @@ export function GenreCard({ genre }: Props) {
       <Link to={`/genre/${genreData.genreId}`} className={styles.mainLink}>
         <div className={styles.posterWrap}>
           {posterUrl ? (
-            <img className={styles.poster} src={posterUrl} alt={genreData.name} />
+            <img
+              className={styles.poster}
+              src={posterUrl}
+              alt={genreData.name}
+            />
           ) : (
             <div className={styles.noPoster}>No image</div>
           )}
