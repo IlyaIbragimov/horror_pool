@@ -1,14 +1,19 @@
 .card {
   width: 100%;
-  display: grid;
-  grid-template-columns: clamp(160px, 38vw, 400px) 1fr;
-  gap: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   background: rgba(0, 0, 0, 0.22);
   overflow: hidden;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+.mainLink {
+  display: grid;
+  grid-template-columns: clamp(160px, 38vw, 400px) 1fr;
+  gap: 14px;
   min-height: 200px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .posterWrap {
@@ -56,8 +61,73 @@
   overflow: hidden;
 }
 
+.adminPanel {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.editButton,
+.deleteButton,
+.saveButton,
+.cancelButton {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  cursor: pointer;
+}
+
+.deleteButton {
+  border-color: rgba(255, 107, 107, 0.4);
+}
+
+.form {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  color: inherit;
+  padding: 10px 12px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.error {
+  margin-top: 10px;
+  color: #ff8a8a;
+}
+
 @media (max-width: 640px) {
-  .card {
+  .mainLink {
     grid-template-columns: 1fr;
   }
 
@@ -74,5 +144,9 @@
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  .content {
+    padding: 12px 14px 14px;
   }
 }
