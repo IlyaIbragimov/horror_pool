@@ -3,7 +3,6 @@ import { fetchGenres } from "../../api/genre.api";
 import type { GenreAllResponse } from "../../types/genre.types";
 import { GenreCard } from "../../components/GenreCard/GenreCard";
 import styles from "./GenresPage.module.css";
-import { Link } from "react-router-dom";
 
 export function GenresPage() {
   const [page, setPage] = useState(1);
