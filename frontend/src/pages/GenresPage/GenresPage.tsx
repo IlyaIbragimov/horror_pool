@@ -51,9 +51,7 @@ export function GenresPage() {
 
       <div className={styles.list}>
         {data?.genres.map((g) => (
-         <Link key={g.genreId} to={`/genre/${g.genreId}`} className={styles.cardLink}>
-            <GenreCard key={g.genreId} genre={g} />
-         </Link>
+          <GenreCard key={g.genreId} genre={g} />
         ))}
       </div>
     </div>
