@@ -59,3 +59,11 @@ export function deleteGenre(genreId: number): Promise<Genre> {
     method: "DELETE",
   });
 }
+
+export function editGenre(genreId: number, genreToEdit: Genre): Promise<Genre> {
+  return http<Genre>(`/admin/genre/update/${genreId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(genreToEdit),
+  });
+}
