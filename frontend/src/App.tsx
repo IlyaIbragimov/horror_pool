@@ -64,7 +64,14 @@ export function App() {
 
         <Route path="/login" element={<SignInPage />} />
         <Route path="/register" element={<SignUpPage />} />
-        <Route path="/addMovieToWatchlist" element={<AddWatchlistPage />} />
+        <Route
+          path="/addMovieToWatchlist"
+          element={
+            <ProtectedRoute>
+              <AddWatchlistPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
       {backgroundLocation && (
