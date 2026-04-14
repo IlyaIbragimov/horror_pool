@@ -419,6 +419,20 @@ export function MoviePage() {
     }
   };
 
+  const handleAddToWatchlistClick = (
+  e: React.MouseEvent<HTMLAnchorElement>,
+) => {
+  if (authLoading) {
+    e.preventDefault();
+    return;
+  }
+
+  if (!user) {
+    e.preventDefault();
+    navigate("/login", { state: { backgroundLocation: location } });
+  }
+};
+
   return (
     <div className={styles.page}>
       <div className={styles.movie_section}>
@@ -471,6 +485,7 @@ export function MoviePage() {
                   movieId: Number(movieId),
                 }}
                 to="/addMovieToWatchlist"
+                onClick={handleAddToWatchlistClick}
               >
                 Add to watchlist
               </Link>
