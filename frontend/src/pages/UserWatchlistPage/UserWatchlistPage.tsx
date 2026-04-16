@@ -64,6 +64,7 @@ export function UserWatchlistPage() {
 
   const handleDeleteWatchlist = async (watchlistId: number) => {
     if (!watchlistId) return;
+    if (!window.confirm("Delete this watchlist?")) return;
     setMyLoading(true);
     setMyError(null);
     try {
