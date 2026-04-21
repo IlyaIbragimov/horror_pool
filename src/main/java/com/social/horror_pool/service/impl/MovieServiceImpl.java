@@ -12,6 +12,7 @@ import com.social.horror_pool.model.Movie;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.payload.tmdb.BulkImportResultResponse;
 import com.social.horror_pool.payload.tmdb.TmdbDiscoverMovieAllResponse;
+import com.social.horror_pool.payload.tmdb.TmdbDiscoverRequest;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieCommentsMapper;
@@ -216,14 +217,15 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional
-    public BulkImportResultResponse bulkImportFromTmdb(Integer pages, String language) {
-        int pagesToImport = (pages == null || pages < 1) ? 1 : pages;
-        String languageToImport = (language == null || language.isBlank()) ? "en-US" : language;
+    public BulkImportResultResponse bulkImportFromTmdb(TmdbDiscoverRequest request) {
+        TmdbDiscoverRequest discoverRequest = request == null ? new TmdbDiscoverRequest() : request;
+        int pagesToImport = (discoverRequest.getPages() == null || discoverRequest.getPages() < 1) ? 1 : discoverRequest.getPages();
+        String languageToImport = "en-US";
 
         BulkImportResultResponse response = new BulkImportResultResponse();
 
         for (int p = 1; p <= pagesToImport; p++) {
-            TmdbDiscoverMovieAllResponse discoverResponse = this.tmdbClient.discoverHorrors(p, languageToImport);
+            TmdbDiscoverMovieAllResponse discoverResponse = this.tmdbClient.discoverHorrors(p, discoverRequest);
             if (discoverResponse == null || discoverResponse.getResults() == null) continue;
 
             for (TmdbDiscoverMovieDTO movie : discoverResponse.getResults()) {
@@ -247,7 +249,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public MovieAllResponse getMoviesByGenre(Long genreId, Integer pageNumber, Integer pageSize, String sortBy,  String order) {
-        Genre genre= this.genreRepository.findById(genreId)
+        this.genreRepository.findById(genreId)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre", "genre", genreId));
 
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
