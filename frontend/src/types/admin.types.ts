@@ -33,6 +33,29 @@ export type AdminGenrePayload = {
   posterPath?: string | null;
 };
 
+export type TmdbDiscoverRequest = {
+  pages?: number | null;
+  sortBy?: string | null;
+  releaseDateFrom?: string | null;
+  releaseDateTo?: string | null;
+  minVoteAverage?: number | null;
+};
+
+export type TmdbDiscoverFormState = {
+  pages: string;
+  sortBy: string;
+  releaseDateFrom: string;
+  releaseDateTo: string;
+  minVoteAverage: string;
+};
+
+export type BulkImportResultResponse = {
+  imported: number;
+  skipped: number;
+  failed: number;
+  errors: string[];
+};
+
 export type AdminMovieFormState = {
   title: string;
   originalTitle: string;
