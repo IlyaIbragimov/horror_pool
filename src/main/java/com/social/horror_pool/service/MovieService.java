@@ -3,6 +3,7 @@ package com.social.horror_pool.service;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.payload.MovieAllResponse;
 import com.social.horror_pool.payload.tmdb.BulkImportResultResponse;
+import com.social.horror_pool.payload.tmdb.TmdbDiscoverRequest;
 import jakarta.validation.Valid;
 
 public interface MovieService {
@@ -15,6 +16,6 @@ public interface MovieService {
     MovieDTO getMovieByTmdbId(Long tmdbId);
     boolean checkIftmdbIdExists(Long tmdbId);
     MovieDTO importFromTmdb(Long tmdbId, String language);
-    BulkImportResultResponse bulkImportFromTmdb(Integer pages, String language);
+    BulkImportResultResponse bulkImportFromTmdb(TmdbDiscoverRequest request);
     MovieAllResponse getMoviesByGenre(Long genreId, Integer pageNumber, Integer pageSize, String sortBy, String order);
 }
