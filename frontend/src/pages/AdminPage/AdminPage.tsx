@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   addGenre,
   addMovie,
+  bulkImportFromTmd,
   changeUserLockStatus,
   disableUser,
 } from "../../api/admin.api";
@@ -9,10 +10,12 @@ import type {
   AdminGenrePayload,
   AdminMovieFormState,
   AdminMoviePayload,
+  TmdbDiscoverFormState,
+  TmdbDiscoverRequest,
 } from "../../types/admin.types";
 import styles from "./AdminPage.module.css";
 
-type AdminPanel = "user" | "movie" | "genre";
+type AdminPanel = "user" | "movie" | "genre" | "import";
 
 type GenreFormState = {
   name: string;
@@ -43,6 +46,22 @@ const initialGenreForm: GenreFormState = {
   description: "",
   posterPath: "",
 };
+
+const initialImportForm: TmdbDiscoverFormState = {
+  pages: "1",
+  sortBy: "popularity.desc",
+  releaseDateFrom: "",
+  releaseDateTo: "",
+  minVoteAverage: "",
+};
+
+const tmdbSortOptions = [
+  { value: "popularity.desc", label: "Most popular" },
+  { value: "primary_release_date.desc", label: "Newest" },
+  { value: "primary_release_date.asc", label: "Oldest" },
+  { value: "vote_average.desc", label: "Highest rated" },
+  { value: "vote_count.desc", label: "Most voted" },
+];
 
 function parseOptionalNumber(value: string): number | null | undefined {
   const trimmed = value.trim();
@@ -96,6 +115,12 @@ export function AdminPage() {
   const [genreMessage, setGenreMessage] = useState<string | null>(null);
   const [genreError, setGenreError] = useState<string | null>(null);
 
+  const [importForm, setImportForm] =
+    useState<TmdbDiscoverFormState>(initialImportForm);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+
   const handleUserAction = async (action: "lock" | "disable") => {
     const parsedUserId = Number(userId.trim());
 
@@ -141,6 +166,13 @@ export function AdminPage() {
     value: string,
   ) => {
     setGenreForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleImportChange = (
+    field: keyof TmdbDiscoverFormState,
+    value: string,
+  ) => {
+    setImportForm((current) => ({ ...current, [field]: value }));
   };
 
   const handleMovieSubmit = async (e: React.FormEvent) => {
@@ -236,6 +268,71 @@ export function AdminPage() {
     }
   };
 
+  const handleImportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setImportLoading(true);
+    setImportError(null);
+    setImportMessage(null);
+
+    const pages = parseOptionalNumber(importForm.pages);
+    const minVoteAverage = parseOptionalNumber(importForm.minVoteAverage);
+
+    if (pages === null || minVoteAverage === null) {
+      setImportError("Pages and minimum vote average must contain valid numbers.");
+      setImportLoading(false);
+      return;
+    }
+
+    if (pages !== undefined && (!Number.isInteger(pages) || pages < 1)) {
+      setImportError("Pages must be a whole number greater than zero.");
+      setImportLoading(false);
+      return;
+    }
+
+    if (
+      minVoteAverage !== undefined &&
+      (minVoteAverage < 0 || minVoteAverage > 10)
+    ) {
+      setImportError("Minimum vote average must be between 0 and 10.");
+      setImportLoading(false);
+      return;
+    }
+
+    if (
+      importForm.releaseDateFrom &&
+      importForm.releaseDateTo &&
+      importForm.releaseDateFrom > importForm.releaseDateTo
+    ) {
+      setImportError("Release date from cannot be after release date to.");
+      setImportLoading(false);
+      return;
+    }
+
+    const payload: TmdbDiscoverRequest = {
+      pages: pages ?? undefined,
+      sortBy: importForm.sortBy || undefined,
+      releaseDateFrom: importForm.releaseDateFrom || undefined,
+      releaseDateTo: importForm.releaseDateTo || undefined,
+      minVoteAverage: minVoteAverage ?? undefined,
+    };
+
+    try {
+      const response = await bulkImportFromTmd(payload);
+      setImportMessage(
+        `Import finished. Imported: ${response.imported}. Skipped: ${response.skipped}. Failed: ${response.failed}.`,
+      );
+      if (response.errors.length > 0) {
+        setImportError(response.errors.join("\n"));
+      }
+    } catch (e) {
+      setImportError(
+        e instanceof Error ? e.message : "TMDB import could not be completed.",
+      );
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   return (
     <section className={styles.page}>
 
@@ -262,6 +359,13 @@ export function AdminPage() {
             onClick={() => setActivePanel("genre")}
           >
             genre panel
+          </button>
+          <button
+            type="button"
+            className={`${styles.tab} ${activePanel === "import" ? styles.tabActive : ""}`}
+            onClick={() => setActivePanel("import")}
+          >
+            import panel
           </button>
         </div>
 
@@ -563,6 +667,97 @@ export function AdminPage() {
 
             {genreMessage && <p className={styles.success}>{genreMessage}</p>}
             {genreError && <p className={styles.error}>{genreError}</p>}
+          </form>
+        )}
+
+        {activePanel === "import" && (
+          <form className={styles.panel} onSubmit={handleImportSubmit}>
+            <div className={styles.panelHeader}>
+              <h2>Import Panel</h2>
+              <p>Import horror movies from TMDB using discover filters.</p>
+            </div>
+
+            <div className={styles.fieldGrid}>
+              <label className={styles.field}>
+                <span>Pages</span>
+                <input
+                  className={styles.input}
+                  type="number"
+                  min="1"
+                  value={importForm.pages}
+                  onChange={(e) => handleImportChange("pages", e.target.value)}
+                  placeholder="1"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Sort by</span>
+                <select
+                  className={styles.input}
+                  value={importForm.sortBy}
+                  onChange={(e) => handleImportChange("sortBy", e.target.value)}
+                >
+                  {tmdbSortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className={styles.field}>
+                <span>Release date from</span>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={importForm.releaseDateFrom}
+                  onChange={(e) =>
+                    handleImportChange("releaseDateFrom", e.target.value)
+                  }
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Release date to</span>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={importForm.releaseDateTo}
+                  onChange={(e) =>
+                    handleImportChange("releaseDateTo", e.target.value)
+                  }
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>Minimum vote average</span>
+                <input
+                  className={styles.input}
+                  type="number"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  value={importForm.minVoteAverage}
+                  onChange={(e) =>
+                    handleImportChange("minVoteAverage", e.target.value)
+                  }
+                  placeholder="6.5"
+                />
+              </label>
+            </div>
+
+            <div className={styles.actionRow}>
+              <button
+                className={styles.primaryButton}
+                disabled={importLoading}
+                type="submit"
+              >
+                {importLoading ? "Importing..." : "Import from TMDB"}
+              </button>
+            </div>
+
+            {importMessage && <p className={styles.success}>{importMessage}</p>}
+            {importError && <p className={styles.error}>{importError}</p>}
           </form>
         )}
       </div>
