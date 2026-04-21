@@ -3,6 +3,8 @@ import type {
   AdminGenrePayload,
   AdminMoviePayload,
   AdminUserInfoResponse,
+  BulkImportResultResponse,
+  TmdbDiscoverRequest,
 } from "../types/admin.types";
 import type { Genre } from "../types/genre.types";
 import type { MovieDTO } from "../types/movie.types";
@@ -65,5 +67,15 @@ export function editGenre(genreId: number, genreToEdit: Genre): Promise<Genre> {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(genreToEdit),
+  });
+}
+
+export function bulkImportFromTmd(
+  request?: TmdbDiscoverRequest,
+): Promise<BulkImportResultResponse> {
+  return http<BulkImportResultResponse>("/admin/tmdb/bulkImport", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: request ? JSON.stringify(request) : undefined,
   });
 }
