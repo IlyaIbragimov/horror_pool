@@ -1,5 +1,6 @@
 package com.social.horror_pool.service.impl;
 
+import com.social.horror_pool.configuration.RoleName;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
@@ -9,7 +10,6 @@ import com.social.horror_pool.model.User;
 import com.social.horror_pool.payload.CreateCommentRequest;
 import com.social.horror_pool.repository.CommentRepository;
 import com.social.horror_pool.repository.MovieRepository;
-import com.social.horror_pool.repository.UserRepository;
 import com.social.horror_pool.security.CustomUserDetails;
 import com.social.horror_pool.service.CommentService;
 import com.social.horror_pool.service.MovieCommentsMapper;
@@ -30,7 +30,8 @@ public class CommentServiceImpl implements CommentService {
     private final MovieCommentsMapper movieCommentsMapper;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm a");
 
-    public CommentServiceImpl(CommentRepository commentRepository, MovieRepository movieRepository, UserRepository userRepository, MovieCommentsMapper movieCommentsMapper) {
+    public CommentServiceImpl(CommentRepository commentRepository, MovieRepository movieRepository,
+            MovieCommentsMapper movieCommentsMapper) {
         this.commentRepository = commentRepository;
         this.movieRepository = movieRepository;
         this.movieCommentsMapper = movieCommentsMapper;
@@ -52,7 +53,7 @@ public class CommentServiceImpl implements CommentService {
         comment.setDate(LocalDateTime.now().format(formatter));
         this.commentRepository.save(comment);
 
-       return movieCommentsMapper.returnMovieWithComments(movie);
+        return movieCommentsMapper.returnMovieWithComments(movie);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = this.commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
 
-        if (!Objects.equals(comment.getUser().getUserId(), user.getUserId()) && user.getUserId() != 1L) {
+        if (!Objects.equals(comment.getUser().getUserId(), user.getUserId()) && !isAdmin(user)) {
             throw new APIException("You are not authorized to delete this comment");
         }
 
@@ -136,6 +137,11 @@ public class CommentServiceImpl implements CommentService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
         return customUserDetails.getUser();
+    }
+
+    private boolean isAdmin(User user) {
+        return user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName() == RoleName.ROLE_ADMIN);
     }
 
 }
