@@ -233,7 +233,7 @@ public class WatchlistServiceImpl implements WatchlistService {
         Comparator<WatchlistItem> comparator = Comparator
                 .comparing(watchlistItem -> watchlistItem.getMovie().getTitle().toLowerCase());
 
-        if (!order.equals("asc")) {
+        if (!"asc".equalsIgnoreCase(order)) {
             comparator = comparator.reversed();
         }
 
@@ -243,7 +243,17 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        Page<WatchlistItem> page = new PageImpl<>(watchlistItems, pageable, watchlistItems.size());
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), watchlistItems.size());
+
+        List<WatchlistItem> pagedItems;
+        if (start >= watchlistItems.size()) {
+            pagedItems = List.of();
+        } else {
+            pagedItems = watchlistItems.subList(start, end);
+        }
+
+        Page<WatchlistItem> page = new PageImpl<>(pagedItems, pageable, watchlistItems.size());
 
         List<WatchlistItemDTO> watchlistItemDTOS = page.getContent().stream()
                 .map(item -> {
@@ -253,16 +263,16 @@ public class WatchlistServiceImpl implements WatchlistService {
                     return watchlistItemDTO;
                 }).toList();
 
-        WatchlistItemsByWatchlistIdResponse watchlistItemsByWatchlistIdResponse = new WatchlistItemsByWatchlistIdResponse();
-        watchlistItemsByWatchlistIdResponse.setTitle(watchlist.getTitle());
-        watchlistItemsByWatchlistIdResponse.setItems(watchlistItemDTOS);
-        watchlistItemsByWatchlistIdResponse.setPageNumber(page.getNumber());
-        watchlistItemsByWatchlistIdResponse.setPageSize(page.getSize());
-        watchlistItemsByWatchlistIdResponse.setTotalElements(page.getTotalElements());
-        watchlistItemsByWatchlistIdResponse.setTotalPages(page.getTotalPages());
-        watchlistItemsByWatchlistIdResponse.setLastPage(page.isLast());
+        WatchlistItemsByWatchlistIdResponse response = new WatchlistItemsByWatchlistIdResponse();
+        response.setTitle(watchlist.getTitle());
+        response.setItems(watchlistItemDTOS);
+        response.setPageNumber(page.getNumber());
+        response.setPageSize(page.getSize());
+        response.setTotalElements(page.getTotalElements());
+        response.setTotalPages(page.getTotalPages());
+        response.setLastPage(page.isLast());
 
-        return watchlistItemsByWatchlistIdResponse;
+        return response;
     }
 
     @Override
