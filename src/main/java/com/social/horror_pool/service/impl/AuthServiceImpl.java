@@ -19,6 +19,7 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Set;
@@ -37,7 +38,9 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,
+            JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -60,7 +63,7 @@ public class AuthServiceImpl implements AuthService {
         User user = new User(username, email, this.passwordEncoder.encode(password));
 
         Role role = this.roleRepository.findByRoleName(RoleName.ROLE_USER)
-                        .orElseThrow(() -> new APIException("Error: Role " + RoleName.ROLE_USER + " not found"));
+                .orElseThrow(() -> new APIException("Error: Role " + RoleName.ROLE_USER + " not found"));
 
         user.setRoles(Set.of(role));
         userRepository.save(user);
@@ -69,36 +72,35 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<?> signInUser(String username, String password) {
-
-        if (!userRepository.existsByUsername(username)) {
-            return new ResponseEntity<>(new MessageResponse("Username not found"), HttpStatus.NOT_FOUND);
-        }
-
         try {
             Authentication authentication = this.authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
-            );
+                    new UsernamePasswordAuthenticationToken(username, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
             ResponseCookie responseCookie = this.jwtTokenProvider.generateCookie(customUserDetails);
 
-            return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString()).body(new MessageResponse("User successfully logged in"));
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                    .body(new MessageResponse("User successfully logged in"));
 
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Invalid username or password"));
+        } catch (BadCredentialsException | UsernameNotFoundException e) {
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Invalid username or password"));
         } catch (DisabledException e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Your account is disabled"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Your account is disabled"));
         } catch (LockedException e) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Your account is locked"));
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Your account is locked"));
         }
     }
 
     @Override
     public ResponseEntity<?> signOutUser() {
         ResponseCookie responseCookie = this.jwtTokenProvider.generateCleanCookie();
-        return  ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString()).body(new MessageResponse("User successfully logged out"));
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(new MessageResponse("User successfully logged out"));
     }
 
     @Override
@@ -107,9 +109,11 @@ public class AuthServiceImpl implements AuthService {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        Set<String> roles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        Set<String> roles = customUserDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
 
-        return new UserInfoResponse(customUserDetails.getUser().getUserId(), customUserDetails.getUsername(), roles, customUserDetails.isAccountNonLocked());
+        return new UserInfoResponse(customUserDetails.getUser().getUserId(), customUserDetails.getUsername(), roles,
+                customUserDetails.isAccountNonLocked());
     }
 
     @Override
