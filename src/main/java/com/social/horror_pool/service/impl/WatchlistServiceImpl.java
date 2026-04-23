@@ -378,6 +378,10 @@ public class WatchlistServiceImpl implements WatchlistService {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
 
+        if (!watchlist.isPublic()) {
+            throw new APIException("Watchlist " + watchlist.getTitle() + " is private and cannot be followed");
+        }
+
         if (watchlist.getUser().equals(user)) {
             throw new APIException("You cannot follow your own watchlist");
         }
@@ -418,6 +422,10 @@ public class WatchlistServiceImpl implements WatchlistService {
     public List<String> getWatchlistFollowers(Long watchlistId) {
         Watchlist watchlist = this.watchlistRepository.findById(watchlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Watchlist", "id", watchlistId));
+
+        if (!watchlist.isPublic()) {
+            throw new APIException("Watchlist " + watchlist.getTitle() + " is private and cannot be followed");
+        }
 
         return watchlist.getFollowers().stream()
                 .map(User::getUsername)
