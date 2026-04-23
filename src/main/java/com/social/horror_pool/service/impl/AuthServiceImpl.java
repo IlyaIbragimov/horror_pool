@@ -12,7 +12,6 @@ import com.social.horror_pool.security.CustomUserDetails;
 import com.social.horror_pool.security.jwt.JwtTokenProvider;
 import com.social.horror_pool.service.AuthService;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
