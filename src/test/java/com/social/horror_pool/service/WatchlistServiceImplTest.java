@@ -642,6 +642,7 @@ public class WatchlistServiceImplTest {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         watchlist1.setUser(user2);
+        watchlist1.setPublic(true);
 
         WatchlistDTO dto = createWatchlistDTO(watchlist1);
         when(modelMapper.map(watchlist1, WatchlistDTO.class)).thenReturn(dto);
@@ -661,6 +662,7 @@ public class WatchlistServiceImplTest {
         when(userRepository.findByUsername("username1")).thenReturn(Optional.of(user1));
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
         watchlist1.setUser(user1);
+        watchlist1.setPublic(true);
 
         APIException exception = assertThrows(APIException.class, () -> watchlistServiceImpl.followWatchlist(1L));
 
@@ -691,6 +693,7 @@ public class WatchlistServiceImplTest {
 
     @Test
     public void getWatchlistFollowers_Success_ReturnsUsernames() {
+        watchlist1.setPublic(true);
         watchlist1.getFollowers().add(user1);
         watchlist1.getFollowers().add(user2);
         when(watchlistRepository.findById(1L)).thenReturn(Optional.of(watchlist1));
