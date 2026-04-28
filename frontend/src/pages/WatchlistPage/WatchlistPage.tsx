@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getWatchlistItemsByWatchlistId } from "../../api/watchlist.api";
 import { WatchlistItemCard } from "../../components/WatchlistItemCard/WatchlistItemCard";
@@ -16,9 +16,14 @@ export function WatchlistPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     const id = Number(watchlistId);
-    if (!Number.isFinite(id)) return;
+    if (!Number.isFinite(id)) {
+      setError("Invalid watchlist id.");
+      setData(null);
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -32,11 +37,11 @@ export function WatchlistPage() {
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-  };
+  }, [watchlistId, page, size]);
 
   useEffect(() => {
     refresh();
-  }, [watchlistId, page, size]);
+  }, [refresh]);
 
   return (
     <div className={styles.page}>
