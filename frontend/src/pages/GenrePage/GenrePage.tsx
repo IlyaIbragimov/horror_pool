@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { fetchMoviesByGenre } from "../../api/movie.api";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
+import { Pager } from "../../components/Pager/Pager";
 import type { MovieAllResponse } from "../../types/movie.types";
 import styles from "../MoviesPage/MoviesPage.module.css";
 
@@ -86,25 +87,15 @@ export function GenrePage() {
           </button>
         </nav>
 
-        <div className={styles.pager}>
-          <button
-            disabled={loading || page <= 1}
-            onClick={() => goToPage(page - 1)}
-          >
-            Prev
-          </button>
-
-          <span>
-            Page {data ? data.pageNumber + 1 : page} / {data?.totalPages ?? "?"}
-          </span>
-
-          <button
-            disabled={loading || !data || data.lastPage}
-            onClick={() => goToPage(page + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={loading}
+          page={page}
+          pageNumber={data ? data.pageNumber + 1 : undefined}
+          totalPages={data?.totalPages}
+          lastPage={data?.lastPage}
+          onPageChange={goToPage}
+        />
       </div>
 
       {error && <div className={styles.error}>{error}</div>}

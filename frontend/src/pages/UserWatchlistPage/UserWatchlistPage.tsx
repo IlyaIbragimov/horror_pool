@@ -8,6 +8,7 @@ import {
 import { subscribeUserWatchlistsInvalidation } from "../../cache/cacheInvalidation";
 import { invalidatePublicWatchlistsCache } from "../../cache/publicWatchlistsCache";
 import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation";
+import { Pager } from "../../components/Pager/Pager";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import styles from "./UserWatchlistPage.module.css";
@@ -105,24 +106,15 @@ export function UserWatchlistPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>My Watchlists</h2>
 
-        <div className={styles.pager}>
-          <button
-            disabled={myLoading || myPage <= 1}
-            onClick={() => setMyPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-          <span>
-            Page {myData ? myData.pageNumber + 1 : myPage} /{" "}
-            {myData?.totalPages ?? "?"}
-          </span>
-          <button
-            disabled={myLoading || !myData || myData.lastPage}
-            onClick={() => setMyPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={myLoading}
+          page={myPage}
+          pageNumber={myData ? myData.pageNumber + 1 : undefined}
+          totalPages={myData?.totalPages}
+          lastPage={myData?.lastPage}
+          onPageChange={setMyPage}
+        />
 
         {myError && <div className={styles.error}>{myError}</div>}
         {myLoading && <div>Loading...</div>}
@@ -157,24 +149,15 @@ export function UserWatchlistPage() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Followed Watchlists</h2>
 
-        <div className={styles.pager}>
-          <button
-            disabled={followedLoading || followedPage <= 1}
-            onClick={() => setFollowedPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-          <span>
-            Page {followedData ? followedData.pageNumber + 1 : followedPage} /{" "}
-            {followedData?.totalPages ?? "?"}
-          </span>
-          <button
-            disabled={followedLoading || !followedData || followedData.lastPage}
-            onClick={() => setFollowedPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={followedLoading}
+          page={followedPage}
+          pageNumber={followedData ? followedData.pageNumber + 1 : undefined}
+          totalPages={followedData?.totalPages}
+          lastPage={followedData?.lastPage}
+          onPageChange={setFollowedPage}
+        />
 
         {followedError && <div className={styles.error}>{followedError}</div>}
         {followedLoading && <div>Loading...</div>}

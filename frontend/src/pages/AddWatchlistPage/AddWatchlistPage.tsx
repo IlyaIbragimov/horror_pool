@@ -8,6 +8,7 @@ import {
 import { invalidatePublicWatchlistsCache } from "../../cache/publicWatchlistsCache";
 import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation";
 import { ModalShell } from "../../components/ModalShell/ModalShell";
+import { Pager } from "../../components/Pager/Pager";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import styles from "./AddWatchlistPage.module.css";
@@ -124,24 +125,15 @@ export function AddWatchlistPage() {
       }
     >
       <section className={styles.section}>
-        <div className={styles.pager}>
-          <button
-            disabled={loading || page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-          <span>
-            Page {data ? data.pageNumber + 1 : page} /{" "}
-            {data?.totalPages ?? "?"}
-          </span>
-          <button
-            disabled={loading || !data || data.lastPage}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={loading}
+          page={page}
+          pageNumber={data ? data.pageNumber + 1 : undefined}
+          totalPages={data?.totalPages}
+          lastPage={data?.lastPage}
+          onPageChange={setPage}
+        />
 
         <div className={styles.list}>
           <div className={styles.new_watchlist}>

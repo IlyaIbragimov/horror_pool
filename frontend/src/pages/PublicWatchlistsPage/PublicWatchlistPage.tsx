@@ -6,6 +6,7 @@ import {
 } from "../../cache/publicWatchlistsCache";
 import { subscribePublicWatchlistsInvalidation } from "../../cache/cacheInvalidation";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
+import { Pager } from "../../components/Pager/Pager";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import styles from "./PublicWatchlistPage.module.css";
 
@@ -54,25 +55,15 @@ export function PublicWatchlistPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div className={styles.pager}>
-          <button
-            disabled={loading || page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-
-          <span>
-            Page {data ? data.pageNumber + 1 : page} / {data?.totalPages ?? "?"}
-          </span>
-
-          <button
-            disabled={loading || !data || data.lastPage}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={loading}
+          page={page}
+          pageNumber={data ? data.pageNumber + 1 : undefined}
+          totalPages={data?.totalPages}
+          lastPage={data?.lastPage}
+          onPageChange={setPage}
+        />
       </div>
 
       {error && <div className={styles.error}>{error}</div>}

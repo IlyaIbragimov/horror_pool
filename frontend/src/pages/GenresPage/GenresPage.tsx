@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchGenres } from "../../api/genre.api";
 import type { GenreAllResponse } from "../../types/genre.types";
 import { GenreCard } from "../../components/GenreCard/GenreCard";
+import { Pager } from "../../components/Pager/Pager";
 import styles from "./GenresPage.module.css";
 
 export function GenresPage() {
@@ -27,22 +28,15 @@ export function GenresPage() {
     <div className={styles.page}>
       <div className={styles.header}>
 
-        <div className={styles.pager}>
-          <button disabled={loading || page <= 1} onClick={() => setPage((p) => p - 1)}>
-            Prev
-          </button>
-
-          <span>
-            Page {data ? data.pageNumber + 1 : page} / {data?.totalPages ?? "?"}
-          </span>
-
-          <button
-            disabled={loading || !data || data.lastPage}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={loading}
+          page={page}
+          pageNumber={data ? data.pageNumber + 1 : undefined}
+          totalPages={data?.totalPages}
+          lastPage={data?.lastPage}
+          onPageChange={setPage}
+        />
       </div>
 
       {error && <div className={styles.error}>{error}</div>}

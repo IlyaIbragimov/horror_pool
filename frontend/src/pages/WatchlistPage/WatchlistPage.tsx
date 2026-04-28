@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getWatchlistItemsByWatchlistId } from "../../api/watchlist.api";
+import { Pager } from "../../components/Pager/Pager";
 import { WatchlistItemCard } from "../../components/WatchlistItemCard/WatchlistItemCard";
 import type { WatchlistItemsByWatchlistIdResponse } from "../../types/watchlist.types";
 import styles from "./WatchlistPage.module.css";
@@ -46,25 +47,15 @@ export function WatchlistPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div className={styles.pager}>
-          <button
-            disabled={loading || page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-
-          <span>
-            Page {data ? data.pageNumber + 1 : page} / {data?.totalPages ?? "?"}
-          </span>
-
-          <button
-            disabled={loading || !data || data.lastPage}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+        <Pager
+          className={styles.pager}
+          loading={loading}
+          page={page}
+          pageNumber={data ? data.pageNumber + 1 : undefined}
+          totalPages={data?.totalPages}
+          lastPage={data?.lastPage}
+          onPageChange={setPage}
+        />
       </div>
 
       {error && <div className={styles.error}>{error}</div>}
