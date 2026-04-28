@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { signUp } from "../../api/auth.api";
 import { useAuth } from "../../auth/AuthContext";
 import styles from "./SignUpPage.module.css";
+import type { ModalRouteState } from "../../types/route.types";
 
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
@@ -15,7 +16,7 @@ export default function SignUpPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const bg = (location.state as any)?.backgroundLocation;
+  const bg = (location.state as ModalRouteState | null)?.backgroundLocation;
 
   const close = () => {
     if (bg) navigate(bg.pathname + bg.search, { replace: true });

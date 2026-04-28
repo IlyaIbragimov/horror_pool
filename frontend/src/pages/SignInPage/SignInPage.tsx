@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { signIn } from "../../api/auth.api";
 import styles from "./SignInPage.module.css";
 import { useAuth } from "../../auth/AuthContext";
+import type { ModalRouteState } from "../../types/route.types";
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
@@ -13,7 +14,7 @@ export default function SignInPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const bg = (location.state as any)?.backgroundLocation;
+  const bg = (location.state as ModalRouteState | null)?.backgroundLocation;
 
   const close = () => {
     if (bg) navigate(bg.pathname + bg.search, { replace: true });
