@@ -1,5 +1,5 @@
 import { http } from "./http";
-import type { GenreAllResponse, Genre } from "../types/genre.types";
+import type { GenreAllResponse } from "../types/genre.types";
 
 export type GenersQuery = {
   page?: number;
