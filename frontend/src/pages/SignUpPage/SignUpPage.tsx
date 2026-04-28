@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { signUp } from "../../api/auth.api";
 import { useAuth } from "../../auth/AuthContext";
-import styles from "./SignUpPage.module.css";
+import { ModalShell } from "../../components/ModalShell/ModalShell";
 import type { ModalRouteState } from "../../types/route.types";
+import styles from "./SignUpPage.module.css";
 
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
@@ -39,84 +40,64 @@ export default function SignUpPage() {
     }
   };
 
-  const onOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) close();
-  };
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Escape") close();
-  };
-
   return (
-    <div
-      className={styles.overlay}
-      onMouseDown={onOverlayMouseDown}
-      onKeyDown={onKeyDown}
-      aria-modal="true"
-      role="dialog"
+    <ModalShell
+      title="Fast registration"
+      onClose={close}
+      overlayClassName={styles.overlay}
+      modalClassName={styles.modal}
+      headerClassName={styles.header}
+      titleClassName={styles.title}
+      closeButtonClassName={styles.closeBtn}
     >
-      <div className={styles.modal}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Fast registration</h1>
-          <button
-            className={styles.closeBtn}
-            onClick={close}
-            type="button"
-            aria-label="Close"
-          >
-            ✕
-          </button>
+      <form className={styles.body} onSubmit={onSubmit}>
+        <input
+          className={styles.input}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
+          autoComplete="username"
+        />
+
+        <input
+          className={styles.input}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="email"
+          autoComplete="email"
+        />
+
+        <input
+          className={styles.input}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          type="password"
+          autoComplete="current-password"
+        />
+
+        <input
+          className={styles.input}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm Password"
+          type="password"
+          autoComplete="confirm password"
+        />
+
+        <button className={styles.submit} disabled={loading} type="submit">
+          {loading ? "Registering..." : "Sign Up"}
+        </button>
+
+        <div className={styles.alreadyregisted}>
+          <span>Already have an account ?</span>
+          <Link to="/login" replace state={{ backgroundLocation: bg }}>
+            Sign In
+          </Link>
         </div>
 
-        <form className={styles.body} onSubmit={onSubmit}>
-          <input
-            className={styles.input}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-            autoComplete="username"
-          />
-
-          <input
-            className={styles.input}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="email"
-            autoComplete="email"
-          />
-
-          <input
-            className={styles.input}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            type="password"
-            autoComplete="current-password"
-          />
-
-          <input
-            className={styles.input}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm Password"
-            type="password"
-            autoComplete="confirm password"
-          />
-
-          <button className={styles.submit} disabled={loading} type="submit">
-            {loading ? "Registering..." : "Sign Up"}
-          </button>
-
-          <div className={styles.alreadyregisted}>
-            <span>Already have an account ?</span>
-            <Link to="/login" replace state={{ backgroundLocation: bg }}>
-              Sign In
-            </Link>
-          </div>
-
-          {error && <p className={styles.error}>{error}</p>}
-        </form>
-      </div>
-    </div>
+        {error && <p className={styles.error}>{error}</p>}
+      </form>
+    </ModalShell>
   );
 }

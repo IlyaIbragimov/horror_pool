@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   getAllUserWatchlists,
   createWatchlist,
@@ -6,9 +7,9 @@ import {
 } from "../../api/watchlist.api";
 import { invalidatePublicWatchlistsCache } from "../../cache/publicWatchlistsCache";
 import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation";
+import { ModalShell } from "../../components/ModalShell/ModalShell";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
-import { useNavigate, useLocation } from "react-router-dom";
 import styles from "./AddWatchlistPage.module.css";
 
 export function AddWatchlistPage() {
@@ -34,14 +35,6 @@ export function AddWatchlistPage() {
   const close = () => {
     if (bg) navigate(bg.pathname + bg.search, { replace: true });
     else navigate("/movies", { replace: true });
-  };
-
-  const onOverlayMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) close();
-  };
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Escape") close();
   };
 
   const refresh = () => {
@@ -114,103 +107,90 @@ export function AddWatchlistPage() {
   };
 
   return (
-    <div
-      className={styles.overlay}
-      onMouseDown={onOverlayMouseDown}
-      onKeyDown={onKeyDown}
-      aria-modal="true"
-      role="dialog"
-    >
-      <div className={styles.modal}>
-        {successMessage && (
+    <ModalShell
+      title="Add to watchlist..."
+      onClose={close}
+      overlayClassName={styles.overlay}
+      modalClassName={styles.modal}
+      headerClassName={styles.header}
+      titleClassName={styles.title}
+      closeButtonClassName={styles.closeBtn}
+      beforeHeader={
+        successMessage && (
           <div className={styles.successToast} role="status" aria-live="polite">
             {successMessage}
           </div>
-        )}
-        <div className={styles.header}>
-          <h1 className={styles.title}>Add to watchlist...</h1>
+        )
+      }
+    >
+      <section className={styles.section}>
+        <div className={styles.pager}>
           <button
-            className={styles.closeBtn}
-            onClick={close}
-            type="button"
-            aria-label="Close"
+            disabled={loading || page <= 1}
+            onClick={() => setPage((p) => p - 1)}
           >
-            ✕
+            Prev
+          </button>
+          <span>
+            Page {data ? data.pageNumber + 1 : page} /{" "}
+            {data?.totalPages ?? "?"}
+          </span>
+          <button
+            disabled={loading || !data || data.lastPage}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
           </button>
         </div>
-        <section className={styles.section}>
-          <div className={styles.pager}>
-            <button
-              disabled={loading || page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              Prev
-            </button>
-            <span>
-              Page {data ? data.pageNumber + 1 : page} /{" "}
-              {data?.totalPages ?? "?"}
-            </span>
-            <button
-              disabled={loading || !data || data.lastPage}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </button>
+
+        <div className={styles.list}>
+          <div className={styles.new_watchlist}>
+            <form className={styles.new_watchlist_form} onSubmit={onSubmit}>
+              <input
+                className={styles.input}
+                value={watchlist_title}
+                onChange={(e) => setWatchlistTitle(e.target.value)}
+                placeholder="Watchlist title"
+                autoComplete="title"
+              />
+
+              <button
+                type="button"
+                className={styles.watchlistItem_isWatched_btn}
+                onClick={() => setPublic((prev) => !prev)}
+              >
+                {isPublic ? "Public" : "Private"}
+              </button>
+
+              <button className={styles.submit} disabled={loading} type="submit">
+                {loading ? "Creating..." : "Create"}
+              </button>
+            </form>
           </div>
 
-          <div className={styles.list}>
-            <div className={styles.new_watchlist}>
-              <form className={styles.new_watchlist_form} onSubmit={onSubmit}>
-                <input
-                  className={styles.input}
-                  value={watchlist_title}
-                  onChange={(e) => setWatchlistTitle(e.target.value)}
-                  placeholder="Watchlist title"
-                  autoComplete="title"
+          {error && <div className={styles.error}>{error}</div>}
+          {loading && <div>Loading...</div>}
+
+          <div className={styles.user_watchlist}>
+            {data?.watchlistDTOS.map((w) => (
+              <div className={styles.card} key={w.watchlistId}>
+                <WatchlistCard
+                  watchlist={w}
+                  onChanged={() => {
+                    refresh();
+                  }}
                 />
-
                 <button
-                  type="button"
-                  className={styles.watchlistItem_isWatched_btn}
-                  onClick={() => setPublic((prev) => !prev)}
+                  className={styles.add_btn}
+                  onClick={() => handleAddMovie(w.watchlistId)}
                 >
-                  {isPublic ? "Public" : "Private"}
+                  +
                 </button>
-
-                <button
-                  className={styles.submit}
-                  disabled={loading}
-                  type="submit"
-                >
-                  {loading ? "Creating..." : "Create"}
-                </button>
-              </form>
-            </div>
-
-            {error && <div className={styles.error}>{error}</div>}
-            {loading && <div>Loading...</div>}
-
-            <div className={styles.user_watchlist}>
-              {data?.watchlistDTOS.map((w) => (
-                <div className={styles.card} key={w.watchlistId}>
-                  <WatchlistCard
-                    watchlist={w}
-                    onChanged={() => {
-                      refresh();
-                    }}
-                  />
-                  <button
-                    className={styles.add_btn}
-                    onClick={() => handleAddMovie(w.watchlistId)}
-                  >
-                    +
-                  </button>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </section>
-      </div>
-    </div>
+        </div>
+      </section>
+    </ModalShell>
   );
 }
