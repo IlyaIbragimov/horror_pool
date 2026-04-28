@@ -1,10 +1,12 @@
 package com.social.horror_pool.service;
 
+import com.social.horror_pool.configuration.RoleName;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Comment;
 import com.social.horror_pool.model.Movie;
+import com.social.horror_pool.model.Role;
 import com.social.horror_pool.model.User;
 import com.social.horror_pool.payload.CreateCommentRequest;
 import com.social.horror_pool.repository.CommentRepository;
@@ -265,6 +267,10 @@ public class CommentServiceImplTest {
         user.setEmail(username + "@example.com");
         user.setComments(new ArrayList<>());
         user.setWatchlist(new ArrayList<>());
+        Role role = new Role();
+        role.setRoleId(1L);
+        role.setRoleName("admin".equals(username) ? RoleName.ROLE_ADMIN : RoleName.ROLE_USER);
+        user.setRoles(java.util.Set.of(role));
         return user;
     }
 
