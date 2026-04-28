@@ -18,10 +18,6 @@ export function signUp(payload: SignUpRequest) {
   return http<MessageResponse>("/public/signup", {method: "POST", body: JSON.stringify(payload)})
 }
 
-export async function getUsername() {
-  return http<{ username: string }>("/username", { method: "GET" });
-}
-
 export async function getCurrentUserInfo() {
   return http<{
     userId: number;
