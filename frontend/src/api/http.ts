@@ -1,5 +1,9 @@
 const BASE_URL = "/horrorpool";
 
+function isObject(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === "object" && !Array.isArray(v);
+}
+
 export async function http<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
 
@@ -23,22 +27,19 @@ if (!res.ok) {
     if (ct.includes("application/json")) {
       const data = await res.json();
 
-      const isObject = (v: unknown): v is Record<string, unknown> =>
-        v !== null && typeof v === "object" && !Array.isArray(v);
-
-      if (isObject(data) && Array.isArray((data as any).errors)) {
-        const arr = (data as any).errors as unknown[];
+      if (isObject(data) && Array.isArray(data.errors)) {
+        const arr = data.errors;
         const lines = arr
           .filter((x): x is string => typeof x === "string" && x.trim().length > 0);
 
         if (lines.length > 0) {
           msg = lines.join("\n");
-        } else if (typeof (data as any).message === "string") {
-          msg = (data as any).message;
+        } else if (typeof data.message === "string") {
+          msg = data.message;
         }
       }
-      else if (isObject(data) && typeof (data as any).message === "string") {
-        msg = (data as any).message;
+      else if (isObject(data) && typeof data.message === "string") {
+        msg = data.message;
       }
       else if (typeof data === "string") {
         msg = data;
