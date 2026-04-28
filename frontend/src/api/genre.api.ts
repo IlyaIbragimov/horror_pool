@@ -21,7 +21,3 @@ export function fetchGenres(params: GenersQuery = {}): Promise<GenreAllResponse>
 
   return http<GenreAllResponse>(url);
 }
-
-export function fetchMovieById(movieId: number): Promise<Genre> {
-  return http<Genre>(`/public/movie/${movieId}`);
-}
