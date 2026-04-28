@@ -2,15 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getWatchlistItemsByWatchlistId } from "../../api/watchlist.api";
 import { WatchlistItemCard } from "../../components/WatchlistItemCard/WatchlistItemCard";
-import type {
-  WatchlistItemsByWatchlistIdResponse,
-  WatchlistDTO,
-} from "../../types/watchlist.types";
+import type { WatchlistItemsByWatchlistIdResponse } from "../../types/watchlist.types";
 import styles from "./WatchlistPage.module.css";
 
 export function WatchlistPage() {
   const { watchlistId } = useParams<{ watchlistId: string }>();
-  const [watchlist] = useState<WatchlistDTO | null>(null);
   const [page, setPage] = useState(1);
   const [size] = useState(18);
 
@@ -21,11 +17,11 @@ export function WatchlistPage() {
   const [error, setError] = useState<string | null>(null);
 
   const refresh = () => {
-    setLoading(true);
-    setError(null);
-
     const id = Number(watchlistId);
     if (!Number.isFinite(id)) return;
+
+    setLoading(true);
+    setError(null);
 
     getWatchlistItemsByWatchlistId(id, {
       watched: undefined,
@@ -40,7 +36,7 @@ export function WatchlistPage() {
 
   useEffect(() => {
     refresh();
-  }, [page, size]);
+  }, [watchlistId, page, size]);
 
   return (
     <div className={styles.page}>
@@ -69,13 +65,8 @@ export function WatchlistPage() {
       {error && <div className={styles.error}>{error}</div>}
       {loading && <div>Loading...</div>}
 
-      <div>
-        <h3>{watchlist?.title}</h3>
-      </div>
-
       <div className={styles.list}>
         {data?.items.map((i) => (
-          
           <div className={styles.card} key={i.movieDTO.movieId}>
             <WatchlistItemCard
               watchlistItem={i}
