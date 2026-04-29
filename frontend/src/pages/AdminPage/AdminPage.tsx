@@ -26,18 +26,14 @@ type GenreFormState = {
 const initialMovieForm: AdminMovieFormState = {
   title: "",
   originalTitle: "",
-  description: "",
   overview: "",
   releaseDate: "",
   releaseYear: "",
   posterPath: "",
-  backdropPath: "",
   voteAverage: "",
   voteCount: "",
   popularity: "",
   originalLanguage: "",
-  adult: "",
-  video: "",
   genreIds: "",
 };
 
@@ -68,14 +64,6 @@ function parseOptionalNumber(value: string): number | null | undefined {
   if (!trimmed) return undefined;
   const parsed = Number(trimmed);
   return Number.isNaN(parsed) ? null : parsed;
-}
-
-function parseOptionalBoolean(value: string): boolean | null | undefined {
-  const trimmed = value.trim().toLowerCase();
-  if (!trimmed) return undefined;
-  if (trimmed === "true") return true;
-  if (trimmed === "false") return false;
-  return null;
 }
 
 function parseGenreIds(value: string): AdminMoviePayload["genres"] | null {
@@ -185,8 +173,6 @@ export function AdminPage() {
     const voteAverage = parseOptionalNumber(movieForm.voteAverage);
     const voteCount = parseOptionalNumber(movieForm.voteCount);
     const popularity = parseOptionalNumber(movieForm.popularity);
-    const adult = parseOptionalBoolean(movieForm.adult);
-    const video = parseOptionalBoolean(movieForm.video);
     const genres = parseGenreIds(movieForm.genreIds);
 
     if (
@@ -200,12 +186,6 @@ export function AdminPage() {
       return;
     }
 
-    if (adult === null || video === null) {
-      setMovieError('Boolean fields must be either "true" or "false".');
-      setMovieLoading(false);
-      return;
-    }
-
     if (genres === null) {
       setMovieError("Genre IDs must be comma-separated numbers.");
       setMovieLoading(false);
@@ -215,18 +195,14 @@ export function AdminPage() {
     const payload: AdminMoviePayload = {
       title: movieForm.title.trim(),
       originalTitle: movieForm.originalTitle.trim() || undefined,
-      description: movieForm.description.trim() || undefined,
       overview: movieForm.overview.trim() || undefined,
       releaseDate: movieForm.releaseDate || undefined,
       releaseYear: releaseYear ?? undefined,
       posterPath: movieForm.posterPath.trim() || undefined,
-      backdropPath: movieForm.backdropPath.trim() || undefined,
       voteAverage: voteAverage ?? undefined,
       voteCount: voteCount ?? undefined,
       popularity: popularity ?? undefined,
       originalLanguage: movieForm.originalLanguage.trim() || undefined,
-      adult: adult ?? undefined,
-      video: video ?? undefined,
       genres,
     };
 
@@ -480,18 +456,6 @@ export function AdminPage() {
               </label>
 
               <label className={styles.field}>
-                <span>Backdrop path</span>
-                <input
-                  className={styles.input}
-                  value={movieForm.backdropPath}
-                  onChange={(e) =>
-                    handleMovieChange("backdropPath", e.target.value)
-                  }
-                  placeholder="/backdrop.jpg"
-                />
-              </label>
-
-              <label className={styles.field}>
                 <span>Vote average</span>
                 <input
                   className={styles.input}
@@ -539,26 +503,6 @@ export function AdminPage() {
                 />
               </label>
 
-              <label className={styles.field}>
-                <span>Adult</span>
-                <input
-                  className={styles.input}
-                  value={movieForm.adult}
-                  onChange={(e) => handleMovieChange("adult", e.target.value)}
-                  placeholder="true or false"
-                />
-              </label>
-
-              <label className={styles.field}>
-                <span>Video</span>
-                <input
-                  className={styles.input}
-                  value={movieForm.video}
-                  onChange={(e) => handleMovieChange("video", e.target.value)}
-                  placeholder="true or false"
-                />
-              </label>
-
               <label className={`${styles.field} ${styles.fieldFull}`}>
                 <span>Overview</span>
                 <textarea
@@ -567,19 +511,6 @@ export function AdminPage() {
                   onChange={(e) => handleMovieChange("overview", e.target.value)}
                   placeholder="Short overview"
                   rows={4}
-                />
-              </label>
-
-              <label className={`${styles.field} ${styles.fieldFull}`}>
-                <span>Description</span>
-                <textarea
-                  className={styles.textarea}
-                  value={movieForm.description}
-                  onChange={(e) =>
-                    handleMovieChange("description", e.target.value)
-                  }
-                  placeholder="Longer description"
-                  rows={5}
                 />
               </label>
 
