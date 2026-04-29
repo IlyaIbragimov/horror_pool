@@ -1,7 +1,7 @@
 import { http } from "./http";
 import type {
+  AdminMovieDTO,
   MovieAllResponse,
-  MovieDTO,
   MoviesQuery,
   SearchMovieQuery,
 } from "../types/movie.types";
@@ -22,8 +22,8 @@ export function fetchMovies(
   return http<MovieAllResponse>(url);
 }
 
-export function fetchMovieById(movieId: number): Promise<MovieDTO> {
-  return http<MovieDTO>(`/public/movie/${movieId}`);
+export function fetchMovieById(movieId: number): Promise<AdminMovieDTO> {
+  return http<AdminMovieDTO>(`/public/movie/${movieId}`);
 }
 
 export function searchMovie(
@@ -46,8 +46,8 @@ export function searchMovie(
 export function addCommentToMovie(
   movieId: number,
   commentContent: string,
-): Promise<MovieDTO> {
-  return http<MovieDTO>(`/movie/${movieId}/addComment`, {
+): Promise<AdminMovieDTO> {
+  return http<AdminMovieDTO>(`/movie/${movieId}/addComment`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ commentContent })
@@ -58,8 +58,8 @@ export function replyToComment(
   movieId: number,
   commentId: number,
   commentContent: string,
-): Promise<MovieDTO> {
-  return http<MovieDTO>(`/movie/${movieId}/comment/${commentId}/reply`, {
+): Promise<AdminMovieDTO> {
+  return http<AdminMovieDTO>(`/movie/${movieId}/comment/${commentId}/reply`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ commentContent })
@@ -70,8 +70,8 @@ export function editComment(
   movieId: number,
   commentId: number,
   commentContent: string,
-): Promise<MovieDTO> {
-    return http<MovieDTO>(`/movie/${movieId}/editComment/${commentId}`, {
+): Promise<AdminMovieDTO> {
+    return http<AdminMovieDTO>(`/movie/${movieId}/editComment/${commentId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ commentContent })
@@ -81,8 +81,8 @@ export function editComment(
 export function deleteComment(
   movieId: number,
   commentId: number,
-): Promise<MovieDTO> {
-    return http<MovieDTO>(`/movie/${movieId}/deleteComment/${commentId}`, {
+): Promise<AdminMovieDTO> {
+    return http<AdminMovieDTO>(`/movie/${movieId}/deleteComment/${commentId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" }
   });
