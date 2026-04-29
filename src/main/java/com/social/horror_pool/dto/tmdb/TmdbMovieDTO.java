@@ -22,9 +22,6 @@ public class TmdbMovieDTO {
     @JsonProperty("poster_path")
     private String posterPath;
 
-    @JsonProperty("backdrop_path")
-    private String backdropPath;
-
     @JsonProperty("original_language")
     private String originalLanguage;
 
@@ -34,7 +31,5 @@ public class TmdbMovieDTO {
     @JsonProperty("vote_count")
     private Integer voteCount;
 
-    private Boolean adult;
-    private Boolean video;
     private Double popularity;
 }
