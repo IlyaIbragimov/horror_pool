@@ -1,9 +1,9 @@
-import type { MovieDTO } from "../../types/movie.types";
+import type { MovieSummaryDTO } from "../../types/movie.types";
 import styles from "./MovieCard.module.css";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-type Props = { movie: MovieDTO };
+type Props = { movie: MovieSummaryDTO };
 
 export function MovieCard({ movie }: Props) {
   const posterUrl = movie.posterPath ? `${TMDB_IMG_BASE}${movie.posterPath}` : null;
