@@ -88,18 +88,14 @@ public class MovieServiceImpl implements MovieService {
 
         movieToEdit.setTitle(movieDTO.getTitle());
         movieToEdit.setOriginalTitle(movieDTO.getOriginalTitle());
-        movieToEdit.setDescription(movieDTO.getDescription());
         movieToEdit.setOverview(movieDTO.getOverview());
         movieToEdit.setReleaseDate(movieDTO.getReleaseDate());
         movieToEdit.setReleaseYear(movieDTO.getReleaseYear());
         movieToEdit.setPosterPath(movieDTO.getPosterPath());
-        movieToEdit.setBackdropPath(movieDTO.getBackdropPath());
         movieToEdit.setVoteAverage(movieDTO.getVoteAverage());
         movieToEdit.setVoteCount(movieDTO.getVoteCount());
         movieToEdit.setPopularity(movieDTO.getPopularity());
         movieToEdit.setOriginalLanguage(movieDTO.getOriginalLanguage());
-        movieToEdit.setAdult(movieDTO.getAdult());
-        movieToEdit.setVideo(movieDTO.getVideo());
 
         if (!movieDTO.getGenres().isEmpty()) {
 
@@ -145,7 +141,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword, Integer year, String language, Boolean adult, Double voteAverage, Double popularity) {
+    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword, Integer year, String language, Double voteAverage, Double popularity) {
 
         if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
 
@@ -153,7 +149,7 @@ public class MovieServiceImpl implements MovieService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
 
-        Specification<Movie> filters = filterMovies(year,language,adult,voteAverage,popularity, keyword);
+        Specification<Movie> filters = filterMovies(year,language,voteAverage,popularity, keyword);
 
         Page<Movie> page = this.movieRepository.findAll(filters, pageable);
 
@@ -197,13 +193,10 @@ public class MovieServiceImpl implements MovieService {
         movie.setTitle(tmdbDTO.getTitle());
         movie.setOverview(tmdbDTO.getOverview());
         movie.setPosterPath(tmdbDTO.getPosterPath());
-        movie.setBackdropPath(tmdbDTO.getBackdropPath());
         movie.setOriginalLanguage(tmdbDTO.getOriginalLanguage());
         movie.setVoteAverage(tmdbDTO.getVoteAverage());
         movie.setVoteCount(tmdbDTO.getVoteCount());
         movie.setPopularity(tmdbDTO.getPopularity());
-        movie.setAdult(Boolean.TRUE.equals(tmdbDTO.getAdult()));
-        movie.setVideo(Boolean.TRUE.equals(tmdbDTO.getVideo()));
 
         LocalDate rd = tmdbDTO.getReleaseDate();
         if (rd != null) {
@@ -275,7 +268,7 @@ public class MovieServiceImpl implements MovieService {
         return response;
     }
 
-    private Specification<Movie> filterMovies(Integer year, String language, Boolean adult, Double voteAverage, Double popularity, String keyword) {
+    private Specification<Movie> filterMovies(Integer year, String language, Double voteAverage, Double popularity, String keyword) {
 
         Specification<Movie> filters = Specification.where(null);
 
@@ -287,11 +280,6 @@ public class MovieServiceImpl implements MovieService {
         if (language != null && !language.isBlank()) {
             filters = filters.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.equal(root.get("originalLanguage"), language));
-        }
-
-        if (adult != null) {
-            filters = filters.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("adult"), adult));
         }
 
         if (voteAverage != null) {
