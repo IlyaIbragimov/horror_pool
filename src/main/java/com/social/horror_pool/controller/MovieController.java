@@ -64,11 +64,10 @@ public class MovieController {
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order,
             @RequestParam(name = "year", required = false) Integer year,
             @RequestParam(name = "language", required = false) String language,
-            @RequestParam(name = "adult", required = false) Boolean adult,
             @RequestParam(name = "voteAverage", required = false) Double voteAverage,
             @RequestParam(name = "popularity", required = false) Double popularity
             ) {
-        MovieAllResponse result = this.movieService.getMoviesByKeyword(pageNumber, pageSize, sort, order, keyword,  year, language,  adult, voteAverage, popularity);
+        MovieAllResponse result = this.movieService.getMoviesByKeyword(pageNumber, pageSize, sort, order, keyword,  year, language, voteAverage, popularity);
         return new ResponseEntity<MovieAllResponse>(result, HttpStatus.OK);
     }
 
