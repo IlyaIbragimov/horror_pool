@@ -1,0 +1,4 @@
+ALTER TABLE public.movie
+  DROP COLUMN IF EXISTS adult,
+  DROP COLUMN IF EXISTS video,
+  DROP COLUMN IF EXISTS backdrop_path;
