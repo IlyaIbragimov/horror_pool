@@ -1,8 +1,8 @@
-import type { MovieDTO } from "../types/movie.types";
+import type { WatchlistMovieDTO } from "../types/movie.types";
 
 export type WatchlistItemDTO = {
   watchItemId: number;
-  movieDTO: MovieDTO;
+  movieDTO: WatchlistMovieDTO;
   watchlistId: number;
   watched: boolean;
 };
