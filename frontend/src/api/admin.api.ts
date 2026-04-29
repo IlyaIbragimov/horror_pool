@@ -7,10 +7,10 @@ import type {
   TmdbDiscoverRequest,
 } from "../types/admin.types";
 import type { Genre } from "../types/genre.types";
-import type { MovieDTO } from "../types/movie.types";
+import type { AdminMovieDTO } from "../types/movie.types";
 
-export function addMovie(movie: AdminMoviePayload): Promise<MovieDTO> {
-  return http<MovieDTO>("/admin/movie/add", {
+export function addMovie(movie: AdminMoviePayload): Promise<AdminMovieDTO> {
+  return http<AdminMovieDTO>("/admin/movie/add", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(movie),
@@ -20,16 +20,16 @@ export function addMovie(movie: AdminMoviePayload): Promise<MovieDTO> {
 export function editMovie(
   movieId: number,
   movie: AdminMoviePayload,
-): Promise<MovieDTO> {
-  return http<MovieDTO>(`/admin/movie/${movieId}/edit`, {
+): Promise<AdminMovieDTO> {
+  return http<AdminMovieDTO>(`/admin/movie/${movieId}/edit`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(movie),
   });
 }
 
-export function deleteMovie(movieId: number): Promise<MovieDTO> {
-  return http<MovieDTO>(`/admin/movie/${movieId}/delete`, {
+export function deleteMovie(movieId: number): Promise<AdminMovieDTO> {
+  return http<AdminMovieDTO>(`/admin/movie/${movieId}/delete`, {
     method: "DELETE",
   });
 }
