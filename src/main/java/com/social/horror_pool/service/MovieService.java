@@ -11,7 +11,7 @@ public interface MovieService {
     MovieAllResponse getAllMovies(Integer pageNumber, Integer pageSize, String sortBy, String order);
     MovieDTO editMovie(@Valid MovieDTO movieDTO, Long movieId);
     MovieDTO deleteMovie(Long movieId);
-    MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sort, String order, String keyword, Integer year, String language, Boolean adult, Double voteAverage, Double popularity);
+    MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sort, String order, String keyword, Integer year, String language, Double voteAverage, Double popularity);
     MovieDTO getMovieById(Long movieId);
     MovieDTO getMovieByTmdbId(Long tmdbId);
     boolean checkIftmdbIdExists(Long tmdbId);
