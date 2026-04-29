@@ -279,18 +279,14 @@ public class CommentServiceImplTest {
         movie.setMovieId(id);
         movie.setTitle(title);
         movie.setOriginalTitle(title);
-        movie.setDescription("Description for " + title);
         movie.setOverview("Overview for " + title);
         movie.setReleaseDate(LocalDate.of(2000 + id.intValue(), 1, 1));
         movie.setReleaseYear(2000 + id.intValue());
         movie.setPosterPath("/" + title.toLowerCase() + "_poster.jpg");
-        movie.setBackdropPath("/" + title.toLowerCase() + "_backdrop.jpg");
         movie.setVoteAverage(7.0 + id);
         movie.setVoteCount(1000 * id.intValue());
         movie.setPopularity(50.0 + id);
         movie.setOriginalLanguage("en");
-        movie.setAdult(false);
-        movie.setVideo(false);
         movie.setGenres(new ArrayList<>());
         movie.setWatchlistItems(new ArrayList<>());
         movie.setComments(new ArrayList<>());
@@ -303,18 +299,14 @@ public class CommentServiceImplTest {
                 movie.getTmdbId(),
                 movie.getTitle(),
                 movie.getOriginalTitle(),
-                movie.getDescription(),
                 movie.getOverview(),
                 movie.getReleaseDate(),
                 movie.getReleaseYear(),
                 movie.getPosterPath(),
-                movie.getBackdropPath(),
                 movie.getVoteAverage(),
                 movie.getVoteCount(),
                 movie.getPopularity(),
                 movie.getOriginalLanguage(),
-                movie.getAdult(),
-                movie.getVideo(),
                 new ArrayList<>(),
                 new ArrayList<>()
         );

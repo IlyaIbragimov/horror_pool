@@ -268,25 +268,6 @@ public class MovieServiceImplTest {
     }
 
     @Test
-    public void editMovie_EditOnlyDescription_Success() {
-        MovieDTO updatedMovieDTO = createMovieDTO(movie1);
-        updatedMovieDTO.setDescription("updated description");
-
-        when(movieRepository.findById(movie1.getMovieId())).thenReturn(Optional.of(movie1));
-        when(movieRepository.findByTitle(movie1.getTitle())).thenReturn(movie1);
-        when(movieRepository.save(movie1)).thenReturn(movie1);
-        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(updatedMovieDTO);
-
-        MovieDTO result = movieService.editMovie(updatedMovieDTO, movie1.getMovieId());
-
-        assertNotNull(result);
-        assertEquals("updated description", result.getDescription());
-
-        verify(movieRepository).save(movie1);
-        verify(modelMapper).map(movie1, MovieDTO.class);
-    }
-
-    @Test
     public void deleteMovie_Success_ReturnsDtoOfDeletedMovie() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
@@ -336,7 +317,7 @@ public class MovieServiceImplTest {
         )).thenReturn(moviePage);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
 
-        MovieAllResponse response = movieService.getMoviesByKeyword(0, 10, sortBy, order, keyword, year, language, adult, voteAverage, popularity);
+        MovieAllResponse response = movieService.getMoviesByKeyword(0, 10, sortBy, order, keyword, year, language, voteAverage, popularity);
 
         assertNotNull(response);
         assertEquals(1, response.getMovies().size());
@@ -353,7 +334,7 @@ public class MovieServiceImplTest {
         String invalidSortBy = "wrong_field";
 
         APIException ex = assertThrows(APIException.class, () -> {
-            movieService.getMoviesByKeyword(0, 10, invalidSortBy, "asc", "alien", 1979, "en", false, 8.0, 50.0);
+            movieService.getMoviesByKeyword(0, 10, invalidSortBy, "asc", "alien", 1979, "en", 8.0,  50.0);
         });
 
         assertEquals("Invalid sort field", ex.getMessage());
@@ -388,18 +369,14 @@ public class MovieServiceImplTest {
         movie.setMovieId(id);
         movie.setTitle(title);
         movie.setOriginalTitle(title);
-        movie.setDescription("Description for " + title);
         movie.setOverview("Overview for " + title);
         movie.setReleaseDate(LocalDate.of(2000 + id.intValue(), 1, 1));
         movie.setReleaseYear(2000 + id.intValue());
         movie.setPosterPath("/" + title.toLowerCase() + "_poster.jpg");
-        movie.setBackdropPath("/" + title.toLowerCase() + "_backdrop.jpg");
         movie.setVoteAverage(7.0 + id);
         movie.setVoteCount(1000 * id.intValue());
         movie.setPopularity(50.0 + id);
         movie.setOriginalLanguage("en");
-        movie.setAdult(adult);
-        movie.setVideo(false);
         movie.setGenres(new ArrayList<>());
         movie.setWatchlistItems(new ArrayList<>());
         movie.setComments(new ArrayList<>());
@@ -428,18 +405,14 @@ public class MovieServiceImplTest {
                 movie.getTmdbId(),
                 movie.getTitle(),
                 movie.getOriginalTitle(),
-                movie.getDescription(),
                 movie.getOverview(),
                 movie.getReleaseDate(),
                 movie.getReleaseYear(),
                 movie.getPosterPath(),
-                movie.getBackdropPath(),
                 movie.getVoteAverage(),
                 movie.getVoteCount(),
                 movie.getPopularity(),
                 movie.getOriginalLanguage(),
-                movie.getAdult(),
-                movie.getVideo(),
                 new ArrayList<>(),
                 new ArrayList<>()
         );
