@@ -25,12 +25,8 @@ export type WatchlistMovieDTO = {
 export type AdminMovieDTO = MovieDetailDTO & {
   tmdbId: number | null;
   originalTitle?: string | null;
-  description?: string | null;
   releaseYear: number | null;
-  backdropPath: string | null;
   popularity: number | null;
-  adult?: boolean | null;
-  video?: boolean | null;
   genres?: Genre[];
 };
 
