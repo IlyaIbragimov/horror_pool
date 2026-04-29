@@ -1,28 +1,41 @@
 import type { Genre } from "./genre.types";
 
-export type MovieDTO = {
+export type MovieSummaryDTO = {
   movieId: number;
-  tmdbId: number | null;
   title: string;
+  releaseDate: string | null;  
+  posterPath: string | null;
+  voteAverage: number | null;
+};
+
+export type MovieDetailDTO = MovieSummaryDTO & {
+  overview: string | null;
+  voteCount: number | null;
+  originalLanguage: string | null;
+  comments: Comment[];
+};
+
+export type WatchlistMovieDTO = {
+  movieId: number;
+  title: string;
+  posterPath: string | null;
+  overview: string | null;
+};
+
+export type AdminMovieDTO = MovieDetailDTO & {
+  tmdbId: number | null;
   originalTitle?: string | null;
   description?: string | null;
-  overview: string | null;
-  releaseDate: string | null;  
   releaseYear: number | null;
-  posterPath: string | null;
   backdropPath: string | null;
-  voteAverage: number | null;
-  voteCount: number | null;
   popularity: number | null;
-  originalLanguage: string | null;
   adult?: boolean | null;
   video?: boolean | null;
   genres?: Genre[];
-  comments: Comment[];
-}
+};
 
 export type MovieAllResponse = {
-    movies: MovieDTO[];
+    movies: MovieSummaryDTO[];
     pageNumber: number;
     pageSize: number;
     totalElements?: number;
