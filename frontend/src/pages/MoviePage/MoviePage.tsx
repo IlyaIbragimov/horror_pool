@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { MovieDTO, CommentNode } from "../../types/movie.types";
+import type { AdminMovieDTO, CommentNode } from "../../types/movie.types";
 import type {
   AdminMovieFormState,
   AdminMoviePayload,
@@ -39,7 +39,7 @@ function parseOptionalBoolean(value: string): boolean | null | undefined {
   return null;
 }
 
-function buildInitialEditForm(movie: MovieDTO): AdminMovieFormState {
+function buildInitialEditForm(movie: AdminMovieDTO): AdminMovieFormState {
   return {
     title: movie.title ?? "",
     originalTitle: movie.originalTitle ?? "",
@@ -80,7 +80,7 @@ function buildInitialEditForm(movie: MovieDTO): AdminMovieFormState {
 export function MoviePage() {
   const { movieId } = useParams();
 
-  const [movie, setMovie] = useState<MovieDTO | null>(null);
+  const [movie, setMovie] = useState<AdminMovieDTO | null>(null);
   const [pageLoading, setPageLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -452,30 +452,22 @@ export function MoviePage() {
 
             <div className={styles.metaRow}>
               <span className={styles.badge}>
-                ⭐ {movie.voteAverage ?? "-"}
+                TMDB rating: ⭐ {movie.voteAverage ?? "-"}
               </span>
               <span className={styles.badge}>
-                📅 {movie.releaseDate ?? "-"}
+                Release date: 📅 {movie.releaseDate ?? "-"}
               </span>
               <span className={styles.badge}>
-                🗣️ {movie.originalLanguage ?? "-"}
+                Original language: 🗣️ {movie.originalLanguage ?? "-"}
               </span>
               <span className={styles.badge}>
-                👥 votes {movie.voteCount ?? "-"}
+                TMDB votes: 👥 {movie.voteCount ?? "-"}
               </span>
             </div>
 
             {movie.overview && (
               <div className={styles.overview}>{movie.overview}</div>
             )}
-
-            <div className={styles.kv}>
-              <div className={styles.k}>Release year</div>
-              <div>{movie.releaseYear ?? "-"}</div>
-
-              <div className={styles.k}>Popularity</div>
-              <div>{movie.popularity ?? "-"}</div>
-            </div>
 
             <div className={styles.movie_page_actions}>
               <Link
