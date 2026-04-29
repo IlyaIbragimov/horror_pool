@@ -24,21 +24,17 @@ public class Movie {
 
     private String title;
     private String originalTitle;
-    private String description;
     private String overview;
     private LocalDate releaseDate;
     private Integer releaseYear;
 
     private String posterPath;
-    private String backdropPath;
 
     private Double voteAverage;
     private Integer voteCount;
     private Double popularity;
 
     private String originalLanguage;
-    private Boolean adult;
-    private Boolean video;
 
     @ManyToMany
     @JoinTable(name = "movie_genre",
