@@ -31,19 +31,10 @@ function parseOptionalNumber(value: string): number | null | undefined {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-function parseOptionalBoolean(value: string): boolean | null | undefined {
-  const trimmed = value.trim().toLowerCase();
-  if (!trimmed) return undefined;
-  if (trimmed === "true") return true;
-  if (trimmed === "false") return false;
-  return null;
-}
-
 function buildInitialEditForm(movie: AdminMovieDTO): AdminMovieFormState {
   return {
     title: movie.title ?? "",
     originalTitle: movie.originalTitle ?? "",
-    description: movie.description ?? "",
     overview: movie.overview ?? "",
     releaseDate: movie.releaseDate ?? "",
     releaseYear:
@@ -51,7 +42,6 @@ function buildInitialEditForm(movie: AdminMovieDTO): AdminMovieFormState {
         ? ""
         : String(movie.releaseYear),
     posterPath: movie.posterPath ?? "",
-    backdropPath: movie.backdropPath ?? "",
     voteAverage:
       movie.voteAverage === null || movie.voteAverage === undefined
         ? ""
@@ -65,14 +55,6 @@ function buildInitialEditForm(movie: AdminMovieDTO): AdminMovieFormState {
         ? ""
         : String(movie.popularity),
     originalLanguage: movie.originalLanguage ?? "",
-    adult:
-      movie.adult === null || movie.adult === undefined
-        ? ""
-        : String(movie.adult),
-    video:
-      movie.video === null || movie.video === undefined
-        ? ""
-        : String(movie.video),
     genreIds: movie.genres?.map((genre) => genre.genreId).join(", ") ?? "",
   };
 }
@@ -264,8 +246,6 @@ export function MoviePage() {
     const voteAverage = parseOptionalNumber(movieEditForm.voteAverage);
     const voteCount = parseOptionalNumber(movieEditForm.voteCount);
     const popularity = parseOptionalNumber(movieEditForm.popularity);
-    const adult = parseOptionalBoolean(movieEditForm.adult);
-    const video = parseOptionalBoolean(movieEditForm.video);
 
     if (
       releaseYear === null ||
@@ -274,11 +254,6 @@ export function MoviePage() {
       popularity === null
     ) {
       setError("Numeric fields must contain valid numbers.");
-      return;
-    }
-
-    if (adult === null || video === null) {
-      setError('Boolean fields must be either "true" or "false".');
       return;
     }
 
@@ -298,18 +273,14 @@ export function MoviePage() {
     const payload: AdminMoviePayload = {
       title: movieEditForm.title.trim(),
       originalTitle: movieEditForm.originalTitle.trim() || undefined,
-      description: movieEditForm.description.trim() || undefined,
       overview: movieEditForm.overview.trim() || undefined,
       releaseDate: movieEditForm.releaseDate || undefined,
       releaseYear: releaseYear ?? undefined,
       posterPath: movieEditForm.posterPath.trim() || undefined,
-      backdropPath: movieEditForm.backdropPath.trim() || undefined,
       voteAverage: voteAverage ?? undefined,
       voteCount: voteCount ?? undefined,
       popularity: popularity ?? undefined,
       originalLanguage: movieEditForm.originalLanguage.trim() || undefined,
-      adult: adult ?? undefined,
-      video: video ?? undefined,
       genres: genreIds?.map((genreId) => ({
         genreId,
         name: "",
@@ -567,17 +538,6 @@ export function MoviePage() {
                   </label>
 
                   <label className={styles.movie_edit_field}>
-                    <span>Backdrop path</span>
-                    <input
-                      className={styles.movie_edit_input}
-                      value={movieEditForm.backdropPath}
-                      onChange={(e) =>
-                        handleMovieEditChange("backdropPath", e.target.value)
-                      }
-                    />
-                  </label>
-
-                  <label className={styles.movie_edit_field}>
                     <span>Vote average</span>
                     <input
                       className={styles.movie_edit_input}
@@ -624,30 +584,6 @@ export function MoviePage() {
                     />
                   </label>
 
-                  <label className={styles.movie_edit_field}>
-                    <span>Adult</span>
-                    <input
-                      className={styles.movie_edit_input}
-                      value={movieEditForm.adult}
-                      onChange={(e) =>
-                        handleMovieEditChange("adult", e.target.value)
-                      }
-                      placeholder="true or false"
-                    />
-                  </label>
-
-                  <label className={styles.movie_edit_field}>
-                    <span>Video</span>
-                    <input
-                      className={styles.movie_edit_input}
-                      value={movieEditForm.video}
-                      onChange={(e) =>
-                        handleMovieEditChange("video", e.target.value)
-                      }
-                      placeholder="true or false"
-                    />
-                  </label>
-
                   <label
                     className={`${styles.movie_edit_field} ${styles.movie_edit_field_full}`}
                   >
@@ -659,20 +595,6 @@ export function MoviePage() {
                         handleMovieEditChange("overview", e.target.value)
                       }
                       rows={4}
-                    />
-                  </label>
-
-                  <label
-                    className={`${styles.movie_edit_field} ${styles.movie_edit_field_full}`}
-                  >
-                    <span>Description</span>
-                    <textarea
-                      className={styles.movie_edit_textarea}
-                      value={movieEditForm.description}
-                      onChange={(e) =>
-                        handleMovieEditChange("description", e.target.value)
-                      }
-                      rows={5}
                     />
                   </label>
 
