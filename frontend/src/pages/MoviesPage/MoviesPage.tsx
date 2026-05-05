@@ -1,25 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchMovies, searchMovie } from "../../api/movie.api";
 import { getCachedMovies, setCachedMovies } from "../../cache/moviesCache";
 import type { MovieAllResponse } from "../../types/movie.types";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
+import { MovieNav } from "../../components/MovieNav/MovieNav";
 import { Pager } from "../../components/Pager/Pager";
 import styles from "./MoviesPage.module.css";
 import { Link, useSearchParams } from "react-router-dom";
-
-const currentYear = new Date().getFullYear();
-const releaseYears = Array.from(
-  { length: currentYear - 1899 },
-  (_, index) => currentYear - index,
-);
 
 export function MoviesPage() {
   
   const [data, setData] = useState<MovieAllResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [releaseYearMenuOpen, setReleaseYearMenuOpen] = useState(false);
-  const releaseYearMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -49,25 +42,6 @@ export function MoviesPage() {
   };
 
   const goToPage = (p: number) => setQuery({ page: String(p) });
-
-  useEffect(() => {
-    if (!releaseYearMenuOpen) return;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (
-        releaseYearMenuRef.current &&
-        !releaseYearMenuRef.current.contains(event.target as Node)
-      ) {
-        setReleaseYearMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-    };
-  }, [releaseYearMenuOpen]);
 
   useEffect(() => {
     const paramsBase = { page: pageParam - 1, size: sizeParam, sort: sortParam, order: orderParam };
@@ -101,63 +75,12 @@ export function MoviesPage() {
     <div className={styles.page}>
       <div className={styles.header}>
 
-        <nav className={styles.nav}>
-        <button
-            className={`${styles.navItem} ${sortParam === "releaseDate" && orderParam === "desc" ? styles.active : ""}`}
-            onClick={() => setQuery({ sort: "releaseDate", order: "desc", page: "1" })}
-            >
-            Newest
-        </button>
-
-        <button
-            className={`${styles.navItem} ${sortParam === "popularity" && orderParam === "desc" ? styles.active : ""}`}
-            onClick={() => setQuery({ sort: "popularity", order: "desc", page: "1" })}
-            >
-           Popular
-        </button>
-
-        <button
-            className={`${styles.navItem} ${sortParam === "voteAverage" && orderParam === "desc" ? styles.active : ""}`}
-            onClick={() => setQuery({ sort: "voteAverage", order: "desc", page: "1" })}
-            >
-           Most Rated
-        </button>
-
-        <div className={styles.releaseYearMenu} ref={releaseYearMenuRef}>
-          <button
-            className={`${styles.navItem} ${yearParam ? styles.active : ""}`}
-            onClick={() => setReleaseYearMenuOpen((open) => !open)}
-            type="button"
-          >
-            Release Year{yearParam ? `: ${yearParam}` : ""}
-          </button>
-          {releaseYearMenuOpen && <div className={styles.releaseYearDropdown}>
-            <button
-              className={styles.releaseYearOption}
-              onClick={() => {
-                setQuery({ year: null, page: "1" });
-                setReleaseYearMenuOpen(false);
-              }}
-              type="button"
-            >
-              All years
-            </button>
-            {releaseYears.map((year) => (
-              <button
-                className={`${styles.releaseYearOption} ${yearParam === year ? styles.activeYear : ""}`}
-                key={year}
-                onClick={() => {
-                  setQuery({ year: String(year), page: "1" });
-                  setReleaseYearMenuOpen(false);
-                }}
-                type="button"
-              >
-                {year}
-              </button>
-            ))}
-          </div>}
-        </div>
-        </nav>
+        <MovieNav
+          sortParam={sortParam}
+          orderParam={orderParam}
+          yearParam={yearParam}
+          onQueryChange={setQuery}
+        />
 
         <Pager
           className={styles.pager}
