@@ -141,7 +141,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword, Integer year, String language, Double voteAverage, Double popularity) {
+    public MovieAllResponse getMoviesByKeyword(Integer pageNumber, Integer pageSize, String sortBy, String order, String keyword, Integer year, Double voteAverage, Double popularity) {
 
         if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
 
@@ -149,7 +149,7 @@ public class MovieServiceImpl implements MovieService {
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
 
-        Specification<Movie> filters = filterMovies(year,language,voteAverage,popularity, keyword);
+        Specification<Movie> filters = filterMovies(year,voteAverage,popularity, keyword);
 
         Page<Movie> page = this.movieRepository.findAll(filters, pageable);
 
@@ -268,18 +268,13 @@ public class MovieServiceImpl implements MovieService {
         return response;
     }
 
-    private Specification<Movie> filterMovies(Integer year, String language, Double voteAverage, Double popularity, String keyword) {
+    private Specification<Movie> filterMovies(Integer year, Double voteAverage, Double popularity, String keyword) {
 
         Specification<Movie> filters = Specification.where(null);
 
         if (year != null) {
            filters = filters.and((root, query, criteriaBuilder) ->
                    criteriaBuilder.equal(root.get("releaseYear"), year));
-        }
-
-        if (language != null && !language.isBlank()) {
-            filters = filters.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("originalLanguage"), language));
         }
 
         if (voteAverage != null) {

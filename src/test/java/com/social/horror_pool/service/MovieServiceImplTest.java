@@ -306,7 +306,6 @@ public class MovieServiceImplTest {
         String order = "asc";
         String keyword = "alien";
         Integer year = 2001;
-        String language = "en";
         Boolean adult = false;
         Double voteAverage = 8.0;
         Double popularity = 51.0;
@@ -317,7 +316,7 @@ public class MovieServiceImplTest {
         )).thenReturn(moviePage);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
 
-        MovieAllResponse response = movieService.getMoviesByKeyword(0, 10, sortBy, order, keyword, year, language, voteAverage, popularity);
+        MovieAllResponse response = movieService.getMoviesByKeyword(0, 10, sortBy, order, keyword, year, voteAverage, popularity);
 
         assertNotNull(response);
         assertEquals(1, response.getMovies().size());
@@ -334,7 +333,7 @@ public class MovieServiceImplTest {
         String invalidSortBy = "wrong_field";
 
         APIException ex = assertThrows(APIException.class, () -> {
-            movieService.getMoviesByKeyword(0, 10, invalidSortBy, "asc", "alien", 1979, "en", 8.0,  50.0);
+            movieService.getMoviesByKeyword(0, 10, invalidSortBy, "asc", "alien", 1979, 8.0,  50.0);
         });
 
         assertEquals("Invalid sort field", ex.getMessage());
