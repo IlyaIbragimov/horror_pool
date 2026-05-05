@@ -44,6 +44,7 @@ export type MoviesQuery = {
   size?: number;
   sort?: string;
   order?: string;
+  year?: number;
 };
 
 export type SearchMovieQuery = {
