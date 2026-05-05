@@ -99,6 +99,7 @@ export function fetchMoviesByGenre(
   if (params.size !== undefined) search.set("size", String(params.size));
   if (params.sort) search.set("sort", params.sort);
   if (params.order) search.set("order", params.order);
+  if (params.year !== undefined) search.set("year", String(params.year));
 
   const qs = search.toString();
   const url = `/public/movie/genre/${genreId}${qs ? `?${qs}` : ""}`;
