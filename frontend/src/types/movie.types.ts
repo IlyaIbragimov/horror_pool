@@ -48,6 +48,7 @@ export type MoviesQuery = {
 
 export type SearchMovieQuery = {
   keyword?: string;
+  year?: number;
   page?: number;
   size?: number;
   sort?: string;

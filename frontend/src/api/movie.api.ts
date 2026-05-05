@@ -32,6 +32,7 @@ export function searchMovie(
   const search = new URLSearchParams();
 
   if (params.keyword !== undefined) search.set("keyword", params.keyword);
+  if (params.year !== undefined) search.set("year", String(params.year));
   if (params.page !== undefined) search.set("page", String(params.page));
   if (params.size !== undefined) search.set("size", String(params.size));
   if (params.sort) search.set("sort", params.sort);

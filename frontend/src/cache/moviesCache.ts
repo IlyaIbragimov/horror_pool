@@ -7,6 +7,7 @@ type MoviesCacheKeyParams = {
   sort: "title" | "popularity" | "releaseDate" | "voteAverage";
   order: "asc" | "desc";
   keyword?: string;
+  year?: number;
 };
 
 const moviesCache = new Map<string, MovieAllResponse>();
