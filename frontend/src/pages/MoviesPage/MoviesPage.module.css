@@ -84,6 +84,14 @@
     position: relative;
   }
 
+  .releaseYearMenu summary {
+    list-style: none;
+  }
+
+  .releaseYearMenu summary::-webkit-details-marker {
+    display: none;
+  }
+
   .releaseYearDropdown {
     position: absolute;
     top: calc(100% + 8px);
