@@ -241,13 +241,18 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieAllResponse getMoviesByGenre(Long genreId, Integer pageNumber, Integer pageSize, String sortBy,  String order) {
+    public MovieAllResponse getMoviesByGenre(Long genreId, Integer pageNumber, Integer pageSize, String sortBy,  String order, Integer year) {
         this.genreRepository.findById(genreId)
                 .orElseThrow(() -> new ResourceNotFoundException("Genre", "genre", genreId));
 
+        if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
+
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
-        Page<Movie> page = this.movieRepository.findByGenres_GenreId(genreId, pageable);
+
+        Specification<Movie> filters = filterMoviesByGenre(genreId, year);
+
+        Page<Movie> page = this.movieRepository.findAll(filters, pageable);
 
         return generateMovieAllResponse(page, pageNumber, pageSize);
     }
@@ -290,6 +295,23 @@ public class MovieServiceImpl implements MovieService {
         if (keyword != null && !keyword.isBlank()) {
             filters = filters.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), "%" + keyword.toLowerCase() + "%"));
+        }
+
+        return filters;
+    }
+
+    private Specification<Movie> filterMoviesByGenre(Long genreId, Integer year) {
+
+        Specification<Movie> filters = (root, query, criteriaBuilder) -> {
+            if (query != null) {
+                query.distinct(true);
+            }
+            return criteriaBuilder.equal(root.join("genres").get("genreId"), genreId);
+        };
+
+        if (year != null) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("releaseYear"), year));
         }
 
         return filters;
