@@ -174,9 +174,10 @@ public class MovieController {
             @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
             @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
             @RequestParam (name = "sort", defaultValue = AppConstants.SORT_TYPE_MOVIE_DEFAULT, required = false) String sort,
-            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
+            @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order,
+            @RequestParam(name = "year", required = false) Integer year
         ) {
-        MovieAllResponse response = this.movieService.getMoviesByGenre(genreId, pageNumber, pageSize, sort, order);
+        MovieAllResponse response = this.movieService.getMoviesByGenre(genreId, pageNumber, pageSize, sort, order, year);
         return new ResponseEntity<MovieAllResponse>(response, HttpStatus.OK);
     }
 
