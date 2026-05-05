@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { fetchMoviesByGenre } from "../../api/movie.api";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
+import { MovieNav } from "../../components/MovieNav/MovieNav";
 import { Pager } from "../../components/Pager/Pager";
 import type { MovieAllResponse } from "../../types/movie.types";
 import styles from "../MoviesPage/MoviesPage.module.css";
@@ -22,10 +23,22 @@ export function GenrePage() {
     | "releaseDate"
     | "voteAverage";
   const orderParam = (searchParams.get("order") ?? "asc") as "asc" | "desc";
+  const yearParamRaw = searchParams.get("year");
+  const parsedYearParam = yearParamRaw ? Number(yearParamRaw) : undefined;
+  const yearParam =
+    parsedYearParam !== undefined && Number.isFinite(parsedYearParam)
+      ? parsedYearParam
+      : undefined;
 
-  const setQuery = (patch: Record<string, string>) => {
+  const setQuery = (patch: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams);
-    Object.entries(patch).forEach(([k, v]) => next.set(k, v));
+    Object.entries(patch).forEach(([k, v]) => {
+      if (v === null) {
+        next.delete(k);
+      } else {
+        next.set(k, v);
+      }
+    });
     setSearchParams(next);
   };
 
@@ -49,43 +62,22 @@ export function GenrePage() {
       size: sizeParam,
       sort: sortParam,
       order: orderParam,
+      year: yearParam,
     })
       .then((result) => setData(result))
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-  }, [genreId, pageParam, sizeParam, sortParam, orderParam]);
+  }, [genreId, pageParam, sizeParam, sortParam, orderParam, yearParam]);
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <nav className={styles.nav}>
-          <button
-            className={`${styles.navItem} ${sortParam === "releaseDate" && orderParam === "desc" ? styles.active : ""}`}
-            onClick={() =>
-              setQuery({ sort: "releaseDate", order: "desc", page: "1" })
-            }
-          >
-            Newest
-          </button>
-
-          <button
-            className={`${styles.navItem} ${sortParam === "popularity" && orderParam === "desc" ? styles.active : ""}`}
-            onClick={() =>
-              setQuery({ sort: "popularity", order: "desc", page: "1" })
-            }
-          >
-            Popular
-          </button>
-
-          <button
-            className={`${styles.navItem} ${sortParam === "voteAverage" && orderParam === "desc" ? styles.active : ""}`}
-            onClick={() =>
-              setQuery({ sort: "voteAverage", order: "desc", page: "1" })
-            }
-          >
-            Most Rated
-          </button>
-        </nav>
+        <MovieNav
+          sortParam={sortParam}
+          orderParam={orderParam}
+          yearParam={yearParam}
+          onQueryChange={setQuery}
+        />
 
         <Pager
           className={styles.pager}
