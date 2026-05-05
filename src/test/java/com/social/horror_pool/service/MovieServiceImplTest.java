@@ -340,6 +340,42 @@ public class MovieServiceImplTest {
     }
 
     @Test
+    public void getMoviesByGenre_WithYear_ReturnsFilteredMovieAllResponse() {
+        List<Movie> movies = Collections.singletonList(movie1);
+        Page<Movie> moviePage = new PageImpl<>(movies);
+
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(genre1));
+        when(movieRepository.findAll(
+                ArgumentMatchers.<Specification<Movie>>any(),
+                any(Pageable.class)
+        )).thenReturn(moviePage);
+        when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
+
+        MovieAllResponse response = movieService.getMoviesByGenre(1L, 0, 10, "title", "asc", 2001);
+
+        assertNotNull(response);
+        assertEquals(1, response.getMovies().size());
+        assertEquals("Alien", response.getMovies().getFirst().getTitle());
+
+        verify(genreRepository).findById(1L);
+        verify(movieRepository).findAll(
+                ArgumentMatchers.<Specification<Movie>>any(),
+                any(Pageable.class)
+        );
+    }
+
+    @Test
+    public void getMoviesByGenre_InvalidSortField_ThrowsAPIException() {
+        when(genreRepository.findById(1L)).thenReturn(Optional.of(genre1));
+
+        APIException ex = assertThrows(APIException.class, () ->
+                movieService.getMoviesByGenre(1L, 0, 10, "wrong_field", "asc", 2001)
+        );
+
+        assertEquals("Invalid sort field", ex.getMessage());
+    }
+
+    @Test
     public void getMovieById_ReturnsMovieWithTheSameId() {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
         when(movieCommentsMapper.returnMovieWithComments(movie1)).thenReturn(dto1);
