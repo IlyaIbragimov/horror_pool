@@ -2,6 +2,7 @@ package com.social.horror_pool.tmdb;
 
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
+import com.social.horror_pool.dto.tmdb.TmdbVideoResponse;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.payload.tmdb.TmdbDiscoverMovieAllResponse;
 import com.social.horror_pool.payload.tmdb.TmdbDiscoverRequest;
@@ -33,11 +34,11 @@ public class TmdbClient {
 
     @Retry(name = "tmdbRetry")
     @RateLimiter(name = "tmdbMovieById")
-    public Optional<TmdbMovieDTO> getMovieById(long tmdbId, String language) {
+    public Optional<TmdbMovieDTO> getMovieById(long tmdbId) {
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl)
                 .path("/movie/{id}")
-                .queryParam("language", language)
+                .queryParam("language", AppConstants.TMDB_DEFAULT_LANGUAGE)
                 .buildAndExpand(tmdbId)
                 .toUriString();
 
@@ -56,6 +57,34 @@ public class TmdbClient {
             return Optional.empty();
         } catch (RestClientException ex) {
             throw new APIException("TMDB request failed" + ex);
+        }
+    }
+
+    @Retry(name = "tmdbRetry")
+    @RateLimiter(name = "tmdbMovieById")
+    public Optional<TmdbVideoResponse> getMovieVideos(long tmdbId) {
+        String url = UriComponentsBuilder
+                .fromUriString(baseUrl)
+                .path("/movie/{id}/videos")
+                .queryParam("language", AppConstants.TMDB_DEFAULT_LANGUAGE)
+                .buildAndExpand(tmdbId)
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(readToken);
+        headers.setAccept(java.util.List.of(MediaType.APPLICATION_JSON));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<TmdbVideoResponse> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, TmdbVideoResponse.class
+            );
+            return Optional.ofNullable(response.getBody());
+        } catch (HttpClientErrorException.NotFound ex) {
+            return Optional.empty();
+        } catch (RestClientException ex) {
+            throw new APIException("TMDB videos request failed: " + ex.getMessage());
         }
     }
 
