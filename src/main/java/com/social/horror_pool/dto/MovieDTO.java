@@ -28,10 +28,19 @@ public class MovieDTO {
     private Double voteAverage;
     private Integer voteCount;
     private Double popularity;
+    private String trailerUrl;
 
     private String originalLanguage;
 
     private List<GenreDTO> genres = new ArrayList<>();
 
     private List<CommentDTO> comments = new ArrayList<>();
+
+    public MovieDTO(Long movieId, Long tmdbId, String title, String originalTitle, String overview,
+                    LocalDate releaseDate, Integer releaseYear, String posterPath, Double voteAverage,
+                    Integer voteCount, Double popularity, String originalLanguage,
+                    List<GenreDTO> genres, List<CommentDTO> comments) {
+        this(movieId, tmdbId, title, originalTitle, overview, releaseDate, releaseYear, posterPath,
+                voteAverage, voteCount, popularity, null, originalLanguage, genres, comments);
+    }
 }

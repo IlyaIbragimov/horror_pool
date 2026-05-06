@@ -33,6 +33,7 @@ public class Movie {
     private Double voteAverage;
     private Integer voteCount;
     private Double popularity;
+    private String trailerUrl;
 
     private String originalLanguage;
 
