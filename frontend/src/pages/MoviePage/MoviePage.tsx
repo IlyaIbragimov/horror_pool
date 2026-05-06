@@ -31,6 +31,21 @@ function parseOptionalNumber(value: string): number | null | undefined {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
+function buildYoutubeEmbedUrl(trailerUrl: string | null) {
+  if (!trailerUrl) return null;
+
+  try {
+    const url = new URL(trailerUrl);
+    const videoKey = url.hostname.includes("youtu.be")
+      ? url.pathname.slice(1)
+      : url.searchParams.get("v");
+
+    return videoKey ? `https://www.youtube.com/embed/${videoKey}` : null;
+  } catch {
+    return null;
+  }
+}
+
 function buildInitialEditForm(movie: AdminMovieDTO): AdminMovieFormState {
   return {
     title: movie.title ?? "",
@@ -75,6 +90,7 @@ export function MoviePage() {
   const [formText, setFormText] = useState("");
   const [showMovieEditForm, setShowMovieEditForm] = useState(false);
   const [movieActionLoading, setMovieActionLoading] = useState(false);
+  const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [movieEditForm, setMovieEditForm] =
     useState<AdminMovieFormState | null>(null);
   const navigate = useNavigate();
@@ -318,6 +334,7 @@ export function MoviePage() {
   const posterUrl = movie.posterPath
     ? `${TMDB_IMG_BASE}${movie.posterPath}`
     : null;
+  const trailerEmbedUrl = buildYoutubeEmbedUrl(movie.trailerUrl);
 
   const tree = buildCommentsTree(movie.comments);
 
@@ -391,18 +408,18 @@ export function MoviePage() {
   };
 
   const handleAddToWatchlistClick = (
-  e: React.MouseEvent<HTMLAnchorElement>,
-) => {
-  if (authLoading) {
-    e.preventDefault();
-    return;
-  }
+    e: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    if (authLoading) {
+      e.preventDefault();
+      return;
+    }
 
-  if (!user) {
-    e.preventDefault();
-    navigate("/login", { state: { backgroundLocation: location } });
-  }
-};
+    if (!user) {
+      e.preventDefault();
+      navigate("/login", { state: { backgroundLocation: location } });
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -412,11 +429,26 @@ export function MoviePage() {
         </Link>
 
         <div className={styles.header}>
-          {posterUrl ? (
-            <img className={styles.poster} src={posterUrl} alt={movie.title} />
-          ) : (
-            <div className={styles.poster} />
-          )}
+          <div>
+            {posterUrl ? (
+              <img
+                className={styles.poster}
+                src={posterUrl}
+                alt={movie.title}
+              />
+            ) : (
+              <div className={styles.poster} />
+            )}
+            {trailerEmbedUrl && (
+              <button
+                type="button"
+                className={styles.trailer_button}
+                onClick={() => setIsTrailerModalOpen(true)}
+              >
+                Watch Trailer
+              </button>
+            )}
+          </div>
 
           <div>
             <h2 className={styles.title}>{movie.title}</h2>
@@ -664,6 +696,37 @@ export function MoviePage() {
         </form>
         <div className={styles.comments}>{renderNodes(tree)}</div>
       </div>
+
+      {isTrailerModalOpen && trailerEmbedUrl && (
+        <div
+          className={styles.trailer_modal_backdrop}
+          role="presentation"
+          onClick={() => setIsTrailerModalOpen(false)}
+        >
+          <div
+            className={styles.trailer_modal}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${movie.title} trailer`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={styles.trailer_modal_close}
+              aria-label="Close trailer"
+              onClick={() => setIsTrailerModalOpen(false)}
+            >
+              x
+            </button>
+            <iframe
+              src={`${trailerEmbedUrl}?autoplay=1`}
+              title={`${movie.title} trailer`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
