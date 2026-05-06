@@ -4,6 +4,8 @@ import com.social.horror_pool.dto.GenreDTO;
 import com.social.horror_pool.dto.MovieDTO;
 import com.social.horror_pool.dto.tmdb.TmdbDiscoverMovieDTO;
 import com.social.horror_pool.dto.tmdb.TmdbMovieDTO;
+import com.social.horror_pool.dto.tmdb.TmdbVideoDTO;
+import com.social.horror_pool.dto.tmdb.TmdbVideoResponse;
 import com.social.horror_pool.enums.MovieSortField;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
@@ -28,6 +30,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -179,13 +182,13 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     @Transactional
-    public MovieDTO importFromTmdb(Long tmdbId, String language) {
+    public MovieDTO importFromTmdb(Long tmdbId) {
 
         if (movieRepository.existsByTmdbId(tmdbId)) {
             throw new APIException("Movie with tmdbID: " + tmdbId + " already exists");
         }
 
-        TmdbMovieDTO tmdbDTO = tmdbClient.getMovieById(tmdbId, language == null ? "en-US" : language)
+        TmdbMovieDTO tmdbDTO = tmdbClient.getMovieById(tmdbId)
                 .orElseThrow(() -> new APIException("TMDB movie not found (tmdbId= " + tmdbId + ")"));
 
         Movie movie = new Movie();
@@ -197,6 +200,7 @@ public class MovieServiceImpl implements MovieService {
         movie.setVoteAverage(tmdbDTO.getVoteAverage());
         movie.setVoteCount(tmdbDTO.getVoteCount());
         movie.setPopularity(tmdbDTO.getPopularity());
+        movie.setTrailerUrl(resolveTrailerUrl(tmdbId));
 
         LocalDate rd = tmdbDTO.getReleaseDate();
         if (rd != null) {
@@ -213,8 +217,7 @@ public class MovieServiceImpl implements MovieService {
     public BulkImportResultResponse bulkImportFromTmdb(TmdbDiscoverRequest request) {
         TmdbDiscoverRequest discoverRequest = request == null ? new TmdbDiscoverRequest() : request;
         int pagesToImport = (discoverRequest.getPages() == null || discoverRequest.getPages() < 1) ? 1 : discoverRequest.getPages();
-        String languageToImport = "en-US";
-
+    
         BulkImportResultResponse response = new BulkImportResultResponse();
 
         for (int p = 1; p <= pagesToImport; p++) {
@@ -229,7 +232,7 @@ public class MovieServiceImpl implements MovieService {
                         response.setSkipped(response.getSkipped() + 1);
                         continue;
                     }
-                    this.importFromTmdb(tmdbId, languageToImport);
+                    this.importFromTmdb(tmdbId);
                     response.setImported(response.getImported() + 1);
                 } catch (Exception ex) {
                     response.setFailed(response.getFailed() + 1);
@@ -238,6 +241,29 @@ public class MovieServiceImpl implements MovieService {
             }
         }
         return response;
+    }
+
+    private String resolveTrailerUrl(Long tmdbId) {
+        return this.tmdbClient.getMovieVideos(tmdbId)
+                .map(this::selectTrailerUrl)
+                .orElse(null);
+    }
+
+    private String selectTrailerUrl(TmdbVideoResponse videoResponse) {
+        if (videoResponse == null || videoResponse.getResults() == null) {
+            return null;
+        }
+
+        return videoResponse.getResults().stream()
+                .filter(video -> video != null && video.getKey() != null && !video.getKey().isBlank())
+                .filter(video -> "YouTube".equalsIgnoreCase(video.getSite()))
+                .filter(video -> "Trailer".equalsIgnoreCase(video.getType()))
+                .sorted(Comparator
+                        .comparing((TmdbVideoDTO video) -> Boolean.TRUE.equals(video.getOfficial()))
+                        .reversed())
+                .map(video -> "https://www.youtube.com/watch?v=" + video.getKey())
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
