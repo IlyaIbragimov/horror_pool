@@ -15,7 +15,7 @@ public interface MovieService {
     MovieDTO getMovieById(Long movieId);
     MovieDTO getMovieByTmdbId(Long tmdbId);
     boolean checkIftmdbIdExists(Long tmdbId);
-    MovieDTO importFromTmdb(Long tmdbId, String language);
+    MovieDTO importFromTmdb(Long tmdbId);
     BulkImportResultResponse bulkImportFromTmdb(TmdbDiscoverRequest request);
     MovieAllResponse getMoviesByGenre(Long genreId, Integer pageNumber, Integer pageSize, String sortBy, String order, Integer year);
 }

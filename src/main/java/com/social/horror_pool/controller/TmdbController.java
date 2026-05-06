@@ -27,9 +27,8 @@ public class TmdbController {
     )
     @PostMapping("/import/{tmdbId}")
     public ResponseEntity<MovieDTO> importMovieFromTmdb(
-            @PathVariable Long tmdbId,
-            @RequestParam(name = "language", defaultValue = "en-US") String language) {
-        MovieDTO result = this.movieService.importFromTmdb(tmdbId, language);
+            @PathVariable Long tmdbId ) {
+        MovieDTO result = this.movieService.importFromTmdb(tmdbId);
         return new ResponseEntity<MovieDTO>(result, HttpStatus.OK);
     }
 
