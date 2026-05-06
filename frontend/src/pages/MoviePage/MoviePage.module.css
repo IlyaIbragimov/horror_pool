@@ -90,6 +90,25 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
+.trailer_button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.trailer_button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+}
+
 .title {
   margin: 0 0 10px;
   line-height: 1.2;
@@ -250,6 +269,55 @@
   margin-top: 18px;
 }
 
+.trailer_modal_backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.74);
+}
+
+.trailer_modal {
+  position: relative;
+  width: min(920px, 100%);
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.48);
+}
+
+.trailer_modal iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+.trailer_modal_close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.72);
+  color: rgba(255, 255, 255, 0.94);
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 30px;
+}
+
+.trailer_modal_close:hover {
+  background: rgba(28, 28, 28, 0.92);
+}
+
 @media (max-width: 820px) {
   .header {
     grid-template-columns: 1fr;
@@ -257,6 +325,14 @@
 
   .poster {
     width: min(260px, 100%);
+  }
+
+  .trailer_button {
+    width: min(260px, 100%);
+  }
+
+  .trailer_modal_backdrop {
+    padding: 12px;
   }
 
   .movie_edit_grid {
