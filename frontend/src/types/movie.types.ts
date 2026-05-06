@@ -12,6 +12,7 @@ export type MovieDetailDTO = MovieSummaryDTO & {
   overview: string | null;
   voteCount: number | null;
   originalLanguage: string | null;
+  trailerUrl: string | null;
   comments: Comment[];
 };
 
