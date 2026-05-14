@@ -453,6 +453,20 @@ export function MoviePage() {
           <div>
             <h2 className={styles.title}>{movie.title}</h2>
 
+            {!!movie.genres?.length && (
+              <div className={styles.genreList} aria-label="Movie genres">
+                {movie.genres.map((genre) => (
+                  <Link
+                    key={genre.genreId}
+                    className={styles.genreLink}
+                    to={`/genre/${genre.genreId}`}
+                  >
+                    {genre.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             <div className={styles.metaRow}>
               <span className={styles.badge}>
                 TMDB rating: ⭐ {movie.voteAverage ?? "-"}
