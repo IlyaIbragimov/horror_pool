@@ -185,7 +185,7 @@ public class MovieController {
             summary = "Return if the movie exists in DB by it's tmdbId",
             description = "Return if the movie exists in DB by it's tmdbId. Available for admin only"
     )
-    @GetMapping("admin/movie/exists/{tmbdId}")
+    @GetMapping("admin/movie/exists/{tmdbId}")
     public boolean ifTmdbIdExists(@PathVariable Long tmdbId) {
         return this.movieService.checkIftmdbIdExists(tmdbId);
     }
