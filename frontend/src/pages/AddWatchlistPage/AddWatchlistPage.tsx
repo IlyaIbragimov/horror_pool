@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   getAllUserWatchlists,
@@ -38,18 +38,18 @@ export function AddWatchlistPage() {
     else navigate("/movies", { replace: true });
   };
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     setLoading(true);
     setError(null);
-    getAllUserWatchlists({ page: page - 1, size, order: "asc" })
+    return getAllUserWatchlists({ page: page - 1, size, order: "asc" })
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-  };
+  }, [page, size]);
 
   useEffect(() => {
     refresh();
-  }, [page, size]);
+  }, [refresh]);
 
   useEffect(() => {
     if (!successMessage) return;
@@ -92,13 +92,14 @@ export function AddWatchlistPage() {
     setSuccessMessage(null);
 
     try {
+      const watchlistTitle =
+        data?.watchlistDTOS.find((w) => w.watchlistId === watchlistId)?.title ??
+        "watchlist";
+
       await addMovieToWatchlist(watchlistId, movieId);
       invalidateUserWatchlists();
       invalidatePublicWatchlistsCache();
       await refresh();
-      const watchlistTitle =
-        data?.watchlistDTOS.find((w) => w.watchlistId === watchlistId)?.title ??
-        "watchlist";
       setSuccessMessage(`Movie added to "${watchlistTitle}"`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Adding movie failed");

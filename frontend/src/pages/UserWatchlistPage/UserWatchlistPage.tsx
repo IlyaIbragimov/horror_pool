@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   getAllUserWatchlists,
   getFollowedWatchlists,
@@ -28,16 +28,16 @@ export function UserWatchlistPage() {
   const [followedLoading, setFollowedLoading] = useState(false);
   const [followedError, setFollowedError] = useState<string | null>(null);
 
-  const refreshMy = () => {
+  const refreshMy = useCallback(() => {
     setMyLoading(true);
     setMyError(null);
     return getAllUserWatchlists({ page: myPage - 1, size, order: "asc" })
       .then(setMyData)
       .catch((e) => setMyError(e instanceof Error ? e.message : String(e)))
       .finally(() => setMyLoading(false));
-  };
+  }, [myPage, size]);
 
-  const refreshFollowed = () => {
+  const refreshFollowed = useCallback(() => {
     setFollowedLoading(true);
     setFollowedError(null);
     return getFollowedWatchlists({ page: followedPage - 1, size, order: "asc" })
@@ -46,22 +46,22 @@ export function UserWatchlistPage() {
         setFollowedError(e instanceof Error ? e.message : String(e)),
       )
       .finally(() => setFollowedLoading(false));
-  };
+  }, [followedPage, size]);
 
   useEffect(() => {
     refreshMy();
-  }, [myPage, size]);
+  }, [refreshMy]);
 
   useEffect(() => {
     refreshFollowed();
-  }, [followedPage, size]);
+  }, [refreshFollowed]);
 
   useEffect(() => {
     return subscribeUserWatchlistsInvalidation(() => {
       refreshMy();
       refreshFollowed();
     });
-  }, [myPage, followedPage, size]);
+  }, [refreshMy, refreshFollowed]);
 
   const handleDeleteWatchlist = async (watchlistId: number) => {
     if (!watchlistId) return;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getAllPublicWatchlists } from "../../api/watchlist.api";
 import {
   getCachedPublicWatchlists,
@@ -18,7 +18,7 @@ export function PublicWatchlistPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = (force = false) => {
+  const refresh = useCallback((force = false) => {
     const params = { page: page - 1, size, order: "asc" as const };
 
     if (!force) {
@@ -40,17 +40,17 @@ export function PublicWatchlistPage() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-  };
+  }, [page, size]);
 
   useEffect(() => {
     refresh();
-  }, [page, size]);
+  }, [refresh]);
 
   useEffect(() => {
     return subscribePublicWatchlistsInvalidation(() => {
       refresh(true);
     });
-  }, [page, size]);
+  }, [refresh]);
 
   return (
     <div className={styles.page}>
