@@ -32,7 +32,7 @@ public class MovieDTO {
 
     private String originalLanguage;
 
-    private List<GenreDTO> genres = new ArrayList<>();
+    private List<GenreDTO> genres;
 
     private List<CommentDTO> comments = new ArrayList<>();
 
