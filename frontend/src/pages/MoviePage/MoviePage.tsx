@@ -274,14 +274,14 @@ export function MoviePage() {
     }
 
     const genreIdValues = movieEditForm.genreIds.trim();
-    const genreIds = !genreIdValues
-      ? undefined
-      : genreIdValues
+    const genreIds = genreIdValues
+      ? genreIdValues
           .split(",")
           .map((value) => Number(value.trim()))
-          .filter((value) => !Number.isNaN(value));
+          .filter((value) => !Number.isNaN(value))
+      : [];
 
-    if (genreIdValues && (!genreIds || genreIds.length === 0)) {
+    if (genreIdValues && genreIds.length === 0) {
       setError("Genre IDs must be comma-separated numbers.");
       return;
     }
@@ -297,7 +297,7 @@ export function MoviePage() {
       voteCount: voteCount ?? undefined,
       popularity: popularity ?? undefined,
       originalLanguage: movieEditForm.originalLanguage.trim() || undefined,
-      genres: genreIds?.map((genreId) => ({
+      genres: genreIds.map((genreId) => ({
         genreId,
         name: "",
         description: null,
