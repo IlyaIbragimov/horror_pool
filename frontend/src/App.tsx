@@ -11,7 +11,7 @@ import { AddWatchlistPage } from "./pages/AddWatchlistPage/AddWatchlistPage.tsx"
 import { AppLayout } from "./components/AppLayout.tsx";
 import { AdminPage } from "./pages/AdminPage/AdminPage.tsx";
 import { GenrePage } from "./pages/GenrePage/GenrePage.tsx";
-import { useAuth } from "./auth/AuthContext";
+import { useAuth } from "./auth/useAuth";
 import "./App.css";
 
 export function App() {

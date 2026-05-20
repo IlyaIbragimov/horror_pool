@@ -6,7 +6,7 @@ import {
   removeMovieFromWatchlist,
 } from "../../api/watchlist.api";
 import { useState } from "react";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/useAuth";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w342";
 

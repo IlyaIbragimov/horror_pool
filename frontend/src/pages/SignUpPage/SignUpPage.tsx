@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { signUp } from "../../api/auth.api";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/useAuth";
 import { ModalShell } from "../../components/ModalShell/ModalShell";
 import type { ModalRouteState } from "../../types/route.types";
 import styles from "./SignUpPage.module.css";

@@ -18,7 +18,7 @@ import { invalidateUserWatchlists } from "../../cache/userWatchlistsInvalidation
 import { deleteMovie, editMovie } from "../../api/admin.api";
 import styles from "./MoviePage.module.css";
 import { CommentCard } from "../../components/CommentCard/CommentCard";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/useAuth";
 import { buildCommentsTree } from "../../mappers/CommentTreeMapper";
 import { useNavigate, useLocation } from "react-router-dom";
 

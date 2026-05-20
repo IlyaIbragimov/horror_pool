@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/useAuth";
 import "./Header.css";
 import tmdblogo from "../../assets/logos/tmdblogo.svg";
 import logo from "../../assets/logos/main_logo.svg";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { deleteGenre, editGenre } from "../../api/admin.api";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/useAuth";
 import type { Genre } from "../../types/genre.types";
 import styles from "./GenreCard.module.css";
 

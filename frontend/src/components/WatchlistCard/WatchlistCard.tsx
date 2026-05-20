@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { WatchlistDTO } from "../../types/watchlist.types";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/useAuth";
 import {
   followWatchlist,
   unfollowWatchlist,
