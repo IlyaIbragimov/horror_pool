@@ -100,7 +100,7 @@ public class MovieServiceImpl implements MovieService {
         movieToEdit.setPopularity(movieDTO.getPopularity());
         movieToEdit.setOriginalLanguage(movieDTO.getOriginalLanguage());
 
-        if (!movieDTO.getGenres().isEmpty()) {
+        if (movieDTO.getGenres() != null) {
 
             List<Long> genresId = movieDTO.getGenres().stream()
                     .map(GenreDTO::getGenreId).toList();
