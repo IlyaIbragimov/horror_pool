@@ -36,10 +36,25 @@ public class JwtTokenProvider {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-
     @PostConstruct
     public void initKey() {
-        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(this.jwtSecret));
+        if (this.jwtSecret == null || this.jwtSecret.isBlank()) {
+            throw new IllegalStateException("SPRING_APP_JWT_SECRET must be set");
+        }
+
+        byte[] decodedSecret;
+
+        try {
+            decodedSecret = Decoders.BASE64.decode(this.jwtSecret);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalStateException("SPRING_APP_JWT_SECRET must be Base64 encoded", ex);
+        }
+
+        if (decodedSecret.length < 32) {
+            throw new IllegalStateException("SPRING_APP_JWT_SECRET must decode to at least 32 bytes");
+        }
+
+        this.key = Keys.hmacShaKeyFor(decodedSecret);
     }
 
     public String generateTokenFromUsername(String username) {
@@ -87,7 +102,7 @@ public class JwtTokenProvider {
         String jwtToken = generateTokenFromUsername(customUserDetails.getUsername());
         return ResponseCookie.from(this.cookieName, jwtToken)
                 .path("/")
-                .maxAge(24*60*60)
+                .maxAge(24 * 60 * 60)
                 .httpOnly(true)
                 .secure(this.cookieSecure)
                 .sameSite("Strict")
