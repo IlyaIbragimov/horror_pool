@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -52,6 +53,18 @@ public class AuthController {
     @PostMapping("/public/signout")
     public ResponseEntity<?> signOutUser() {
         return this.authService.signOutUser();
+    }
+
+    @Operation(
+            summary = "Get CSRF token",
+            description = "Returns the CSRF token cookie/header value for browser clients."
+    )
+    @GetMapping("/public/csrf")
+    public Map<String, String> getCsrfToken(CsrfToken csrfToken) {
+        return Map.of(
+                "headerName", csrfToken.getHeaderName(),
+                "token", csrfToken.getToken()
+        );
     }
 
     @Operation(
