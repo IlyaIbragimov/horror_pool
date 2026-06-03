@@ -29,6 +29,9 @@ public class JwtTokenProvider {
     @Value("${spring.app.cookieName}")
     private String cookieName;
 
+    @Value("${spring.app.cookieSecure:true}")
+    private boolean cookieSecure;
+
     private Key key;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -86,7 +89,7 @@ public class JwtTokenProvider {
                 .path("/")
                 .maxAge(24*60*60)
                 .httpOnly(true)
-                .secure(false)
+                .secure(this.cookieSecure)
                 .sameSite("Strict")
                 .build();
     }
@@ -96,6 +99,8 @@ public class JwtTokenProvider {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(0)
+                .secure(this.cookieSecure)
+                .sameSite("Strict")
                 .build();
     }
 
