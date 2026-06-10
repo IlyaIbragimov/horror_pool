@@ -5,6 +5,11 @@ export type Genre = {
     posterPath: string | null;
 }
 
+export type GenreOption = {
+    genreId: number;
+    name: string;
+}
+
 export type GenreAllResponse = {
     genres: Genre[];
     pageNumber: number;
