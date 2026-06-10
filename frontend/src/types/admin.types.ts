@@ -1,5 +1,3 @@
-import type { Genre } from "./genre.types";
-
 export type AdminMoviePayload = {
   title: string;
   originalTitle?: string | null;
@@ -11,7 +9,7 @@ export type AdminMoviePayload = {
   voteCount?: number | null;
   popularity?: number | null;
   originalLanguage?: string | null;
-  genres?: Genre[];
+  genres?: { genreId: number }[];
 };
 
 export type AdminUserInfoResponse = {
@@ -63,5 +61,4 @@ export type AdminMovieFormState = {
   voteCount: string;
   popularity: string;
   originalLanguage: string;
-  genreIds: string;
 };
