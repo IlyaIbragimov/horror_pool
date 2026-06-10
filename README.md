@@ -366,9 +366,7 @@ Example response:
 
 ## Known Limitations / TODO
 
-- TMDB import does not attach genres yet.
 - Deployment config still needs environment-driven CORS and frontend API base URL.
-- Admin movie genre editing currently uses raw genre IDs instead of a searchable multi-select.
 - Some frontend parsing and fetch/loading/pagination patterns are duplicated.
 - Some backend page response construction and current-user lookup logic is duplicated.
 
