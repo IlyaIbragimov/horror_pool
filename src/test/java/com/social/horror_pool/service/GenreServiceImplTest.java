@@ -1,6 +1,7 @@
 package com.social.horror_pool.service;
 
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.dto.GenreOptionDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
@@ -225,6 +226,20 @@ public class GenreServiceImplTest {
         assertEquals("Thriller", response.getGenres().getFirst().getName());
 
         verify(genreRepository, times(1)).findByNameLikeIgnoreCase("%thr%", PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending()));
+    }
+
+    @Test
+    public void getGenreOptions_ReturnsLightweightSortedOptions() {
+        Sort sort = Sort.by("name").ascending();
+        when(genreRepository.findAll(sort)).thenReturn(List.of(genre2, genre3, genre1));
+
+        List<GenreOptionDTO> result = genreServiceImpl.getGenreOptions();
+
+        assertEquals(3, result.size());
+        assertEquals(genre2.getGenreId(), result.getFirst().getGenreId());
+        assertEquals(genre2.getName(), result.getFirst().getName());
+        verify(genreRepository).findAll(sort);
+        verifyNoInteractions(modelMapper);
     }
     
     private Genre createGenre(Long genreId, String genreName) {
