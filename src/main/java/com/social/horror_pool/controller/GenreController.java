@@ -2,6 +2,7 @@ package com.social.horror_pool.controller;
 
 import com.social.horror_pool.configuration.AppConstants;
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.dto.GenreOptionDTO;
 import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.service.GenreService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "Genre", description = "Endpoints for genre creation, update, listing and search")
 @RestController
@@ -55,6 +58,12 @@ public class GenreController {
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order) {
         GenreAllResponse result = this.genreService.getGenresByKeyword(pageNumber, pageSize, order, keyword);
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get genre options", description = "Retrieve lightweight genre options for selectors. Available for all users.")
+    @GetMapping("/public/genre/options")
+    public ResponseEntity<List<GenreOptionDTO>> getGenreOptions() {
+        return ResponseEntity.ok(this.genreService.getGenreOptions());
     }
 
     @Operation(summary = "Delete a genre", description = "Delete a genre by genre ID. Only accessible to administrators.")
