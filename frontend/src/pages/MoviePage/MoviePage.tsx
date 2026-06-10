@@ -21,6 +21,7 @@ import { CommentCard } from "../../components/CommentCard/CommentCard";
 import { useAuth } from "../../auth/useAuth";
 import { buildCommentsTree } from "../../mappers/CommentTreeMapper";
 import { useNavigate, useLocation } from "react-router-dom";
+import { GenreMultiSelect } from "../../components/GenreMultiSelect/GenreMultiSelect";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
@@ -70,7 +71,6 @@ function buildInitialEditForm(movie: AdminMovieDTO): AdminMovieFormState {
         ? ""
         : String(movie.popularity),
     originalLanguage: movie.originalLanguage ?? "",
-    genreIds: movie.genres?.map((genre) => genre.genreId).join(", ") ?? "",
   };
 }
 
@@ -93,6 +93,7 @@ export function MoviePage() {
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [movieEditForm, setMovieEditForm] =
     useState<AdminMovieFormState | null>(null);
+  const [selectedMovieGenreIds, setSelectedMovieGenreIds] = useState<number[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -200,6 +201,7 @@ export function MoviePage() {
       .then((data) => {
         setMovie(data);
         setMovieEditForm(buildInitialEditForm(data));
+        setSelectedMovieGenreIds(data.genres?.map((genre) => genre.genreId) ?? []);
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setPageLoading(false));
@@ -208,6 +210,7 @@ export function MoviePage() {
   const openMovieEditForm = () => {
     if (!movie) return;
     setMovieEditForm(buildInitialEditForm(movie));
+    setSelectedMovieGenreIds(movie.genres?.map((genre) => genre.genreId) ?? []);
     setShowMovieEditForm(true);
     setError(null);
   };
@@ -218,6 +221,7 @@ export function MoviePage() {
       return;
     }
     setMovieEditForm(buildInitialEditForm(movie));
+    setSelectedMovieGenreIds(movie.genres?.map((genre) => genre.genreId) ?? []);
     setShowMovieEditForm(false);
   };
 
@@ -273,19 +277,6 @@ export function MoviePage() {
       return;
     }
 
-    const genreIdValues = movieEditForm.genreIds.trim();
-    const genreIds = genreIdValues
-      ? genreIdValues
-          .split(",")
-          .map((value) => Number(value.trim()))
-          .filter((value) => !Number.isNaN(value))
-      : [];
-
-    if (genreIdValues && genreIds.length === 0) {
-      setError("Genre IDs must be comma-separated numbers.");
-      return;
-    }
-
     const payload: AdminMoviePayload = {
       title: movieEditForm.title.trim(),
       originalTitle: movieEditForm.originalTitle.trim() || undefined,
@@ -297,12 +288,7 @@ export function MoviePage() {
       voteCount: voteCount ?? undefined,
       popularity: popularity ?? undefined,
       originalLanguage: movieEditForm.originalLanguage.trim() || undefined,
-      genres: genreIds.map((genreId) => ({
-        genreId,
-        name: "",
-        description: null,
-        posterPath: null,
-      })),
+      genres: selectedMovieGenreIds.map((genreId) => ({ genreId })),
     };
 
     setMovieActionLoading(true);
@@ -314,6 +300,9 @@ export function MoviePage() {
       invalidateUserWatchlists();
       setMovie(updatedMovie);
       setMovieEditForm(buildInitialEditForm(updatedMovie));
+      setSelectedMovieGenreIds(
+        updatedMovie.genres?.map((genre) => genre.genreId) ?? [],
+      );
       setShowMovieEditForm(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Edit movie failed");
@@ -644,19 +633,16 @@ export function MoviePage() {
                     />
                   </label>
 
-                  <label
+                  <div
                     className={`${styles.movie_edit_field} ${styles.movie_edit_field_full}`}
                   >
-                    <span>Genre IDs</span>
-                    <input
-                      className={styles.movie_edit_input}
-                      value={movieEditForm.genreIds}
-                      onChange={(e) =>
-                        handleMovieEditChange("genreIds", e.target.value)
-                      }
-                      placeholder="1, 2, 3"
+                    <span>Genres</span>
+                    <GenreMultiSelect
+                      selectedIds={selectedMovieGenreIds}
+                      onChange={setSelectedMovieGenreIds}
+                      disabled={movieActionLoading}
                     />
-                  </label>
+                  </div>
                 </div>
 
                 <div className={styles.movie_edit_actions}>
