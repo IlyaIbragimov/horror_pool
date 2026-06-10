@@ -13,6 +13,7 @@ import type {
   TmdbDiscoverFormState,
   TmdbDiscoverRequest,
 } from "../../types/admin.types";
+import { GenreMultiSelect } from "../../components/GenreMultiSelect/GenreMultiSelect";
 import styles from "./AdminPage.module.css";
 
 type AdminPanel = "user" | "movie" | "genre" | "import";
@@ -34,7 +35,6 @@ const initialMovieForm: AdminMovieFormState = {
   voteCount: "",
   popularity: "",
   originalLanguage: "",
-  genreIds: "",
 };
 
 const initialGenreForm: GenreFormState = {
@@ -66,25 +66,6 @@ function parseOptionalNumber(value: string): number | null | undefined {
   return Number.isNaN(parsed) ? null : parsed;
 }
 
-function parseGenreIds(value: string): AdminMoviePayload["genres"] | null {
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-
-  const ids = trimmed
-    .split(",")
-    .map((item) => Number(item.trim()))
-    .filter((id) => !Number.isNaN(id));
-
-  if (!ids.length) return null;
-
-  return ids.map((genreId) => ({
-    genreId,
-    name: "",
-    description: null,
-    posterPath: null,
-  }));
-}
-
 export function AdminPage() {
   const [activePanel, setActivePanel] = useState<AdminPanel>("user");
 
@@ -94,6 +75,7 @@ export function AdminPage() {
   const [userError, setUserError] = useState<string | null>(null);
 
   const [movieForm, setMovieForm] = useState<AdminMovieFormState>(initialMovieForm);
+  const [selectedMovieGenreIds, setSelectedMovieGenreIds] = useState<number[]>([]);
   const [movieLoading, setMovieLoading] = useState(false);
   const [movieMessage, setMovieMessage] = useState<string | null>(null);
   const [movieError, setMovieError] = useState<string | null>(null);
@@ -173,7 +155,6 @@ export function AdminPage() {
     const voteAverage = parseOptionalNumber(movieForm.voteAverage);
     const voteCount = parseOptionalNumber(movieForm.voteCount);
     const popularity = parseOptionalNumber(movieForm.popularity);
-    const genres = parseGenreIds(movieForm.genreIds);
 
     if (
       releaseYear === null ||
@@ -182,12 +163,6 @@ export function AdminPage() {
       popularity === null
     ) {
       setMovieError("Numeric fields must contain valid numbers.");
-      setMovieLoading(false);
-      return;
-    }
-
-    if (genres === null) {
-      setMovieError("Genre IDs must be comma-separated numbers.");
       setMovieLoading(false);
       return;
     }
@@ -203,13 +178,14 @@ export function AdminPage() {
       voteCount: voteCount ?? undefined,
       popularity: popularity ?? undefined,
       originalLanguage: movieForm.originalLanguage.trim() || undefined,
-      genres,
+      genres: selectedMovieGenreIds.map((genreId) => ({ genreId })),
     };
 
     try {
       const response = await addMovie(payload);
       setMovieMessage(`Movie "${response.title}" was created successfully.`);
       setMovieForm(initialMovieForm);
+      setSelectedMovieGenreIds([]);
     } catch (e) {
       setMovieError(
         e instanceof Error ? e.message : "Movie could not be created.",
@@ -514,15 +490,14 @@ export function AdminPage() {
                 />
               </label>
 
-              <label className={`${styles.field} ${styles.fieldFull}`}>
-                <span>Genre IDs</span>
-                <input
-                  className={styles.input}
-                  value={movieForm.genreIds}
-                  onChange={(e) => handleMovieChange("genreIds", e.target.value)}
-                  placeholder="1, 2, 3"
+              <div className={`${styles.field} ${styles.fieldFull}`}>
+                <span>Genres</span>
+                <GenreMultiSelect
+                  selectedIds={selectedMovieGenreIds}
+                  onChange={setSelectedMovieGenreIds}
+                  disabled={movieLoading}
                 />
-              </label>
+              </div>
             </div>
 
             <div className={styles.actionRow}>
