@@ -1,6 +1,7 @@
 package com.social.horror_pool.service.impl;
 
 import com.social.horror_pool.dto.GenreDTO;
+import com.social.horror_pool.dto.GenreOptionDTO;
 import com.social.horror_pool.exception.APIException;
 import com.social.horror_pool.exception.ResourceNotFoundException;
 import com.social.horror_pool.model.Genre;
@@ -103,6 +104,13 @@ public class GenreServiceImpl implements GenreService {
 
         return generateGenrePageResponse(page, pageNumber, pageSize);
 
+    }
+
+    @Override
+    public List<GenreOptionDTO> getGenreOptions() {
+        return this.genreRepository.findAll(Sort.by("name").ascending()).stream()
+                .map(genre -> new GenreOptionDTO(genre.getGenreId(), genre.getName()))
+                .toList();
     }
 
     private GenreAllResponse generateGenrePageResponse(Page<Genre> page, Integer pageNumber, Integer pageSize) {
