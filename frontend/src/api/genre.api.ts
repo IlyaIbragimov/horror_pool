@@ -1,5 +1,5 @@
 import { http } from "./http";
-import type { GenreAllResponse } from "../types/genre.types";
+import type { GenreAllResponse, GenreOption } from "../types/genre.types";
 
 export type GenersQuery = {
   page?: number;
@@ -20,4 +20,8 @@ export function fetchGenres(params: GenersQuery = {}): Promise<GenreAllResponse>
   const url = `/public/genre/all${qs ? `?${qs}` : ""}`;
 
   return http<GenreAllResponse>(url);
+}
+
+export function fetchGenreOptions(): Promise<GenreOption[]> {
+  return http<GenreOption[]>("/public/genre/options");
 }
