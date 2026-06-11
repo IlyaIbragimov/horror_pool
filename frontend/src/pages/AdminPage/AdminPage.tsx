@@ -14,6 +14,7 @@ import type {
   TmdbDiscoverRequest,
 } from "../../types/admin.types";
 import { GenreMultiSelect } from "../../components/GenreMultiSelect/GenreMultiSelect";
+import { parseOptionalNumber } from "../../utils/formParsers";
 import styles from "./AdminPage.module.css";
 
 type AdminPanel = "user" | "movie" | "genre" | "import";
@@ -58,13 +59,6 @@ const tmdbSortOptions = [
   { value: "vote_average.desc", label: "Highest rated" },
   { value: "vote_count.desc", label: "Most voted" },
 ];
-
-function parseOptionalNumber(value: string): number | null | undefined {
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  const parsed = Number(trimmed);
-  return Number.isNaN(parsed) ? null : parsed;
-}
 
 export function AdminPage() {
   const [activePanel, setActivePanel] = useState<AdminPanel>("user");

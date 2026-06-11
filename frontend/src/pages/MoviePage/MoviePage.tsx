@@ -22,15 +22,9 @@ import { useAuth } from "../../auth/useAuth";
 import { buildCommentsTree } from "../../mappers/CommentTreeMapper";
 import { useNavigate, useLocation } from "react-router-dom";
 import { GenreMultiSelect } from "../../components/GenreMultiSelect/GenreMultiSelect";
+import { parseOptionalNumber } from "../../utils/formParsers";
 
 const TMDB_IMG_BASE = "https://image.tmdb.org/t/p/w500";
-
-function parseOptionalNumber(value: string): number | null | undefined {
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  const parsed = Number(trimmed);
-  return Number.isNaN(parsed) ? null : parsed;
-}
 
 function buildYoutubeEmbedUrl(trailerUrl: string | null) {
   if (!trailerUrl) return null;
