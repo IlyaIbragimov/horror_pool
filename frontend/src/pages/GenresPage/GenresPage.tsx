@@ -1,28 +1,20 @@
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { fetchGenres } from "../../api/genre.api";
 import type { GenreAllResponse } from "../../types/genre.types";
 import { GenreCard } from "../../components/GenreCard/GenreCard";
 import { Pager } from "../../components/Pager/Pager";
+import { useAsyncResource } from "../../hooks/useAsyncResource";
 import styles from "./GenresPage.module.css";
 
 export function GenresPage() {
   const [page, setPage] = useState(1);
   const [size] = useState(18);
 
-  const [data, setData] = useState<GenreAllResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
- 
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchGenres({ page: page - 1, size, order: "asc", sort: "name" })
-      .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
+  const loadGenres = useCallback((): Promise<GenreAllResponse> => {
+    return fetchGenres({ page: page - 1, size, order: "asc", sort: "name" });
   }, [page, size]);
+
+  const { data, loading, error } = useAsyncResource(loadGenres);
 
   return (
     <div className={styles.page}>

@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getWatchlistItemsByWatchlistId } from "../../api/watchlist.api";
 import { Pager } from "../../components/Pager/Pager";
 import { WatchlistItemCard } from "../../components/WatchlistItemCard/WatchlistItemCard";
+import { useAsyncResource } from "../../hooks/useAsyncResource";
 import type { WatchlistItemsByWatchlistIdResponse } from "../../types/watchlist.types";
 import styles from "./WatchlistPage.module.css";
 
@@ -11,38 +12,21 @@ export function WatchlistPage() {
   const [page, setPage] = useState(1);
   const [size] = useState(18);
 
-  const [data, setData] = useState<WatchlistItemsByWatchlistIdResponse | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const refresh = useCallback(() => {
+  const loadWatchlist = useCallback((): Promise<WatchlistItemsByWatchlistIdResponse> => {
     const id = Number(watchlistId);
     if (!Number.isFinite(id)) {
-      setError("Invalid watchlist id.");
-      setData(null);
-      setLoading(false);
-      return;
+      return Promise.reject(new Error("Invalid watchlist id."));
     }
 
-    setLoading(true);
-    setError(null);
-
-    getWatchlistItemsByWatchlistId(id, {
+    return getWatchlistItemsByWatchlistId(id, {
       watched: undefined,
       page: page - 1,
       size,
       order: "asc",
-    })
-      .then(setData)
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
+    });
   }, [watchlistId, page, size]);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { data, loading, error, reload } = useAsyncResource(loadWatchlist);
 
   return (
     <div className={styles.page}>
@@ -67,7 +51,7 @@ export function WatchlistPage() {
             <WatchlistItemCard
               watchlistItem={i}
               onChanged={() => {
-                refresh();
+                reload();
               }}
             />
           </div>

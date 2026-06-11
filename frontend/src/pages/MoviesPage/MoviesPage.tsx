@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { fetchMovies, searchMovie } from "../../api/movie.api";
 import { getCachedMovies, setCachedMovies } from "../../cache/moviesCache";
 import type { MovieAllResponse } from "../../types/movie.types";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
 import { MovieNav } from "../../components/MovieNav/MovieNav";
 import { Pager } from "../../components/Pager/Pager";
+import { useAsyncResource } from "../../hooks/useAsyncResource";
 import styles from "./MoviesPage.module.css";
 import { Link, useSearchParams } from "react-router-dom";
 
 export function MoviesPage() {
-  
-  const [data, setData] = useState<MovieAllResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get("page") ?? "1");
@@ -43,33 +39,27 @@ export function MoviesPage() {
 
   const goToPage = (p: number) => setQuery({ page: String(p) });
 
-  useEffect(() => {
+  const loadMovies = useCallback((): Promise<MovieAllResponse> => {
     const paramsBase = { page: pageParam - 1, size: sizeParam, sort: sortParam, order: orderParam };
     const cacheParams = { ...paramsBase, keyword, year: yearParam };
     const cachedData = getCachedMovies(cacheParams);
 
     if (cachedData) {
-      setData(cachedData);
-      setError(null);
-      setLoading(false);
-      return;
+      return Promise.resolve(cachedData);
     }
-
-    setLoading(true);
-    setError(null);
 
     const promise = keyword !== undefined || yearParam !== undefined
       ? searchMovie({ ...paramsBase, keyword: keyword ?? "", year: yearParam })
       : fetchMovies(paramsBase);
 
-    promise
+    return promise
       .then((result) => {
         setCachedMovies(cacheParams, result);
-        setData(result);
+        return result;
       })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
   }, [keyword, pageParam, sizeParam, sortParam, orderParam, yearParam]);
+
+  const { data, loading, error } = useAsyncResource(loadMovies);
 
   return (
     <div className={styles.page}>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getAllPublicWatchlists } from "../../api/watchlist.api";
 import {
   getCachedPublicWatchlists,
@@ -8,47 +8,40 @@ import { subscribePublicWatchlistsInvalidation } from "../../cache/cacheInvalida
 import type { WatchlistAllResponse } from "../../types/watchlist.types";
 import { Pager } from "../../components/Pager/Pager";
 import { WatchlistCard } from "../../components/WatchlistCard/WatchlistCard";
+import { useAsyncResource } from "../../hooks/useAsyncResource";
 import styles from "./PublicWatchlistPage.module.css";
 
 export function PublicWatchlistPage() {
   const [page, setPage] = useState(1);
   const [size] = useState(18);
+  const forceReload = useRef(false);
 
-  const [data, setData] = useState<WatchlistAllResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const refresh = useCallback((force = false) => {
+  const loadWatchlists = useCallback((): Promise<WatchlistAllResponse> => {
     const params = { page: page - 1, size, order: "asc" as const };
+    const cachedData = getCachedPublicWatchlists(params);
+    const shouldUseCache = !forceReload.current;
+    forceReload.current = false;
 
-    if (!force) {
-      const cachedData = getCachedPublicWatchlists(params);
-      if (cachedData) {
-        setData(cachedData);
-        setError(null);
-        setLoading(false);
-        return;
-      }
+    if (shouldUseCache && cachedData) {
+      return Promise.resolve(cachedData);
     }
 
-    setLoading(true);
-    setError(null);
-    getAllPublicWatchlists(params)
+    return getAllPublicWatchlists(params)
       .then((result) => {
         setCachedPublicWatchlists(params, result);
-        setData(result);
+        return result;
       })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
   }, [page, size]);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { data, loading, error, reload } = useAsyncResource(loadWatchlists);
+  const refresh = useCallback(() => {
+    forceReload.current = true;
+    return reload();
+  }, [reload]);
 
   useEffect(() => {
     return subscribePublicWatchlistsInvalidation(() => {
-      refresh(true);
+      refresh();
     });
   }, [refresh]);
 
@@ -75,7 +68,7 @@ export function PublicWatchlistPage() {
             <WatchlistCard
               watchlist={w}
               onChanged={() => {
-                refresh(true);
+                refresh();
               }}
             />
           </div>

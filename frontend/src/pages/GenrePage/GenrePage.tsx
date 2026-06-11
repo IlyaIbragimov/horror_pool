@@ -1,17 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { fetchMoviesByGenre } from "../../api/movie.api";
 import { MovieCard } from "../../components/MovieCard/MovieCard";
 import { MovieNav } from "../../components/MovieNav/MovieNav";
 import { Pager } from "../../components/Pager/Pager";
+import { useAsyncResource } from "../../hooks/useAsyncResource";
 import type { MovieAllResponse } from "../../types/movie.types";
 import styles from "../MoviesPage/MoviesPage.module.css";
 
 export function GenrePage() {
   const { genreId } = useParams();
-  const [data, setData] = useState<MovieAllResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const page = Number(searchParams.get("page") ?? "1");
@@ -44,30 +42,23 @@ export function GenrePage() {
 
   const goToPage = (p: number) => setQuery({ page: String(p) });
 
-  useEffect(() => {
+  const loadMovies = useCallback((): Promise<MovieAllResponse> => {
     const parsedGenreId = Number(genreId);
 
     if (!Number.isFinite(parsedGenreId)) {
-      setError("Invalid genre id.");
-      setData(null);
-      setLoading(false);
-      return;
+      return Promise.reject(new Error("Invalid genre id."));
     }
 
-    setLoading(true);
-    setError(null);
-
-    fetchMoviesByGenre(parsedGenreId, {
+    return fetchMoviesByGenre(parsedGenreId, {
       page: pageParam - 1,
       size: sizeParam,
       sort: sortParam,
       order: orderParam,
       year: yearParam,
-    })
-      .then((result) => setData(result))
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
+    });
   }, [genreId, pageParam, sizeParam, sortParam, orderParam, yearParam]);
+
+  const { data, loading, error } = useAsyncResource(loadMovies);
 
   return (
     <div className={styles.page}>
