@@ -1,4 +1,5 @@
 import type { WatchlistMovieDTO } from "../types/movie.types";
+import type { PaginatedResponse } from "./pagination.types";
 
 export type WatchlistItemDTO = {
   watchItemId: number;
@@ -19,13 +20,8 @@ export type WatchlistDTO = {
   ownedByMe: boolean;
 };
 
-export type WatchlistAllResponse = {
+export type WatchlistAllResponse = PaginatedResponse & {
   watchlistDTOS: WatchlistDTO[];
-  pageNumber: number;
-  pageSize: number;
-  totalElements?: number;
-  totalPages: number;
-  lastPage: boolean;
 };
 
 export type WatchlistQuery = {
@@ -34,14 +30,9 @@ export type WatchlistQuery = {
   order?: string;
 };
 
-export type WatchlistItemsByWatchlistIdResponse = {
+export type WatchlistItemsByWatchlistIdResponse = PaginatedResponse & {
   title: string;
   items: WatchlistItemDTO[];
-  pageNumber: number;
-  pageSize: number;
-  totalElements?: number;
-  totalPages: number;
-  lastPage: boolean;
 };
 
 export type WatchlistItemsByWatchlistIdQuery = {

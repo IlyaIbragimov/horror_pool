@@ -1,4 +1,5 @@
 import type { Genre } from "./genre.types";
+import type { PaginatedResponse } from "./pagination.types";
 
 export type MovieSummaryDTO = {
   movieId: number;
@@ -31,14 +32,9 @@ export type AdminMovieDTO = MovieDetailDTO & {
   genres?: Genre[];
 };
 
-export type MovieAllResponse = {
-    movies: MovieSummaryDTO[];
-    pageNumber: number;
-    pageSize: number;
-    totalElements?: number;
-    totalPages: number;
-    lastPage: boolean
-}
+export type MovieAllResponse = PaginatedResponse & {
+  movies: MovieSummaryDTO[];
+};
 
 export type MoviesQuery = {
   page?: number;

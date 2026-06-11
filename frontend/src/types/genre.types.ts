@@ -1,3 +1,5 @@
+import type { PaginatedResponse } from "./pagination.types";
+
 export type Genre = {
     genreId: number;
     name: string;
@@ -10,11 +12,6 @@ export type GenreOption = {
     name: string;
 }
 
-export type GenreAllResponse = {
+export type GenreAllResponse = PaginatedResponse & {
     genres: Genre[];
-    pageNumber: number;
-    pageSize: number;
-    totalElements?: number;
-    totalPages: number;
-    lastPage: boolean
-}
+};
