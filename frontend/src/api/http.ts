@@ -1,4 +1,4 @@
-const BASE_URL = "/horrorpool";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/horrorpool";
 const CSRF_COOKIE_NAME = "XSRF-TOKEN";
 const CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 const UNSAFE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
