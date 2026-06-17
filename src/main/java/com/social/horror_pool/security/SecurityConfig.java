@@ -3,6 +3,7 @@ package com.social.horror_pool.security;
 import com.social.horror_pool.exception.CustomAccessDeniedHandler;
 import com.social.horror_pool.exception.CustomAuthenticationEntryPoint;
 import com.social.horror_pool.security.jwt.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,13 +45,19 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final List<String> allowedOrigins;
 
 
-    public SecurityConfig(final UserDetailsServiceImpl userDetailsServiceImpl, JwtAuthenticationFilter jwtAuthenticationFilter, CustomAccessDeniedHandler customAccessDeniedHandler, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+    public SecurityConfig(final UserDetailsServiceImpl userDetailsServiceImpl,
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CustomAccessDeniedHandler customAccessDeniedHandler,
+                          CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                          @Value("${app.cors.allowed-origins}") List<String> allowedOrigins) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.allowedOrigins = allowedOrigins;
     }
 
     @Bean
@@ -75,7 +82,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(this.allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
