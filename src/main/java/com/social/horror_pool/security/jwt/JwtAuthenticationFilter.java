@@ -62,7 +62,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getJwtFromRequest(HttpServletRequest request) {
         String jwtToken = this.jwtTokenProvider.getJwtFromCookie(request);
-        this.log.debug("JWT token: {}", jwtToken);
         return jwtToken;
     }
 }
