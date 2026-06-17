@@ -64,6 +64,9 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=change_this_local_password
 SPRING_APP_JWT_SECRET=<base64-encoded-32-byte-secret>
 SPRING_APP_COOKIE_SECURE=false
+APP_CORS_ALLOWED_ORIGINS=http://localhost:5173
+VITE_API_BASE_URL=/horrorpool
+VITE_DEV_BACKEND_URL=http://localhost:8080
 TMDB_READ_TOKEN=<your-tmdb-read-token>
 ```
 
@@ -138,6 +141,7 @@ SPRING_DATASOURCE_USERNAME=<your-db-user>
 SPRING_DATASOURCE_PASSWORD=<your-db-password>
 SPRING_APP_JWT_SECRET=<base64-encoded-32-byte-secret>
 SPRING_APP_COOKIE_SECURE=false
+APP_CORS_ALLOWED_ORIGINS=http://localhost:5173
 TMDB_READ_TOKEN=<your-tmdb-read-token>
 ```
 
@@ -161,7 +165,7 @@ npm ci
 npm run dev
 ```
 
-The Vite dev server proxies `/horrorpool` requests to `http://localhost:8080`.
+The Vite dev server proxies `/horrorpool` requests to `VITE_DEV_BACKEND_URL`, defaulting to `http://localhost:8080`.
 
 ---
 
@@ -173,8 +177,23 @@ Important backend configuration:
 - `SPRING_APP_JWT_SECRET`: required Base64-encoded secret that decodes to at least 32 bytes.
 - `SPRING_APP_COOKIE_SECURE`: `true` for HTTPS deployments, `false` for local HTTP.
 - `TMDB_READ_TOKEN`: TMDB API read token.
+- `APP_CORS_ALLOWED_ORIGINS`: comma-separated list of allowed browser origins, for example `http://localhost:5173` locally or `https://horrorpool.example.com` in production.
 - `APP_BOOTSTRAP_ADMIN_ENABLED`: optional admin bootstrap toggle, default `false`.
 - `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`: required only when admin bootstrap is enabled.
+
+Important frontend configuration:
+
+- `VITE_API_BASE_URL`: API base used by browser requests. Use `/horrorpool` for same-origin deployments or a full URL such as `https://api.example.com/horrorpool` for separate frontend/backend domains.
+- `VITE_DEV_BACKEND_URL`: backend target used only by the Vite development proxy.
+
+Recommended production layout:
+
+```text
+https://horrorpool.example.com/           -> frontend
+https://horrorpool.example.com/horrorpool -> backend API
+```
+
+This same-origin layout works best with the current HTTP-only JWT cookie, CSRF cookie, and `SameSite=Strict` cookie setting. If the frontend and backend are deployed on separate domains, update `APP_CORS_ALLOWED_ORIGINS` and review cookie `SameSite` behavior for that browser flow.
 
 There is no default seeded admin account. Create users via signup, then grant/administer roles directly in the database or enable bootstrap with strong credentials for a controlled environment.
 
@@ -366,8 +385,6 @@ Example response:
 
 ## Known Limitations / TODO
 
-- Deployment config still needs environment-driven CORS and frontend API base URL.
-- Some frontend parsing and fetch/loading/pagination patterns are duplicated.
 - Some backend page response construction and current-user lookup logic is duplicated.
 
 ---
