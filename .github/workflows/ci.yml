@@ -50,10 +50,12 @@ jobs:
     needs: build
     env:
       POSTGRES_DB: horror_pool
-      POSTGRES_USER: postgres
+      POSTGRES_USER: horror_pool
       POSTGRES_PASSWORD: ci_postgres_password
       SPRING_APP_JWT_SECRET: ZmFrZS1jaS1qd3Qtc2VjcmV0LWZha2UtY2ktand0LXNlY3JldA==
       TMDB_READ_TOKEN: dummy_ci_token
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:8080
+      FRONTEND_PORT: 8080
     steps:
       - uses: actions/checkout@v4
 
@@ -63,23 +65,27 @@ jobs:
           name: app-jar
           path: target
 
-      - name: Compose up
-        run: docker compose up --build -d
+      - name: Production stack up
+        run: docker compose -f docker-compose.prod.yml up --build -d
 
-      - name: Wait for /actuator/health
+      - name: Wait for frontend and API
         run: |
           for i in {1..90}; do
-            if curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
-              echo "App is UP"; exit 0
+            if curl -fsS http://localhost:8080/ > /dev/null \
+              && curl -fsS http://localhost:8080/horrorpool/public/csrf > /dev/null; then
+              echo "Production stack is UP"; exit 0
             fi
-            echo "Waiting app... ($i)"; sleep 2
+            echo "Waiting for production stack... ($i)"; sleep 2
           done
-          echo "App did not become healthy in time"; exit 1
+          echo "Production stack did not become healthy in time"; exit 1
+
+      - name: Check SPA route fallback
+        run: curl -fsS http://localhost:8080/movies | grep -q '<div id="root">'
 
       - name: Print logs on failure
         if: failure()
-        run: docker compose logs --no-color
+        run: docker compose -f docker-compose.prod.yml logs --no-color
 
       - name: Compose down
         if: always()
-        run: docker compose down -v
+        run: docker compose -f docker-compose.prod.yml down -v
