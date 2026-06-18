@@ -195,6 +195,40 @@ https://horrorpool.example.com/horrorpool -> backend API
 
 This same-origin layout works best with the current HTTP-only JWT cookie, CSRF cookie, and `SameSite=Strict` cookie setting. If the frontend and backend are deployed on separate domains, update `APP_CORS_ALLOWED_ORIGINS` and review cookie `SameSite` behavior for that browser flow.
 
+### Production Docker Stack
+
+The production stack uses nginx to serve the compiled React application and proxy `/horrorpool/**` requests to Spring Boot. Only nginx is exposed publicly; the backend and PostgreSQL remain on the internal Docker network.
+
+Required production values in `.env`:
+
+```env
+POSTGRES_DB=horror_pool
+POSTGRES_USER=horror_pool
+POSTGRES_PASSWORD=<strong-database-password>
+SPRING_APP_JWT_SECRET=<base64-encoded-32-byte-secret>
+TMDB_READ_TOKEN=<your-tmdb-read-token>
+APP_CORS_ALLOWED_ORIGINS=https://horrorpool.example.com
+FRONTEND_PORT=80
+```
+
+Build and start the production stack:
+
+```bash
+./mvnw clean package
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+On Windows:
+
+```powershell
+.\mvnw.cmd clean package
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+The frontend image is built from `frontend/Dockerfile`. Its nginx configuration provides React route fallback and forwards API requests without removing the `/horrorpool` prefix.
+
+The container listens on HTTP. Terminate HTTPS in a cloud load balancer, host-level Caddy/nginx instance, or an HTTPS-enabled container before exposing the application publicly. Production enables secure authentication cookies, so sign-in requires HTTPS in the browser.
+
 There is no default seeded admin account. Create users via signup, then grant/administer roles directly in the database or enable bootstrap with strong credentials for a controlled environment.
 
 ---
