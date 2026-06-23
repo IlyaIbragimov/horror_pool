@@ -11,12 +11,16 @@ import com.social.horror_pool.service.WatchlistService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Watchlist", description = "Endpoints for managing user watchlists and items")
 @RestController
+@Validated
 @RequestMapping("/horrorpool/user/watchlist")
 public class WatchlistController {
 
@@ -42,8 +46,11 @@ public class WatchlistController {
     )
     @GetMapping("/allByUser")
     public ResponseEntity<WatchlistAllResponse> getAllUserWatchlists(
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)
+            @Min(value = 0, message = "Page number must be 0 or greater") Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)
+            @Min(value = 1, message = "Page size must be at least 1")
+            @Max(value = AppConstants.MAX_PAGE_SIZE, message = "Page size must not exceed 50") Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
         WatchlistAllResponse response = this.watchlistService.getAllUserWatchlists(pageNumber, pageSize, order);
@@ -127,8 +134,11 @@ public class WatchlistController {
     )
     @GetMapping("/rated")
     public ResponseEntity<WatchlistAllResponse> getRatedWatchlistsByUser(
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)  Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)  Integer pageSize,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)
+            @Min(value = 0, message = "Page number must be 0 or greater") Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)
+            @Min(value = 1, message = "Page size must be at least 1")
+            @Max(value = AppConstants.MAX_PAGE_SIZE, message = "Page size must not exceed 50") Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ){
         WatchlistAllResponse response = this.watchlistService.getRatedWatchlistsByUser(pageNumber, pageSize, order);
@@ -165,12 +175,14 @@ public class WatchlistController {
     )
     @GetMapping("/followed")
     public ResponseEntity<WatchlistAllResponse> getFollowedWatchlists(
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)
+            @Min(value = 0, message = "Page number must be 0 or greater") Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)
+            @Min(value = 1, message = "Page size must be at least 1")
+            @Max(value = AppConstants.MAX_PAGE_SIZE, message = "Page size must not exceed 50") Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order
     ) {
         WatchlistAllResponse response = this.watchlistService.getFollowedWatchlists(pageNumber, pageSize, order);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
 }

@@ -8,14 +8,18 @@ import com.social.horror_pool.service.GenreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "Genre", description = "Endpoints for genre creation, update, listing and search")
 @RestController
+@Validated
 @RequestMapping("/horrorpool")
 public class GenreController {
 
@@ -42,8 +46,11 @@ public class GenreController {
     @Operation(summary = "Get all genres", description = "Retrieve a paginated list of all genres. Available for all users.")
     @GetMapping("/public/genre/all")
     public ResponseEntity<GenreAllResponse> getAllGenres(
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)
+            @Min(value = 0, message = "Page number must be 0 or greater") Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)
+            @Min(value = 1, message = "Page size must be at least 1")
+            @Max(value = AppConstants.MAX_PAGE_SIZE, message = "Page size must not exceed 50") Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order) {
         GenreAllResponse result = this.genreService.getAllGenres(pageNumber, pageSize, order);
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
@@ -53,8 +60,11 @@ public class GenreController {
     @GetMapping("/public/genre/search")
     public ResponseEntity<GenreAllResponse> getGenresByKeyword(
             @RequestParam(name = "keyword") String keyword,
-            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "page", defaultValue = AppConstants.PAGE_NUMBER, required = false)
+            @Min(value = 0, message = "Page number must be 0 or greater") Integer pageNumber,
+            @RequestParam(name = "size", defaultValue = AppConstants.PAGE_SIZE, required = false)
+            @Min(value = 1, message = "Page size must be at least 1")
+            @Max(value = AppConstants.MAX_PAGE_SIZE, message = "Page size must not exceed 50") Integer pageSize,
             @RequestParam(name = "order", defaultValue = AppConstants.ORDER_TYPE, required = false) String order) {
         GenreAllResponse result = this.genreService.getGenresByKeyword(pageNumber, pageSize, order, keyword);
         return new ResponseEntity<GenreAllResponse>(result, HttpStatus.OK);
