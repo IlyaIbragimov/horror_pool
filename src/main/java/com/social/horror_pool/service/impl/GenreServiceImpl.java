@@ -10,9 +10,9 @@ import com.social.horror_pool.payload.GenreAllResponse;
 import com.social.horror_pool.repository.GenreRepository;
 import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.GenreService;
+import com.social.horror_pool.util.PaginationUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class GenreServiceImpl implements GenreService {
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
                 ? Sort.by("name").ascending() : Sort.by("name").descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortByAndOrder);
 
         Page<Genre> page = this.genreRepository.findAll(pageable);
 
@@ -98,7 +98,7 @@ public class GenreServiceImpl implements GenreService {
         Sort sortByAndOrder = order.equalsIgnoreCase("asc")
                 ? Sort.by("name").ascending() : Sort.by("name").descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortByAndOrder);
 
         Page<Genre> page = this.genreRepository.findByNameLikeIgnoreCase( '%' + keyword + '%', pageable);
 

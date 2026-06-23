@@ -20,10 +20,10 @@ import com.social.horror_pool.repository.MovieRepository;
 import com.social.horror_pool.service.MovieCommentsMapper;
 import com.social.horror_pool.service.MovieService;
 import com.social.horror_pool.tmdb.TmdbClient;
+import com.social.horror_pool.util.PaginationUtils;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -71,7 +71,7 @@ public class MovieServiceImpl implements MovieService {
 
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortAndOrder);
 
         Page<Movie> page = this.movieRepository.findAll(pageable);
 
@@ -151,7 +151,7 @@ public class MovieServiceImpl implements MovieService {
 
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortAndOrder);
 
         Specification<Movie> filters = filterMovies(year,voteAverage,popularity, keyword);
 
@@ -275,7 +275,7 @@ public class MovieServiceImpl implements MovieService {
         if(!MovieSortField.isValidField(sortBy)) throw new APIException("Invalid sort field");
 
         Sort sortAndOrder = order.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortAndOrder);
 
         Specification<Movie> filters = filterMoviesByGenre(genreId, year);
 

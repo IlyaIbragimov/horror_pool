@@ -10,6 +10,7 @@ import com.social.horror_pool.payload.WatchlistAllResponse;
 import com.social.horror_pool.payload.WatchlistItemsByWatchlistIdResponse;
 import com.social.horror_pool.repository.*;
 import com.social.horror_pool.service.WatchlistService;
+import com.social.horror_pool.util.PaginationUtils;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
@@ -82,7 +83,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                 ? Sort.by("title").ascending()
                 : Sort.by("title").descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortByAndOrder);
 
         Page<Watchlist> page = this.watchlistRepository.findAllByUser(user, pageable);
 
@@ -241,7 +242,7 @@ public class WatchlistServiceImpl implements WatchlistService {
 
         watchlistItems = watchlistItemStream.toList();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize);
 
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), watchlistItems.size());
@@ -323,7 +324,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                 ? Sort.by("title").ascending()
                 : Sort.by("title").descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortByAndOrder);
 
         Page<Watchlist> page = this.watchlistRepository.findAllByIsPublicTrue(pageable);
 
@@ -373,7 +374,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                 ? Sort.by("title").ascending()
                 : Sort.by("title").descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortByAndOrder);
 
         Page<Watchlist> page = this.watchlistRepository.findAllByRatersContaining(user, pageable);
 
@@ -450,7 +451,7 @@ public class WatchlistServiceImpl implements WatchlistService {
                 ? Sort.by("title").ascending()
                 : Sort.by("title").descending();
 
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Pageable pageable = PaginationUtils.createPageable(pageNumber, pageSize, sortByAndOrder);
 
         Page<Watchlist> page = this.watchlistRepository.findAllByFollowersContaining(user, pageable);
 
