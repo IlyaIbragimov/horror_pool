@@ -14,6 +14,7 @@ public class Comment {
 
     private String date;
 
+    @Column(length = 2000)
     private String commentContent;
 
     @ManyToOne
