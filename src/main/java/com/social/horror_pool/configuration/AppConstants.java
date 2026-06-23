@@ -6,6 +6,7 @@ public class AppConstants {
 
     public static final String PAGE_NUMBER = "0";
     public static final String PAGE_SIZE = "5";
+    public static final int MAX_PAGE_SIZE = 50;
     public static final String ORDER_TYPE = "asc";
     public static final String SORT_TYPE_MOVIE_DEFAULT = "title";
 
@@ -29,5 +30,4 @@ public class AppConstants {
             "vote_count.asc",
             "vote_count.desc"
     );
-
 }
