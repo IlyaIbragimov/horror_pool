@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -22,6 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final UserDetailsServiceImpl userDetailsServiceImpl;
+
+    private final AccountStatusUserDetailsChecker accountStatusUserDetailsChecker = new AccountStatusUserDetailsChecker();
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -44,6 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 UserDetails userDetails = this.userDetailsServiceImpl.loadUserByUsername(username);
 
+                this.accountStatusUserDetailsChecker.check(userDetails);
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -53,7 +59,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 this.log.debug("Authenticated user: {}", username);
             }
+        } catch (AuthenticationException e) {
+            SecurityContextHolder.clearContext();
+            this.log.warn("Cannot set user authentication: {}", e.getMessage());
         } catch (Exception e) {
+            SecurityContextHolder.clearContext();
             this.log.error("Cannot set user authentication: {}", e.getMessage());
         }
 
