@@ -33,7 +33,6 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,9 +55,10 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional
     public MovieDTO addMovie(MovieDTO movieDTO) {
-        Movie movieExistingWithSameTitle = this.movieRepository.findByTitle(movieDTO.getTitle());
-        if (movieExistingWithSameTitle != null && Objects.equals(movieExistingWithSameTitle.getReleaseDate(), movieDTO.getReleaseDate()))
+        if (this.movieRepository.existsByTitleIgnoreCaseAndReleaseDate(movieDTO.getTitle(), movieDTO.getReleaseDate())) {
             throw new APIException("The movie " + movieDTO.getTitle() + " " + "(" + movieDTO.getReleaseDate() + ")" + " already exists.");
+        }
+
         Movie addedMovie = this.modelMapper.map(movieDTO, Movie.class);
         this.movieRepository.save(addedMovie);
         return this.modelMapper.map(addedMovie, MovieDTO.class);
@@ -85,10 +85,9 @@ public class MovieServiceImpl implements MovieService {
         Movie movieToEdit = this.movieRepository.findById(movieId)
                 .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieId));
 
-        Movie movieExistingWithSameTitle = this.movieRepository.findByTitle(movieDTO.getTitle());
-        if (movieExistingWithSameTitle != null && Objects.equals(movieExistingWithSameTitle.getReleaseDate(), movieDTO.getReleaseDate())
-                && !movieExistingWithSameTitle.getMovieId().equals(movieId))
+        if (this.movieRepository.existsByTitleIgnoreCaseAndReleaseDateAndMovieIdNot(movieDTO.getTitle(), movieDTO.getReleaseDate(), movieId)) {
             throw new APIException("The movie " + movieDTO.getTitle() + " " + "(" + movieDTO.getReleaseDate() + ")" + " already exists.");
+        }
 
         movieToEdit.setTitle(movieDTO.getTitle());
         movieToEdit.setOriginalTitle(movieDTO.getOriginalTitle());
