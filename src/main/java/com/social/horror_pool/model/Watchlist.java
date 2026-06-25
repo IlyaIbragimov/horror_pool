@@ -24,6 +24,7 @@ public class Watchlist {
 
     private boolean isPublic;
 
+    @Column(nullable = false)
     private double rating;
 
     private int rateCount;
