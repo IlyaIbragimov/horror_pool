@@ -84,7 +84,7 @@ public class MovieServiceImplTest {
 
     @Test
     public void addMovie_Success() {
-        when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(null);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDate(dto1.getTitle(), dto1.getReleaseDate())).thenReturn(false);
         when(modelMapper.map(eq(dto1), eq(Movie.class))).thenReturn(movie1);
         when(movieRepository.save(movie1)).thenReturn(movie1);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
@@ -92,7 +92,7 @@ public class MovieServiceImplTest {
         MovieDTO result = movieService.addMovie(dto1);
         assertNotNull(result);
         assertEquals(dto1, result);
-        verify(movieRepository, times(1)).findByTitle(dto1.getTitle());
+        verify(movieRepository, times(1)).existsByTitleIgnoreCaseAndReleaseDate(dto1.getTitle(), dto1.getReleaseDate());
         verify(movieRepository, times(1)).save(movie1);
         verify(modelMapper, times(1)).map(eq(dto1), eq(Movie.class));
         verify(modelMapper, times(1)).map(eq(movie1), eq(MovieDTO.class));
@@ -100,22 +100,20 @@ public class MovieServiceImplTest {
 
     @Test
     public void addMovie_MovieWithTheSameTitleAndReleaseDateExists_APIException() {
-        when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(movie1);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDate(dto1.getTitle(), dto1.getReleaseDate())).thenReturn(true);
 
         APIException exception = assertThrows(APIException.class, () -> movieService.addMovie(dto1));
 
         assertTrue(exception.getMessage().contains(dto1.getTitle()));
         assertTrue(exception.getMessage().contains("already exists"));
-        verify(movieRepository, times(1)).findByTitle(dto1.getTitle());
+        verify(movieRepository, times(1)).existsByTitleIgnoreCaseAndReleaseDate(dto1.getTitle(), dto1.getReleaseDate());
         verify(movieRepository, never()).save(any());
         verify(modelMapper, never()).map(any(), any());
     }
 
     @Test
     public void addMovie_MovieWithTheSameTitleButDifferentReleaseDateExists_Success() {
-        Movie movieWithTheSameTitleButAnotherDate = createMovie(4L, movie1.getTitle(), false);
-
-        when(movieRepository.findByTitle(dto1.getTitle())).thenReturn(movieWithTheSameTitleButAnotherDate);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDate(dto1.getTitle(), dto1.getReleaseDate())).thenReturn(false);
         when(modelMapper.map(eq(dto1), eq(Movie.class))).thenReturn(movie1);
         when(movieRepository.save(movie1)).thenReturn(movie1);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(dto1);
@@ -123,7 +121,7 @@ public class MovieServiceImplTest {
         MovieDTO result = movieService.addMovie(dto1);
         assertNotNull(result);
         assertEquals(dto1, result);
-        verify(movieRepository, times(1)).findByTitle(dto1.getTitle());
+        verify(movieRepository, times(1)).existsByTitleIgnoreCaseAndReleaseDate(dto1.getTitle(), dto1.getReleaseDate());
         verify(modelMapper, times(1)).map(eq(dto1), eq(Movie.class));
         verify(movieRepository, times(1)).save(movie1);
         verify(modelMapper, times(1)).map(eq(movie1), eq(MovieDTO.class));
@@ -187,7 +185,7 @@ public class MovieServiceImplTest {
         updatedMovieDTO.setGenres(Collections.singletonList(genreDTO1));
 
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(null);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDateAndMovieIdNot(updatedMovieDTO.getTitle(), updatedMovieDTO.getReleaseDate(), 1L)).thenReturn(false);
         when(genreRepository.findAllById(anyList())).thenReturn(Collections.singletonList(genre1));
         when(movieRepository.save(movie1)).thenReturn(movie1);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(updatedMovieDTO);
@@ -217,12 +215,11 @@ public class MovieServiceImplTest {
         updatedMovieDTO.setReleaseDate(LocalDate.of(2002,1,1));
 
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(movie2);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDateAndMovieIdNot(updatedMovieDTO.getTitle(), updatedMovieDTO.getReleaseDate(), 1L)).thenReturn(true);
         APIException exception = assertThrows(APIException.class, () -> movieService.editMovie(updatedMovieDTO, 1L));
 
         assertTrue(exception.getMessage().contains("already exists."));
-        assertNotEquals(1L, movie2.getMovieId());
-        assertEquals(movie2.getReleaseDate(), updatedMovieDTO.getReleaseDate());
+        verify(movieRepository, never()).save(any());
     }
 
     @Test
@@ -233,7 +230,7 @@ public class MovieServiceImplTest {
         updatedMovieDTO.setGenres(Arrays.asList(genreDTO1, genreDTO2));
 
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(movie2);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDateAndMovieIdNot(updatedMovieDTO.getTitle(), updatedMovieDTO.getReleaseDate(), 1L)).thenReturn(false);
         when(genreRepository.findAllById(anyList())).thenReturn(Arrays.asList(genre1, genre2));
         when(movieRepository.save(movie1)).thenReturn(movie1);
         when(modelMapper.map(eq(movie1), eq(MovieDTO.class))).thenReturn(updatedMovieDTO);
@@ -259,7 +256,7 @@ public class MovieServiceImplTest {
         updatedMovieDTO.setGenres(Arrays.asList(genreDTO1, genreDTO2, nonExistingGenreDto));
 
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
-        when(movieRepository.findByTitle(updatedMovieDTO.getTitle())).thenReturn(null);
+        when(movieRepository.existsByTitleIgnoreCaseAndReleaseDateAndMovieIdNot(updatedMovieDTO.getTitle(), updatedMovieDTO.getReleaseDate(), 1L)).thenReturn(false);
         when(genreRepository.findAllById(anyList())).thenReturn(Arrays.asList(genre1, genre2));
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> movieService.editMovie(updatedMovieDTO, 1L));
