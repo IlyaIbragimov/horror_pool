@@ -18,6 +18,13 @@ services:
     build:
       context: .
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,10 +46,17 @@ services:
       args:
         VITE_API_BASE_URL: /horrorpool
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       - app
     ports:
       - "${FRONTEND_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
 
 volumes:
   postgres_data:
