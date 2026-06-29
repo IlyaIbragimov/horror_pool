@@ -6,7 +6,21 @@ Spring Boot backend and React frontend for a horror movie catalog app. The app s
 
 ---
 
-## Stack
+## Highlights
+
+- Full-stack horror movie catalog with React/Vite frontend and Spring Boot REST API
+- JWT authentication stored in HTTP-only cookies with CSRF protection
+- Role-based access for users and admins
+- Movie search, filtering, sorting, pagination, comments, and replies
+- User watchlists with watched toggles, public sharing, following, and rating
+- Admin movie, genre, user, and TMDB import management
+- PostgreSQL schema managed with Flyway migrations
+- Docker Compose setup for local development and a production-like nginx stack
+- CI checks for backend tests/package, frontend lint/build, and Docker smoke testing
+
+---
+
+## Tech Stack
 
 - Java 21
 - Spring Boot 3
@@ -36,17 +50,18 @@ This product uses the TMDB API but is not endorsed or certified by TMDB.
 
 ## Getting Started
 
-### Option 1: Run with Docker
+### Option 1: Backend and Database with Docker, Frontend with Vite
 
 Prerequisites:
 
 - Docker Desktop or Docker Engine with Compose v2
-- JDK 21 and Maven if you want to build locally before composing
+- JDK 21 and the Maven wrapper
+- Node.js 22+ for the frontend dev server
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/horror_pool.git
+git clone https://github.com/IlyaIbragimov/horror_pool.git
 cd horror_pool
 ```
 
@@ -84,7 +99,7 @@ openssl rand -base64 32
 
 Use `SPRING_APP_COOKIE_SECURE=false` for local plain HTTP. Use `true` for HTTPS deployment.
 
-4. Build and test:
+4. Build and test the backend:
 
 ```bash
 ./mvnw test
@@ -98,14 +113,25 @@ On Windows:
 .\mvnw.cmd clean package
 ```
 
-5. Start containers:
+The backend Dockerfile copies the already-built Spring Boot JAR from `target/`, so `clean package` must run before building the backend image.
+
+5. Start PostgreSQL and the backend:
 
 ```bash
 docker compose up --build -d
 ```
 
-6. Verify:
+This uses `docker-compose.yml`, which runs only PostgreSQL and the Spring Boot API. Run the frontend separately with Vite:
 
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+6. Verify the local development setup:
+
+- App: http://localhost:5173
 - Health: http://localhost:8080/actuator/health
 - Swagger UI: http://localhost:8080/swagger-ui/index.html
 
@@ -114,6 +140,8 @@ docker compose up --build -d
 ```bash
 docker compose down -v
 ```
+
+Stop the Vite dev server with `Ctrl+C` in its terminal.
 
 The Dockerized database is separate from any local PostgreSQL instance. If local port `5432` is busy, change the mapping in `docker-compose.yml`, for example:
 
@@ -181,10 +209,22 @@ Important backend configuration:
 - `APP_BOOTSTRAP_ADMIN_ENABLED`: optional admin bootstrap toggle, default `false`.
 - `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`: required only when admin bootstrap is enabled.
 
+Optional local/demo admin bootstrap:
+
+```env
+APP_BOOTSTRAP_ADMIN_ENABLED=true
+ADMIN_USERNAME=admin
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=<strong-password-at-least-12-characters>
+```
+
+Leave admin bootstrap disabled for normal production use unless you intentionally need to create the first admin account in a controlled environment.
+
 Important frontend configuration:
 
 - `VITE_API_BASE_URL`: API base used by browser requests. Use `/horrorpool` for same-origin deployments or a full URL such as `https://api.example.com/horrorpool` for separate frontend/backend domains.
 - `VITE_DEV_BACKEND_URL`: backend target used only by the Vite development proxy.
+- `FRONTEND_PORT`: host port exposed by the production nginx frontend container.
 
 Recommended production layout:
 
@@ -197,7 +237,14 @@ This same-origin layout works best with the current HTTP-only JWT cookie, CSRF c
 
 ### Production Docker Stack
 
-The production stack uses nginx to serve the compiled React application and proxy `/horrorpool/**` requests to Spring Boot. Only nginx is exposed publicly; the backend and PostgreSQL remain on the internal Docker network.
+The production stack uses nginx to serve the compiled React application and proxy API/docs requests to Spring Boot. Only nginx is exposed publicly; the backend and PostgreSQL remain on the internal Docker network.
+
+Proxied backend paths include:
+
+- `/horrorpool/**`
+- `/swagger-ui/**`
+- `/v3/api-docs/**`
+- `/actuator/health`
 
 Required production values in `.env`:
 
@@ -211,6 +258,8 @@ APP_CORS_ALLOWED_ORIGINS=https://horrorpool.example.com
 FRONTEND_PORT=80
 ```
 
+The production compose file sets secure authentication cookies. Sign-in requires HTTPS in the browser. For local development over plain HTTP, use the local development setup above.
+
 Build and start the production stack:
 
 ```bash
@@ -223,6 +272,22 @@ On Windows:
 ```powershell
 .\mvnw.cmd clean package
 docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Verify the production-like stack:
+
+```text
+http://localhost/
+http://localhost/horrorpool/public/csrf
+http://localhost/swagger-ui/index.html
+```
+
+If `FRONTEND_PORT` is not `80`, include it in the URL, for example `http://localhost:8080/`.
+
+Stop and clean the production stack:
+
+```bash
+docker compose -f docker-compose.prod.yml down -v
 ```
 
 The frontend image is built from `frontend/Dockerfile`. Its nginx configuration provides React route fallback and forwards API requests without removing the `/horrorpool` prefix.
@@ -245,10 +310,16 @@ There is no default seeded admin account. Create users via signup, then grant/ad
 
 ## API Documentation
 
-Swagger UI is available at:
+Swagger UI is available in local backend development at:
 
 ```text
 http://localhost:8080/swagger-ui/index.html
+```
+
+With the production Docker stack, Swagger is available through nginx at:
+
+```text
+http://localhost/swagger-ui/index.html
 ```
 
 Base backend path:
@@ -260,6 +331,10 @@ Base backend path:
 ---
 
 ## API Examples
+
+State-changing `POST`, `PUT`, and `DELETE` requests require a CSRF token header. Protected endpoints also require an authenticated JWT cookie. Browser clients obtain a CSRF token from `GET /horrorpool/public/csrf` and send it as `X-XSRF-TOKEN` on unsafe requests.
+
+`POST /horrorpool/public/signin` and `POST /horrorpool/public/signup` are intentionally excluded from CSRF because they must work before authentication.
 
 ### Sign Up
 
@@ -401,25 +476,11 @@ Example response:
 
 ---
 
-## Features
+## Future Improvements
 
-- User registration and sign-in with JWT cookies
-- CSRF-protected cookie authentication
-- Movie catalog with search, filters, sorting, and pagination
-- Genre browsing
-- Movie comments and replies
-- User watchlists with watched toggles
-- Public watchlists, following, and rating
-- Admin movie, genre, and user management
-- TMDB movie import and bulk import
-- Flyway database migrations
-- CI for backend package/tests and frontend lint/build
-
----
-
-## Known Limitations / TODO
-
-- Some backend page response construction and current-user lookup logic is duplicated.
+- Reduce duplicated backend page-response construction and current-user lookup logic.
+- Add PostgreSQL/Testcontainers migration tests for stronger Flyway validation.
+- Add end-to-end smoke tests for key browser flows such as sign-in, movie browsing, and watchlist creation.
 
 ---
 
@@ -457,7 +518,7 @@ GitHub Actions currently:
 - runs frontend lint
 - builds the frontend
 - uploads the backend JAR artifact
-- runs a Docker Compose smoke check against `/actuator/health`
+- runs a Docker Compose smoke check for the frontend, API CSRF endpoint, and SPA route fallback
 
 ---
 
@@ -484,5 +545,4 @@ GitHub Actions currently:
 
 - LinkedIn: https://www.linkedin.com/in/ilya-ibragimov-a78628224/
 - Email: ilya.ibragimov@seznam.cz
-- Mobile: +420777976293
 - GitHub: https://github.com/IlyaIbragimov
