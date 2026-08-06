@@ -229,7 +229,7 @@
   }
 
   .header-wrapper {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 12px;
     padding: 12px 16px;
   }
@@ -240,13 +240,13 @@
   }
 
   .burger {
-    order: 2;
+    order: 3;
   }
 
   .search-wrapper {
-    order: 3;
-    flex: 1 0 100%;
-    width: 100%;
+    order: 2;
+    flex: 1 1 auto;
+    width: auto;
   }
 
   .burger {
@@ -262,8 +262,24 @@
 
 @media (max-width: 420px) {
   .header-wrapper {
-    gap: 10px;
+    gap: 8px;
     padding: 10px 12px;
+  }
+
+  .header-logo {
+    gap: 6px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .burger {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
   }
 
   .mobile-menu {
@@ -275,6 +291,10 @@
   }
 
   .search-btn {
-    padding: 10px 12px;
+    padding: 9px 10px;
+  }
+
+  .search-input {
+    padding: 9px 10px;
   }
 }
