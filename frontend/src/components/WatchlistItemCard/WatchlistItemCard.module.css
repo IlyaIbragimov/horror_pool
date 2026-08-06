@@ -42,13 +42,60 @@
   color: #fff;
 }
 
+.watchlistItem_card_description {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.45;
+}
+
+.watchlistItem_card_description p {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
 .watchlistItem_actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-.watchlistItem_card_isWatched {
-  
+.watchlistItem_card_isWatched,
+.watchlistItem_remove {
+  display: flex;
+}
+
+.watchlistItem_isWatched_btn,
+.watchlistItem_remove_btn {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+
+.watchlistItem_remove_btn {
+  border-color: rgba(255, 120, 120, 0.28);
+  background: rgba(126, 25, 25, 0.35);
+  color: rgba(255, 232, 232, 0.96);
+}
+
+.watchlistItem_isWatched_btn:hover:enabled,
+.watchlistItem_remove_btn:hover:enabled {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.watchlistItem_remove_btn:hover:enabled {
+  background: rgba(150, 35, 35, 0.48);
+}
+
+.watchlistItem_isWatched_btn:disabled,
+.watchlistItem_remove_btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .error {
@@ -67,4 +114,52 @@
   font-size: 0.85rem;
   text-align: center;
   padding: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .watchlistItem_card {
+    gap: 0.75rem;
+    min-height: 0;
+    padding: 0.75rem;
+  }
+
+  .watchlistItem_card_posterWrap {
+    width: 84px;
+    min-width: 84px;
+    height: 126px;
+  }
+
+  .watchlistItem_card_content {
+    gap: 0.6rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .watchlistItem_card {
+    flex-direction: column;
+  }
+
+  .watchlistItem_card_posterWrap {
+    width: 120px;
+    min-width: 0;
+    height: 180px;
+    align-self: center;
+  }
+
+  .watchlistItem_card_description p {
+    -webkit-line-clamp: 5;
+  }
+
+  .watchlistItem_card_isWatched,
+  .watchlistItem_remove,
+  .watchlistItem_isWatched_btn,
+  .watchlistItem_remove_btn {
+    flex: 1;
+  }
+
+  .watchlistItem_isWatched_btn,
+  .watchlistItem_remove_btn {
+    justify-content: center;
+    width: 100%;
+  }
 }

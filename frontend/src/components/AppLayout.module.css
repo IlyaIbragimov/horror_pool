@@ -6,9 +6,11 @@
 
 .main {
   flex: 1;
+  min-width: 0;
 }
 
 .container {
+  width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
   padding-left: var(--container-pad);

@@ -1,5 +1,6 @@
 
 .comment_card {
+  margin-left: var(--comment-indent, 0);
   background: #f2f2f2;
   border: 1px solid #d9d9d9;
   padding: 12px 14px;
@@ -67,6 +68,16 @@
   max-width: 100%;
   min-width: 100%;
   margin: 0 0 8px 0;
+  min-height: 72px;
+  padding: 8px 10px;
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.reply_form {
+  display: grid;
+  gap: 8px;
 }
 
 .reply_button {
@@ -90,6 +101,7 @@
 
 @media (max-width: 520px) {
   .comment_card {
+    margin-left: min(var(--comment-indent, 0px), 40px);
     padding: 10px 12px;
     border-radius: 10px;
   }
@@ -106,5 +118,15 @@
 
   .comment_date {
     font-size: 11px;
+  }
+
+  .comment_options {
+    flex-wrap: wrap;
+    gap: 10px 14px;
+  }
+
+  .reply_button {
+    width: 100%;
+    min-height: 42px;
   }
 }

@@ -32,7 +32,6 @@
   padding: 10px 42px;
   border-radius: 8px;
   cursor: pointer;
-  min-width: none;
 }
 
 .comment_button:hover {

@@ -58,7 +58,7 @@
   background: rgba(255,255,255,0.10);
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .nav {
     flex-wrap: wrap;
     gap: 10px;

@@ -1,4 +1,5 @@
 .page {
+  width: 100%;
   min-height: 100%;
   padding: 32px 20px 56px;
   color: rgba(255, 255, 255, 0.92);
@@ -214,7 +215,7 @@
 
 @media (max-width: 760px) {
   .page {
-    padding: 20px 12px 40px;
+    padding: 20px 0 40px;
   }
 
   .hero {
@@ -228,6 +229,10 @@
 
   .tabRow {
     padding: 14px;
+  }
+
+  .panel {
+    margin: 16px 14px;
   }
 
   .tab,

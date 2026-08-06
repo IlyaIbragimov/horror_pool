@@ -47,6 +47,7 @@
 
 .titleRow{
   display: flex;
+  align-items: flex-start;
   gap: 12px;
 }
 
@@ -75,6 +76,25 @@
 
 .renameBtn:hover .renameIcon {
   color: rgba(255, 255, 255, 1);
+}
+
+.titleEditForm {
+  width: min(420px, 100%);
+}
+
+.titleInput {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  outline: none;
+}
+
+.titleInput:focus {
+  border-color: rgba(255, 255, 255, 0.34);
 }
 
 .watchlist_total_items,

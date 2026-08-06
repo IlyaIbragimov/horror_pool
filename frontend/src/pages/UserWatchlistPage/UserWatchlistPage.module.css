@@ -86,7 +86,7 @@
 @media (max-width: 640px) {
   .page {
     gap: 20px;
-    padding: 12px;
+    padding: 12px 0;
   }
 
   .section {
