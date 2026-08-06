@@ -81,6 +81,14 @@
   align-items: start;
 }
 
+.posterColumn,
+.movieContent,
+.movieSummary,
+.movieHeading,
+.movieDetails {
+  min-width: 0;
+}
+
 .poster {
   width: 260px;
   border-radius: 12px;
@@ -194,6 +202,7 @@
   cursor: pointer;
   font-weight: 700;
   transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+  text-align: center;
 }
 
 .action_add,
@@ -343,15 +352,74 @@
 
 @media (max-width: 820px) {
   .header {
-    grid-template-columns: 1fr;
+    grid-template-columns: clamp(112px, 38vw, 260px) minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 16px;
+  }
+
+  .posterColumn {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .movieContent {
+    display: contents;
+  }
+
+  .movieSummary {
+    display: contents;
+  }
+
+  .movieHeading {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .movieDetails {
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 
   .poster {
-    width: min(260px, 100%);
+    width: 100%;
   }
 
   .trailer_button {
-    width: min(260px, 100%);
+    width: 100%;
+  }
+
+  .title {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+  }
+
+  .genreList {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .genreLink,
+  .badge {
+    font-size: clamp(0.72rem, 3vw, 0.875rem);
+  }
+
+  .genreLink {
+    padding: 4px 8px;
+  }
+
+  .metaRow {
+    grid-column: 2;
+    grid-row: 1;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  .badge {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .overview {
+    margin-top: 0;
   }
 
   .trailer_modal_backdrop {

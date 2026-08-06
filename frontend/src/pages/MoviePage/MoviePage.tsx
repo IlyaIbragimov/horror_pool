@@ -412,7 +412,7 @@ export function MoviePage() {
         </Link>
 
         <div className={styles.header}>
-          <div>
+          <div className={styles.posterColumn}>
             {posterUrl ? (
               <img
                 className={styles.poster}
@@ -433,22 +433,25 @@ export function MoviePage() {
             )}
           </div>
 
-          <div>
-            <h2 className={styles.title}>{movie.title}</h2>
+          <div className={styles.movieContent}>
+            <div className={styles.movieSummary}>
+            <div className={styles.movieHeading}>
+              <h2 className={styles.title}>{movie.title}</h2>
 
-            {!!movie.genres?.length && (
-              <div className={styles.genreList} aria-label="Movie genres">
-                {movie.genres.map((genre) => (
-                  <Link
-                    key={genre.genreId}
-                    className={styles.genreLink}
-                    to={`/genre/${genre.genreId}`}
-                  >
-                    {genre.name}
-                  </Link>
-                ))}
-              </div>
-            )}
+              {!!movie.genres?.length && (
+                <div className={styles.genreList} aria-label="Movie genres">
+                  {movie.genres.map((genre) => (
+                    <Link
+                      key={genre.genreId}
+                      className={styles.genreLink}
+                      to={`/genre/${genre.genreId}`}
+                    >
+                      {genre.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className={styles.metaRow}>
               <span className={styles.badge}>
@@ -464,7 +467,9 @@ export function MoviePage() {
                 TMDB votes: 👥 {movie.voteCount ?? "-"}
               </span>
             </div>
+            </div>
 
+            <div className={styles.movieDetails}>
             {movie.overview && (
               <div className={styles.overview}>{movie.overview}</div>
             )}
@@ -658,6 +663,7 @@ export function MoviePage() {
                 </div>
               </form>
             )}
+            </div>
           </div>
         </div>
       </div>
