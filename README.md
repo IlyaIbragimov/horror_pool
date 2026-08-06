@@ -20,6 +20,40 @@ Spring Boot backend and React frontend for a horror movie catalog app. The app s
 
 ---
 
+## Screenshots
+
+### Movie Catalog
+
+Browse a paginated movie catalog with search, sorting, ratings, and release information.
+
+[![Horror Pool movie catalog](docs/screenshots/movie_catalog.png)](docs/screenshots/movie_catalog.png)
+
+### Movie Details and Comments
+
+View movie metadata and trailers, add a movie to a watchlist, and participate in comment discussions.
+
+[![Horror Pool movie details and comments](docs/screenshots/movie_detail.png)](docs/screenshots/movie_detail.png)
+
+### Personal and Followed Watchlists
+
+Create and manage personal watchlists, follow public lists, and rate lists shared by other users.
+
+[![Horror Pool personal and followed watchlists](docs/screenshots/watchlist_general.png)](docs/screenshots/watchlist_general.png)
+
+### Watchlist Details
+
+Review the movies in a watchlist, update their watched status, or remove them from the list.
+
+[![Horror Pool watchlist details](docs/screenshots/watchlist_detail.png)](docs/screenshots/watchlist_detail.png)
+
+### Admin Panel
+
+Manage users, movies, genres, and TMDB imports through role-protected administration tools.
+
+[![Horror Pool admin panel](docs/screenshots/admin_panel.png)](docs/screenshots/admin_panel.png)
+
+---
+
 ## Tech Stack
 
 - Java 21
