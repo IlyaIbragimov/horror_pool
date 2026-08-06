@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Comment } from "../../types/movie.types";
 import styles from "./CommentCard.module.css";
 
@@ -35,7 +36,11 @@ export function CommentCard({
   return (
     <div
       className={styles.comment_card}
-      style={{ marginLeft: `${Math.min(depth, 6) * 24}px` }}
+      style={
+        {
+          "--comment-indent": `${Math.min(depth, 6) * 24}px`,
+        } as CSSProperties
+      }
     >
       <div className={styles.comment_data}>
         <div className={styles.comment_user}>{comment.userName},</div>
